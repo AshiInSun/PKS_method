@@ -21,7 +21,7 @@ class Graph:
     def __init__(self, directed = False):
         self.N = 0 # number of node
         self.M = 0 # number of edges
-        self.neighbors = defaultdict(list) # np.array() # TODO pas besoin ?
+        #self.neighbors = defaultdict(list) # np.array() # TODO pas besoin ?
         #self.edges = set() #dict() ?
         self.edges = list()
         self.edge_set = set() # pour enlever les doublons TODO overkill ?
@@ -35,7 +35,7 @@ class Graph:
         """
         with open(in_file, 'r') as fin:
             for node_in, line in enumerate(fin):
-                print(node_in)
+                #print(node_in)
                 #neighbor_array = []
                 
                 if line == '\n': # skip empty lines
@@ -56,17 +56,17 @@ class Graph:
                     #raise ValueError("repetition detected")
 
                 #if self.directed:
-                self.neighbors[node_in] = neighbor_list
+                #self.neighbors[node_in] = neighbor_list
                 #self.edges += [(node_in, node_out) for node_out in neighbor_list]
                 if self.directed :
                     for node_out in neighbor_list: # TODO surement une façon plus rapide et propre de faire ça
-                        print(node_out)
+                        #print(node_out)
                         #if (not (node_in, node_out) in self.edge_set) and (not (node_in, node_out) in self.edge_set):
                             #self.edges.append((node_in, node_out))
                         self.edge_set.add((node_in, node_out))
                 else:
                     for node_out in neighbor_list:
-                        print(node_out)
+                        #print(node_out)
                         # probablement pas utile et overkill..?
                         if node_in < node_out:
                             #self.edges.append((node_in, node_out))
@@ -76,7 +76,7 @@ class Graph:
                             #self.edges.append((node_out, node_in))
                             self.edge_set.add((node_out, node_in))
                             #self.neighbors[node_out].append(node_in)
-        print(node_in)
+        #print(node_in)
         self.edges = list(self.edge_set)
         assert set(self.edges) == self.edge_set
         self.N = node_in
@@ -145,7 +145,7 @@ class Graph:
     #        assert set(self.edges) == self.edge_set, "mismatch"
 
 
-    def to_ael(self):
+    def to_ael(self, output):
         to_write = dict()
         for node_in, node_out in self.edges:
             if node_in not in to_write:
@@ -155,7 +155,7 @@ class Graph:
             to_write[node_in].append(str(node_out))
             to_write[node_out].append(str(node_in))
 
-        with open('output', 'w') as fout:
+        with open(output, 'w') as fout:
             for node_in in range(self.N + 1):
                 if node_in in to_write:
                     fout.write(f'{" ".join(to_write[node_in])}\n')
