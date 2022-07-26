@@ -37,7 +37,7 @@ class Graph:
         """
         with open(in_file, 'r') as fin:
             for node_in, line in enumerate(fin):
-                #print(node_in)
+                print(node_in)
                 #neighbor_array = []
                 
                 if line == '\n': # skip empty lines
@@ -56,13 +56,14 @@ class Graph:
                     print('removing duplicate values')
                     neighbor_list = list(set(neighbor_list))
                     #raise ValueError("repetition detected")
-
+                print(line)
                 #if self.directed:
-                self.neighbors[node_in] = neighbor_list
+                #self.neighbors[node_in] = neighbor_list
                 #self.edges += [(node_in, node_out) for node_out in neighbor_list]
                 if self.directed :
+                    self.neighbors[node_in] = neighbor_list
                     for node_idx, node_out in enumerate(neighbor_list): # TODO surement une façon plus rapide et propre de faire ça
-                          
+                        self.M += 1 
                         self.neighbors_index.append(node_idx)
                         #print(node_out)
                         #if (not (node_in, node_out) in self.edge_set) and (not (node_in, node_out) in self.edge_set):
@@ -70,14 +71,17 @@ class Graph:
                         self.edge_set.add((node_in, node_out))
                 else:
                     for node_idx, node_out in enumerate(neighbor_list):
-                        #print(node_out)
+                        #print(neighbor_list)
+
                         # probablement pas utile et overkill..?
-                        self.neighbors_index.append(node_idx)
+                        self.neighbors[node_in].append(node_out)
+                        self.neighbors[node_out].append(node_in)
+                        self.neighbors_index.append((len(self.neighbors[node_in])-1, len(self.neighbors[node_out])-1))
 
                         if node_in < node_out:
+                            self.M += 1
                             self.edges.append((node_in, node_out))
                             self.edge_set.add((node_in, node_out))
-                            #self.neighbors[node_in].append(node_out)
                         else:
                             self.edges.append((node_out, node_in))
                             self.edge_set.add((node_out, node_in))

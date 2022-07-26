@@ -11,9 +11,9 @@ from collections import defaultdict
 class Swap:
     """ make swaps """
 
-    def __init__(self, graph, N_swap=0, gamma=0):
+    def __init__(self, graph, N_swap = 0, gamma=0):
         self.graph = graph
-        self.N_swap = 0
+        self.N_swap = N_swap
         self.gamma = gamma
         self.force_k = True
         self.assortativity = 0
@@ -68,11 +68,11 @@ class Swap:
                 break
 
             # avoid multiple edges
-            if (departure_edge[0], arrival_edge[1]) in self.edge_set:
+            if (departure_edge[0], arrival_edge[1]) in self.graph.edge_set:
                 accept_permutation = False
                 break
         else:
-            valid_permutation = True
+            accept_permutation = True
             # TODO vérifier autres contraintes
         return accept_permutation
 
@@ -80,8 +80,8 @@ class Swap:
         for before_edge_idx, after_edge_idx in zip(edge_to_swap, permutation):
             # naming departure edge = (u,v) and arrival edge = (x,y)
             # get edge name
-            departure_edge = self.edges[before_edge_idx]
-            arrival_edge = self.edges[after_edge_idx]
+            departure_edge = self.graph.edges[before_edge_idx]
+            arrival_edge = self.graph.edges[after_edge_idx]
             
             (u,v) = departure_edge
             (x,y) = arrival_edge
@@ -90,17 +90,22 @@ class Swap:
             #print(departure_edge)
             #print((departure_edge[0], arrival_edge[1]))
 
-            self.edge_set.remove(departure_edge)
-            self.edge_set.add((departure_edge[0], arrival_edge[1]))
+            self.graph.edge_set.remove(departure_edge)
+            self.graph.edge_set.add((departure_edge[0], arrival_edge[1]))
 
             # swap in list
             #print(self.edges[before_edge_idx])
-            self.edges[before_edge_idx] = (departure_edge[0], arrival_edge[1])
+            self.graph.edges[before_edge_idx] = (departure_edge[0], arrival_edge[1])
 
             # change in adjacency lists 
-            assert self.neighbors[u][before_edge_idx] == v
-            self.neighbors[u][before_edge_idx] = y
-            
+            if self.graph.directed:
+                pass
+            else:
+                (v_idx, u_idx) = self.graph.neighbors_index[before_edge_idx]
+                ipdb.set_trace()
+                assert self.graph.neighbors[u][v_idx] == v
+                self.graph.neighbors[u][before_edge_idx] = y
+                del self.graph 
             #print(departure_edge in self.edges)
             # just for debug
             assert set(self.edges) == self.edge_set, "mismatch"
@@ -115,9 +120,12 @@ class Swap:
             k = self.pick_k()
             edge_to_swap, permutation = self.find_swap(k)
             accept_permutation = self.check_swap(edge_to_swap, permutation)
+
             if (accept_permutation):
                 self.perform_swap(edge_to_swap, permutation)
                 # measure convergence
+                self.update_assortativity()
+                print(self.assortativity)
                 self.metric()
 
     def init_assortativity(self):
@@ -147,7 +155,7 @@ class Swap:
         self.assortativity = N/self.D
 
 
-    def assortativity(self, edge_to_swap, permutation):
+    def update_assortativity(self, edge_to_swap, permutation):
         # given a swap, update assortativity value given generalized equation from https://arxiv.org/pdf/2105.12120.pdf 
         # compute denominator
         # TODO CHECK IF THAT WORKS (math + practice)
@@ -187,6 +195,8 @@ def main():
     mygraph.read_ael(args.dataset)
     print('performing swaps')
     swaps = Swap(mygraph, args.N_swap, args.gamma)
+    swaps.init_assortativity()
+    print(swaps.assortativity)
     swaps.run()
     print('writing graph')
     swaps.graph.to_ael(args.output)
