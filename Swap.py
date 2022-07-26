@@ -16,6 +16,8 @@ class Swap:
         self.N_swap = 0
         self.gamma = gamma
         self.force_k = True
+        self.assortativity = 0
+        self.D = 0 # denominator
 
     def pick_k(self):
         # minimum k is 2
@@ -76,11 +78,14 @@ class Swap:
 
     def perform_swap(self, edge_to_swap, permutation):
         for before_edge_idx, after_edge_idx in zip(edge_to_swap, permutation):
-
+            # naming departure edge = (u,v) and arrival edge = (x,y)
             # get edge name
             departure_edge = self.edges[before_edge_idx]
             arrival_edge = self.edges[after_edge_idx]
             
+            (u,v) = departure_edge
+            (x,y) = arrival_edge
+
             # swap in edge set
             #print(departure_edge)
             #print((departure_edge[0], arrival_edge[1]))
@@ -91,6 +96,11 @@ class Swap:
             # swap in list
             #print(self.edges[before_edge_idx])
             self.edges[before_edge_idx] = (departure_edge[0], arrival_edge[1])
+
+            # change in adjacency lists 
+            assert self.neighbors[u][before_edge_idx] == v
+            self.neighbors[u][before_edge_idx] = y
+            
             #print(departure_edge in self.edges)
             # just for debug
             assert set(self.edges) == self.edge_set, "mismatch"
@@ -109,6 +119,53 @@ class Swap:
                 self.perform_swap(edge_to_swap, permutation)
                 # measure convergence
                 self.metric()
+
+    def init_assortativity(self):
+        # compute r0
+        # r0 = N0 / D0
+        # N0 = S1 * Sl - S2 * S2
+        #
+        # D0  = S1 * S3 - S2 * S2
+        #
+        # Sk = sum_x (deg(x) ^ k) 
+        # Sl = sum_xy (Axy * kx * ky)
+        S1 = 2 * self.graph.M
+
+        # loop to comput S2 and S3
+        S2 = 0
+        S3 = 0
+        Sl = 0
+        for u in self.graph.neighbors.keys():
+            deg_u = len(self.graph.neighbors[u])
+            S2 += deg_u ** 2
+            S3 += deg_u ** 3
+            for v in self.graph.neighbors[u]:
+                deg_v = len(self.graph.neighbors[v])
+                Sl += deg_u * deg_v
+        N = S1 * Sl - S2*S2
+        self.D = S1 * S3 - S2 * S2
+        self.assortativity = N/self.D
+
+
+    def assortativity(self, edge_to_swap, permutation):
+        # given a swap, update assortativity value given generalized equation from https://arxiv.org/pdf/2105.12120.pdf 
+        # compute denominator
+        # TODO CHECK IF THAT WORKS (math + practice)
+        N = 0 
+        for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
+            # new edge is (u,y), disappearing edge is (u,v)
+            deg_u = len(self.neighbors[u])
+            deg_v = len(self.neighbors[v])
+            deg_x = len(self.neighbors[x])
+            deg_y = len(self.neighbors[y])
+            N += deg_u * deg_y - deg_u * deg_v
+        N = N * 4 * self.graph.M
+        delta_r = N / self.D # difference in assortativity
+        self.assortativity += delta_r
+
+    #def _assortativity(self):
+
+
 
 
 def main():

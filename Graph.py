@@ -19,9 +19,11 @@ class Graph:
     """
 
     def __init__(self, directed = False):
+        # TODO clarifier quels structures utiles / pas utiles
         self.N = 0 # number of node
         self.M = 0 # number of edges
-        #self.neighbors = defaultdict(list) # np.array() # TODO pas besoin ?
+        self.neighbors = defaultdict(list) # np.array() # TODO pas besoin ?
+        self.neighbors_index = [] # for edge (u,v) = self.edges[i], store index of v in self.neighbors[u]  and of u in self.neighbors[v]
         #self.edges = set() #dict() ?
         self.edges = list()
         self.edge_set = set() # pour enlever les doublons TODO overkill ?
@@ -56,28 +58,33 @@ class Graph:
                     #raise ValueError("repetition detected")
 
                 #if self.directed:
-                #self.neighbors[node_in] = neighbor_list
+                self.neighbors[node_in] = neighbor_list
                 #self.edges += [(node_in, node_out) for node_out in neighbor_list]
                 if self.directed :
-                    for node_out in neighbor_list: # TODO surement une façon plus rapide et propre de faire ça
+                    for node_idx, node_out in enumerate(neighbor_list): # TODO surement une façon plus rapide et propre de faire ça
+                          
+                        self.neighbors_index.append(node_idx)
                         #print(node_out)
                         #if (not (node_in, node_out) in self.edge_set) and (not (node_in, node_out) in self.edge_set):
-                            #self.edges.append((node_in, node_out))
+                        self.edges.append((node_in, node_out))
                         self.edge_set.add((node_in, node_out))
                 else:
-                    for node_out in neighbor_list:
+                    for node_idx, node_out in enumerate(neighbor_list):
                         #print(node_out)
                         # probablement pas utile et overkill..?
+                        self.neighbors_index.append(node_idx)
+
                         if node_in < node_out:
-                            #self.edges.append((node_in, node_out))
+                            self.edges.append((node_in, node_out))
                             self.edge_set.add((node_in, node_out))
                             #self.neighbors[node_in].append(node_out)
                         else:
-                            #self.edges.append((node_out, node_in))
+                            self.edges.append((node_out, node_in))
                             self.edge_set.add((node_out, node_in))
                             #self.neighbors[node_out].append(node_in)
         #print(node_in)
-        self.edges = list(self.edge_set)
+        #self.edges = list(self.edge_set)
+        assert len(self.edges) == len(self.neighbors_index)
         assert set(self.edges) == self.edge_set
         self.N = node_in
 
