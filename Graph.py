@@ -25,8 +25,9 @@ class Graph:
         self.neighbors = defaultdict(list) # np.array() # TODO pas besoin ?
         self.neighbors_index = [] # for edge (u,v) = self.edges[i], store index of v in self.neighbors[u]  and of u in self.neighbors[v]
         #self.edges = set() #dict() ?
-        self.edges = list()
+        self.edges = dict()
         self.edge_set = set() # pour enlever les doublons TODO overkill ?
+        self.unique_edges = list()
         self.directed = directed # directed graph flag
         #self.metric = False # fonction de métrique à vérifier de temps à autres
 
@@ -37,7 +38,6 @@ class Graph:
         """
         with open(in_file, 'r') as fin:
             for node_in, line in enumerate(fin):
-                print(node_in)
                 #neighbor_array = []
                 
                 if line == '\n': # skip empty lines
@@ -56,40 +56,80 @@ class Graph:
                     print('removing duplicate values')
                     neighbor_list = list(set(neighbor_list))
                     #raise ValueError("repetition detected")
-                print(line)
                 #if self.directed:
                 #self.neighbors[node_in] = neighbor_list
                 #self.edges += [(node_in, node_out) for node_out in neighbor_list]
+
+                # add to graph
                 if self.directed :
-                    self.neighbors[node_in] = neighbor_list
+                    #self.neighbors[node_in] = neighbor_list
                     for node_idx, node_out in enumerate(neighbor_list): # TODO surement une façon plus rapide et propre de faire ça
                         self.M += 1 
-                        self.neighbors_index.append(node_idx)
+                        #self.neighbors_index.append(node_idx)
                         #print(node_out)
                         #if (not (node_in, node_out) in self.edge_set) and (not (node_in, node_out) in self.edge_set):
-                        self.edges.append((node_in, node_out))
-                        self.edge_set.add((node_in, node_out))
+                        self.neighbors[node_in].append(node_out)
+                        self.edges[(node_in, node_out)] = len(self.neighbors[node_in]) -1 #.append((node_in, node_out))
+                        #self.edge_set.add((node_in, node_out))
+                        self.unique_edges.append((node_in, node_out))
                 else:
                     for node_idx, node_out in enumerate(neighbor_list):
+                        flag_new = False
                         #print(neighbor_list)
 
                         # probablement pas utile et overkill..?
-                        self.neighbors[node_in].append(node_out)
-                        self.neighbors[node_out].append(node_in)
-                        self.neighbors_index.append((len(self.neighbors[node_in])-1, len(self.neighbors[node_out])-1))
-
-                        if node_in < node_out:
-                            self.M += 1
-                            self.edges.append((node_in, node_out))
-                            self.edge_set.add((node_in, node_out))
+                        if (node_in, node_out) in self.edges:
+                            continue
                         else:
-                            self.edges.append((node_out, node_in))
-                            self.edge_set.add((node_out, node_in))
-                            #self.neighbors[node_out].append(node_in)
+                            if node_in < node_out:
+                                self.unique_edges.append((node_in, node_out))
+                            else:
+                                self.unique_edges.append((node_out, node_in))
+
+                            self.neighbors[node_in].append(node_out)
+                            self.edges[(node_in, node_out)] = len(self.neighbors[node_in]) -1 #.append((node_in, node_out))
+                            self.neighbors[node_out].append(node_in)
+                            self.edges[(node_out, node_in)] = len(self.neighbors[node_out]) -1 #.append((node_in, node_out))
+
+                        #if node_in < node_out:
+                        #    # only add edges once...
+                        #    M_before = len(self.edge_set)
+                        #    self.edge_set.add((node_in, node_out))
+                        #    M_after = len(self.edge_set)
+                        #    if M_before < M_after:
+                        #        self.edges.append((node_in, node_out))
+                        #        flag_new = True
+                        #else:
+                        #    # only add edges once...
+                        #    M_before = len(self.edge_set)
+                        #    self.edge_set.add((node_out, node_in))
+                        #    M_after = len(self.edge_set)
+                        #    if M_before < M_after:
+                        #        self.edges.append((node_out, node_in))
+                        #        flag_new = True
+
+
+                        #    #self.edges.append((node_out, node_in))
+                        #    #self.edge_set.add((node_out, node_in))
+                        #    ##self.neighbors[node_out].append(node_in)
+
+                        #if flag_new:
+                        #    self.neighbors[node_in].append(node_out)
+                        #    self.neighbors[node_out].append(node_in)
+                        #    self.neighbors_index.append((len(self.neighbors[node_in])-1, len(self.neighbors[node_out])-1))
+
         #print(node_in)
         #self.edges = list(self.edge_set)
-        assert len(self.edges) == len(self.neighbors_index)
-        assert set(self.edges) == self.edge_set
+        #for edge_idx, (u,v) in enumerate(self.edges.keys()):
+        #    v_idx, u_idx = self.neighbors_index[edge_idx]
+        #    assert self.neighbors[u][v_idx] == v
+        #    assert self.neighbors[v][u_idx] == u
+
+        #self.M = len(self.edges.keys()) #TODO for directed graph
+        assert len(self.unique_edges) == len(set(self.unique_edges))
+        self.M = len(self.unique_edges) #TODO for directed graph
+        #assert len(self.edges) == len(self.neighbors_index)
+        #assert set(self.edges) == self.edge_set
         self.N = node_in
 
 
