@@ -128,7 +128,6 @@ class Swap:
         return accept_permutation
 
     def perform_swap(self, edge_to_swap, permutation, edge_to_swap_idx):
-        print('Before Swap')
         #for (before_edge_idx, (u,v)), (after_edge_idx, (x,y)) in zip(edge_to_swap, permutation):
         #for (before_edge_idx, (u,v), (v_idx, u_idx)), (after_edge_idx, (x,y), (y_idx, x_idx)) in zip(edge_to_swap, permutation):
         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
@@ -143,7 +142,6 @@ class Swap:
 
         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
-            print(f'swapping ({u}, {v}) with ({x, y})')
             # naming departure edge = (u,v) and arrival edge = (x,y)
             # get edge name
             #departure_edge = self.graph.edges[before_edge_idx]
@@ -300,14 +298,16 @@ class Swap:
         N = 0 
         #ipdb.set_trace()
         #for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
-        for before_edge_idx, after_edge_idx in zip(edge_to_swap, permutation):
+        #for before_edge_idx, after_edge_idx in zip(edge_to_swap, permutation):
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
+
             # naming departure edge = (u,v) and arrival edge = (x,y)
             # get edge name
-            departure_edge = self.graph.edges[before_edge_idx]
-            arrival_edge = self.graph.edges[after_edge_idx]
-            
-            (u,v) = departure_edge
-            (x,y) = arrival_edge
+            #departure_edge = self.graph.edges[before_edge_idx]
+            #arrival_edge = self.graph.edges[after_edge_idx]
+            #
+            #(u,v) = departure_edge
+            #(x,y) = arrival_edge
 
             # new edge is (u,y), disappearing edge is (u,v)
             deg_u = len(self.graph.neighbors[u])
@@ -328,6 +328,8 @@ class Swap:
     def run(self):
         #pb = ProgressBar()
         #for swap_idx in pb(range(self.N_swap)):
+        self.init_assortativity()
+        print(f"starting assortativity {self.assortativity}")
         for swap_idx in range(self.N_swap):
 
             k = self.pick_k()
@@ -343,16 +345,19 @@ class Swap:
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
                 assert len(self.graph.unique_edges) == self.graph.M
 
-                try: 
-                    assert len(self.graph.unique_edges) == len(set(self.graph.unique_edges))
-                except:
-                    ipdb.set_trace()
-                    assert len(self.graph.unique_edges) == len(set(self.graph.unique_edges))
+                assert len(self.graph.unique_edges) == len(set(self.graph.unique_edges))
 
                 # measure convergence
-                #self.update_assortativity(edge_to_swap, permutation)
 
+                self.update_assortativity(edge_to_swap, permutation)
+                updated_assortativity = self.assortativity
+
+                # compare with complete assortativity
+                self.init_assortativity()
+                if not np.isclose(updated_assortativity, self.assortativity):
+                    print(f" updated {updated_assortativity} whole {self.assortativity}")
                 #print(self.assortativity)
+
                 self.metric()
 
 
@@ -378,7 +383,6 @@ def main():
     mygraph.read_ael(args.dataset)
     print('performing swaps')
     swaps = Swap(mygraph, args.N_swap, args.gamma)
-    swaps.init_assortativity()
     print(swaps.assortativity)
     swaps.run()
     print('writing graph')
