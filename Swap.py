@@ -17,7 +17,9 @@ class Swap:
         self.gamma = gamma
         self.force_k = True
         self.assortativity = 0
-        self.D = 0 # denominator
+        self.D = 0 # assortativity denominator - does not depend on links
+        self.triangles = set() # set of all triangles in graph
+        self.edges_in_triangles = set()
 
     def pick_k(self):
         # minimum k is 2
@@ -320,7 +322,67 @@ class Swap:
         self.assortativity += delta_r
 
     #def _assortativity(self):
+    def count_triangles(self):
+        nb_triangles = 0
+        #self.triangles =
+        for node_1 in self.graph.neighbors.keys():
+            
+            # skip nodes of degree < 2
+            if len(self.graph.neighbors[node_1]) < 2:
+                continue
+            
+            # check neighborhood or neighbors of node_1
+            for node_2 in self.graph.neighbors[node_1]:
+                for node_3 in self.graph.neighbors[node_2]:
+                    
+                    # count triangle if not already counted
+                    if (node_3, node_1) in self.graph.edges:
+                        if not self.graph.directed:
+                            current_triangle = tuple(sorted((node_1, node_2, node_3)))
+                            self.triangles.add(current_triangle)
 
+                            self.edges_in_triangles[(node_1, node_2)]
+                            self.edges_in_triangles[(node_2, node_3)]
+                            self.edges_in_triangles[(node_3, node_1)]
+
+                            self.edges_in_triangles[(node_2, node_1)] = current_triangle
+                            self.edges_in_triangles[(node_3, node_2)] = current_triangle
+                            self.edges_in_triangles[(node_1, node_3)] = current_triangle
+
+                        # if graph is directed, add three version of triangle
+                        elif self.graph.directed :
+                            self.triangles.add((node_1, node_2, node_3))
+                            self.triangles.add((node_2, node_3, node_1))
+                            self.triangles.add((node_3, node_1, node_2))
+
+                            # store arbitrary version of triangle
+                            self.edges_in_triangles[(node_1, node_2)] = (node_1, node_2, node_3)
+                            self.edges_in_triangles[(node_2, node_3)] = (node_1, node_2, node_3)
+                            self.edges_in_triangles[(node_3, node_1)] = (node_1, node_2, node_3)
+
+                        
+    def update_triangles(self, edge_to_swap, permutation):
+
+         # TODO version graphe dirigé
+         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+
+            # naming departure edge = (u,v) and arrival edge = (x,y)
+            # get edge name
+            #departure_edge = self.graph.edges[before_edge_idx]
+            #arrival_edge = self.graph.edges[after_edge_idx]
+            goal_edge = (u, y) if u < y else (y ,u)
+
+            # destroyed triangles
+            if (u, v) in self.edges_in_triangles:
+                destroyed_triangle = self.edges_in_triangles[(u,v)] 
+                self.triangles.remove(destroyed_triangle)
+
+            # created triangles
+            for neigh in self.graph.neighbors[u]:
+                if (neigh, y) in self.graph.edges:
+                    current_triangle = tuple(sorted((u, v, neigh)))
+                    self.triangles.add(current_triangle)
+       
 
     def metric(self):
         pass
