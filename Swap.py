@@ -314,27 +314,28 @@ class Swap:
 
                         
     def update_triangles(self, edge_to_swap, permutation):
+        
         """
             Update the sets of triangles by looking at each edge swap:
 
             - if the initial edge was involved in a triangle, remove triangle from sets
             - if the goal edge creates a triangle, add it to the sets
         """
-         # TODO version graphe dirigé
-         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+        # TODO version graphe dirigé
+        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
-            goal_edge = (u, y) if u < y else (y ,u)
+           goal_edge = (u, y) if u < y else (y ,u)
 
-            # destroyed triangles
-            if (u, v) in self.edges_in_triangles:
-                destroyed_triangle = self.edges_in_triangles[(u,v)] 
-                self.triangles.remove(destroyed_triangle)
+           # destroyed triangles
+           if (u, v) in self.edges_in_triangles:
+               destroyed_triangle = self.edges_in_triangles[(u,v)] 
+               self.triangles.remove(destroyed_triangle)
 
-            # created triangles
-            for neigh in self.graph.neighbors[u]:
-                if (neigh, y) in self.graph.edges:
-                    current_triangle = tuple(sorted((u, v, neigh)))
-                    self.triangles.add(current_triangle)
+           # created triangles
+           for neigh in self.graph.neighbors[u]:
+               if (neigh, y) in self.graph.edges:
+                   current_triangle = tuple(sorted((u, v, neigh)))
+                   self.triangles.add(current_triangle)
        
 
     def metric(self):
