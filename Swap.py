@@ -90,7 +90,7 @@ class Swap:
 
         if self.force_k:
             # if force_k, permutation is cyclic, to force the swap to be of exactly k edges
-            cycle = np.random.randint(1,k)
+            cycle = np.random.randint(1,k) #TODO pas nécessaire : lien tiré aléatoirement
             permutation = [edge_to_swap[idx - cycle] for idx in range(len(edge_to_swap))]
         else:
             # if !force_k, permutation is of k edges or less
@@ -468,6 +468,47 @@ class Swap:
 
     def metric(self):
         pass
+
+    def init_joint_degree(self):
+        # check max degree .. 
+        max_degree = 0
+        for node in self.graph.neighbors:
+            if len(self.graph.neighbors) > max_degree:
+                max_degree = len(self.graph.neighbors)
+
+        # initialize matrix
+        joint_degree = np.zeros((max_degree, max_degree))
+
+        # compute matrix // TODO : ATTENTION indice - 1
+        for node in self.graph.neighbors:
+            for neighbor in self.graph.neighbors[node]:
+                joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+                joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
+
+
+        # verification DEBUG : somme par ligne = nombre noeud ayant tel degré
+        return
+
+    def update_joint_degree(self, edge_to_swap, permutation):
+        # TODO fonction sur liens uniquement, pas boucle sur tout
+        # verifier swap 
+        updated_joint_degree = joint_degree.copy()
+        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+
+           goal_edge = (u, y) if u < y else (y ,u)
+
+           deg_u = len(self.graph.neighbors[u])
+           deg_v = len(self.graph.neighbors[v])
+           deg_x = len(self.graph.neighbors[x])
+           deg_y = len(self.graph.neighbors[y])
+
+
+           updated_joint_degree[deg_u, deg_v] -= 1
+           updated_joint_degree[deg_u, deg_y] += 1
+        if updated_joint_degree == joint_degree:
+            return True, updated_joint_degree
+        else:
+            return False, joint_degree
 
     def run(self):
         """
