@@ -39,7 +39,8 @@ class Swap:
         self.assortativity = 0
         self.D = 0 # assortativity denominator - does not depend on links
         self.triangles = set() # set of all triangles in graph
-        self.edges_in_triangles = set()
+        self.edges_in_triangles = dict()
+        self.joint_degree = np.zeros(0)
 
     def pick_k(self):
         """
@@ -369,9 +370,9 @@ class Swap:
                             current_triangle = tuple(sorted((node_1, node_2, node_3)))
                             self.triangles.add(current_triangle)
 
-                            self.edges_in_triangles[(node_1, node_2)]
-                            self.edges_in_triangles[(node_2, node_3)]
-                            self.edges_in_triangles[(node_3, node_1)]
+                            self.edges_in_triangles[(node_1, node_2)] = current_triangle
+                            self.edges_in_triangles[(node_2, node_3)] = current_triangle
+                            self.edges_in_triangles[(node_3, node_1)] = current_triangle
 
                             self.edges_in_triangles[(node_2, node_1)] = current_triangle
                             self.edges_in_triangles[(node_3, node_2)] = current_triangle
@@ -421,9 +422,9 @@ class Swap:
                             current_triangle = tuple(sorted((node_1, node_2, node_3)))
                             self.triangles.add(current_triangle)
 
-                            self.edges_in_triangles[(node_1, node_2)]
-                            self.edges_in_triangles[(node_2, node_3)]
-                            self.edges_in_triangles[(node_3, node_1)]
+                            self.edges_in_triangles[(node_1, node_2)] = current_triangle
+                            self.edges_in_triangles[(node_2, node_3)] = current_triangle
+                            self.edges_in_triangles[(node_3, node_1)] = current_triangle
 
                             self.edges_in_triangles[(node_2, node_1)] = current_triangle
                             self.edges_in_triangles[(node_3, node_2)] = current_triangle
@@ -439,7 +440,8 @@ class Swap:
                             self.edges_in_triangles[(node_1, node_2)] = (node_1, node_2, node_3)
                             self.edges_in_triangles[(node_2, node_3)] = (node_1, node_2, node_3)
                             self.edges_in_triangles[(node_3, node_1)] = (node_1, node_2, node_3)
-
+        for (node_1, node_2) in self.edges_in_triangles:
+            assert self.edges_in_triangles[(node_1, node_2)] in self.triangles
                         
     def update_triangles(self, edge_to_swap, permutation):
         
@@ -450,7 +452,7 @@ class Swap:
             - if the goal edge creates a triangle, add it to the sets
         """
         # TODO version graphe dirigé
-        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
 
            goal_edge = (u, y) if u < y else (y ,u)
 
@@ -458,13 +460,23 @@ class Swap:
            if (u, v) in self.edges_in_triangles:
                destroyed_triangle = self.edges_in_triangles[(u,v)] 
                self.triangles.remove(destroyed_triangle)
+               for node_1 in destroyed_triangle:
+                   for node_2 in destroyed_triangle:
+                       if node_1 != node_2 :
+                           del self.edges_in_triangles[(node_1, node_2)]
 
            # created triangles
            for neigh in self.graph.neighbors[u]:
                if (neigh, y) in self.graph.edges:
                    current_triangle = tuple(sorted((u, v, neigh)))
                    self.triangles.add(current_triangle)
+                   for node_1 in current_triangle:
+                       for node_2 in current_triangle: 
+                           if node_1 != node_2:
+                               self.edges_in_triangles[(node_1, node_2)] = current_triangle
        
+        for (node_1, node_2) in self.edges_in_triangles:
+            assert self.edges_in_triangles[(node_1, node_2)] in self.triangles
 
     def metric(self):
         pass
@@ -477,13 +489,13 @@ class Swap:
                 max_degree = len(self.graph.neighbors)
 
         # initialize matrix
-        joint_degree = np.zeros((max_degree, max_degree))
+        self.joint_degree = np.zeros((max_degree, max_degree))
 
         # compute matrix // TODO : ATTENTION indice - 1
         for node in self.graph.neighbors:
             for neighbor in self.graph.neighbors[node]:
-                joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-                joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
+                self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+                self.joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
 
 
         # verification DEBUG : somme par ligne = nombre noeud ayant tel degré
@@ -492,23 +504,41 @@ class Swap:
     def update_joint_degree(self, edge_to_swap, permutation):
         # TODO fonction sur liens uniquement, pas boucle sur tout
         # verifier swap 
-        updated_joint_degree = joint_degree.copy()
-        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+        #updated_joint_degree = joint_degree.copy()
+        changes = dict()
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
 
-           goal_edge = (u, y) if u < y else (y ,u)
+            goal_edge = (u, y) if u < y else (y ,u)
 
-           deg_u = len(self.graph.neighbors[u])
-           deg_v = len(self.graph.neighbors[v])
-           deg_x = len(self.graph.neighbors[x])
-           deg_y = len(self.graph.neighbors[y])
+            deg_u = len(self.graph.neighbors[u])
+            deg_v = len(self.graph.neighbors[v])
+            deg_x = len(self.graph.neighbors[x])
+            deg_y = len(self.graph.neighbors[y])
 
+            if (deg_u, deg_v) in changes:
+                changes[(deg_u, deg_v)] -= 1
+            else:
+                changes[(deg_u, deg_v)] = self.joint_degree[deg_u, deg_v]
 
-           updated_joint_degree[deg_u, deg_v] -= 1
-           updated_joint_degree[deg_u, deg_y] += 1
-        if updated_joint_degree == joint_degree:
-            return True, updated_joint_degree
+            if (deg_u, deg_y) in changes:
+                changes[(deg_u, deg_y)] -= 1
+            else:
+                changes[(deg_u, deg_y)] = self.joint_degree[deg_u, deg_y]
+
+            #changes[deg_u, deg_y]
+            #updated_joint_degree[deg_u, deg_v] -= 1
+            #updated_joint_degree[deg_u, deg_y] += 1
+
+        for (deg_u, deg_v) in changes:
+            if changes[(deg_u, deg_v)] != self.joint_degree[deg_u, deg_v]:
+                return False
         else:
-            return False, joint_degree
+            return True
+
+        #if updated_joint_degree == joint_degree:
+        #    return True, updated_joint_degree
+        #else:
+        #    return False, joint_degree
 
     def run(self):
         """
@@ -520,8 +550,12 @@ class Swap:
         #pb = ProgressBar()
         #for swap_idx in pb(range(self.N_swap)):
         self.init_assortativity()
+        self.init_joint_degree()
+        self.count_triangles_undirected()
+
         print(f"starting assortativity {self.assortativity}")
         for swap_idx in range(self.N_swap):
+            print(swap_idx)
 
             k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
@@ -533,7 +567,7 @@ class Swap:
 
 
             if (accept_permutation):
-                self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+                self.perform_swap_undirected(edge_to_swap, permutation, edge_to_swap_idx)
                 assert len(self.graph.unique_edges) == self.graph.M
 
                 assert len(self.graph.unique_edges) == len(set(self.graph.unique_edges))
@@ -541,12 +575,16 @@ class Swap:
                 # measure convergence
 
                 self.update_assortativity(edge_to_swap, permutation)
-                updated_assortativity = self.assortativity
+                self.update_triangles(edge_to_swap, permutation)
+                #updated_assortativity = self.assortativity
+                accept_jd = self.update_joint_degree(edge_to_swap, permutation)
+
 
                 # compare with complete assortativity
-                self.init_assortativity()
-                if not np.isclose(updated_assortativity, self.assortativity):
-                    print(f" updated {updated_assortativity} whole {self.assortativity}")
+                # TODO only when --check
+                #self.init_assortativity()
+                #if not np.isclose(updated_assortativity, self.assortativity):
+                #    print(f" updated {updated_assortativity} whole {self.assortativity}")
                 #print(self.assortativity)
 
                 self.metric()
@@ -567,6 +605,10 @@ def main():
 	    help='exponent of zipf law, for pick K value')
     parser.add_argument('-d', '--directed', action='store_true', default=False,
             help='enable if input graph is directed')
+    parser.add_argument('--check', action='store_true', default=False,
+            help='enable to make some unit test during run. Default to false, significantly slows run.')
+    parser.add_argument('-v', '--verbose', action='store_true', default=False,
+            help='increase verbosity')
     args = parser.parse_args()
 
     #file_in = "./gp_references.txt"
