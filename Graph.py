@@ -31,6 +31,50 @@ class Graph:
         self.directed = directed # directed graph flag
         #self.metric = False # fonction de métrique à vérifier de temps à autres
 
+
+    def read_ssv(self, in_file):
+        """ Read space separated values
+            TODO example format
+            TODO lecteurs pour d'autres formats
+        """
+        with open(in_file, 'r') as fin:
+            for line in fin:
+                #neighbor_array = []
+                
+                if line == '\n': # skip empty lines
+                    continue
+                _node_in, _node_out = line.strip().split(' ')
+                node_in, node_out = int(_node_in), int(_node_out)
+
+                if _node_in == _node_out:
+                    raise ValueError("self loop detected")
+
+                # add to graph
+                if self.directed :
+                    self.neighbors[node_in].append(node_out)
+                    self.M += 1 
+                    self.edges[(node_in, node_out)] = len(self.neighbors[node_in]) -1 #.append((node_in, node_out))
+                    self.unique_edges.append((node_in, node_out))
+                else:
+                    if (node_in, node_out) in self.edges:
+                        continue
+                    else:
+                        if node_in < node_out:
+                            self.unique_edges.append((node_in, node_out))
+                        else:
+                            self.unique_edges.append((node_out, node_in))
+
+                        self.neighbors[node_in].append(node_out)
+                        self.edges[(node_in, node_out)] = len(self.neighbors[node_in]) -1 #.append((node_in, node_out))
+                        self.neighbors[node_out].append(node_in)
+                        self.edges[(node_out, node_in)] = len(self.neighbors[node_out]) -1 #.append((node_in, node_out))
+
+
+        assert len(self.unique_edges) == len(set(self.unique_edges))
+        self.M = len(self.unique_edges) #TODO for directed graph
+        self.N = node_in
+
+
     def read_ael(self, in_file):
         """ Read ael format
             TODO example format
@@ -74,7 +118,6 @@ class Graph:
                         self.unique_edges.append((node_in, node_out))
                 else:
                     for node_idx, node_out in enumerate(neighbor_list):
-                        flag_new = False
                         #print(neighbor_list)
 
                         # probablement pas utile et overkill..?
