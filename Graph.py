@@ -22,7 +22,9 @@ class Graph:
         # TODO clarifier quels structures utiles / pas utiles
         self.N = 0 # number of node
         self.M = 0 # number of edges
-        self.neighbors = defaultdict(list) # np.array() # TODO pas besoin ?
+        self.neighbors = defaultdict(list) # is used as out_neighbors when directed
+        self.in_neighbors = defaultdict(list)
+        self.out_neighbors = defaultdict(list)
         self.neighbors_index = [] # for edge (u,v) = self.edges[i], store index of v in self.neighbors[u]  and of u in self.neighbors[v]
         #self.edges = set() #dict() ?
         self.edges = dict()
@@ -52,8 +54,11 @@ class Graph:
                 # add to graph
                 if self.directed :
                     self.neighbors[node_in].append(node_out)
+                    self.neighbors[node_out].append(node_in)
+                    self.out_neighbors[(node_in)].append(node_out)
+                    self.in_neighbors[(node_out)].append(node_in)
                     self.M += 1 
-                    self.edges[(node_in, node_out)] = len(self.neighbors[node_in]) -1 #.append((node_in, node_out))
+                    self.edges[(node_in, node_out)] = (len(self.neighbors[node_in]) -1, len(self.neighbors[node_out]) -1, len(self.out_neighbors[node_in]), len(self.in_neighbors[node_out])) #.append((node_in, node_out))
                     self.unique_edges.append((node_in, node_out))
                 else:
                     if (node_in, node_out) in self.edges:
