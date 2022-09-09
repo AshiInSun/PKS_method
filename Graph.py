@@ -58,7 +58,7 @@ class Graph:
                     self.out_neighbors[(node_in)].append(node_out)
                     self.in_neighbors[(node_out)].append(node_in)
                     self.M += 1 
-                    self.edges[(node_in, node_out)] = (len(self.neighbors[node_in]) -1, len(self.neighbors[node_out]) -1, len(self.out_neighbors[node_in]), len(self.in_neighbors[node_out])) #.append((node_in, node_out))
+                    self.edges[(node_in, node_out)] = (len(self.neighbors[node_in]) -1, len(self.neighbors[node_out]) -1, len(self.out_neighbors[node_in]) - 1, len(self.in_neighbors[node_out]) - 1) #.append((node_in, node_out))
                     self.unique_edges.append((node_in, node_out))
                 else:
                     if (node_in, node_out) in self.edges:
