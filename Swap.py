@@ -52,7 +52,8 @@ class Swap:
             k (int) : number of edges to swap
         """
         # minimum k is 2
-        # use modulo to avoid having k greater than the size of the graph #TODO ya peut etre plus propre
+        # use modulo to avoid having k greater than the size of the graph
+        #TODO ya peut etre plus propre
         k = 2 + (np.random.zipf(self.gamma) % self.graph.M  )
 
         return k
@@ -65,6 +66,8 @@ class Swap:
             ex:  
 
             Randomly pick k edges to swap, and randomly pick a permutation
+            When self.force_k == True, permutation is a cyclic permutation,
+            else it is a random permutation, with possible identity for some edges.
 
             Parameters:
             k (int) : number of edges to swap
