@@ -125,6 +125,7 @@ def test_init_triangles():
 
 
 def test_update_triangles():
+    # undirected
     mygraph = Graph(False)
     mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
     swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
@@ -137,7 +138,6 @@ def test_update_triangles():
 
     assert destroyed_triangles[0] in swaps.triangles2edges
     
-
     accept_permutation = swaps.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
     swaps.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
@@ -148,10 +148,78 @@ def test_update_triangles():
     swaps.update_triangles(edge_to_swap, permutation)
 
     assert destroyed_triangles[0] not in swaps.triangles2edges
+    
+    updated_triangles2edges = swaps.triangles2edges.copy()
+    swaps.count_triangles()
+    for triangle in swaps.triangles2edges:
+        assert triangle in updated_triangles2edges
+        for edge in swaps.triangles2edges[triangle]:
+            assert edge in updated_triangles2edges[triangle]
 
+    for triangle in updated_triangles2edges:
+        assert triangle in swaps.triangles2edges
+        assert len(updated_triangles2edges[triangle]) == len(swaps.triangles2edges[triangle])
 
-    #TODO given graph, given swap, measure that destroyed triangles are the correct ones and created 
-    pass
+        for edge in updated_triangles2edges[triangle]:
+            assert edge in swaps.triangles2edges[triangle]
+    # directed
+    mygraph = Graph(True)
+    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
+    swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
+    swaps.count_triangles()
+
+    assert len(swaps.triangles2edges) == 9781
+    edge_to_swap = [(18, 33), (48, 62)]
+    permutation = [(48, 62), (18, 33)]
+    edge_to_swap_idx = [647, 1112]
+    destroyed_triangles = [(1, 18, 33), (3, 18, 33), (5, 18, 33), (7, 18, 33), 
+            (8, 18, 33), (11, 18, 33), (12, 18, 33), (13, 18, 33), (15, 18, 33), 
+            (16, 18, 33), (18, 33, 36), (18, 33, 37), (18, 33, 38), (18, 33, 56), 
+            (18, 21, 33), (18, 22, 33), (18, 23, 33), (18, 24, 33), (18, 25, 33), 
+            (18, 28, 33), (18, 29, 33), (18, 31, 33), (18, 33, 53), (18, 33, 47), 
+            (18, 33, 34), (6, 48, 62), (19, 48, 62), (28, 48, 62), (34, 48, 62), 
+            (35, 48, 62), (40, 48, 62), (48, 50, 62), (48, 59, 62), (48, 49, 62), 
+            (48, 53, 62), (48, 54, 62), (48, 55, 62), (48, 57, 62) ]
+
+    created_triangles = [(18, 37, 62), 
+            (16, 18, 62), (18, 38, 62), (18, 19, 62), 
+            (18, 50, 62), (18, 28, 62), (18, 53, 62), (18, 34, 62), (18, 38, 62), 
+            (3, 33, 48), (6, 33, 48), (10, 33, 48), (14, 33, 48), (17, 33, 48), 
+            (21, 33, 48), (22, 33, 48), (28, 33, 48), (31, 33, 48), (33, 48, 49), 
+            (33, 48, 53), (33, 48, 54), (33, 34, 48), (33, 35, 48), (33, 48, 55), 
+            (33, 48, 57)]
+
+    accept_permutation = swaps.check_swap(edge_to_swap, permutation)
+    assert accept_permutation == True
+    swaps.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+
+    for triangle in destroyed_triangles:
+        assert triangle in swaps.triangles2edges
+
+    for triangle in created_triangles:
+        assert triangle not in swaps.triangles2edges
+
+    swaps.update_triangles(edge_to_swap, permutation)
+
+    for triangle in destroyed_triangles:
+        assert triangle not in swaps.triangles2edges
+
+    updated_triangles2edges = swaps.triangles2edges.copy()
+    swaps.count_triangles()
+    for triangle in swaps.triangles2edges:
+        assert triangle in updated_triangles2edges
+        for edge in swaps.triangles2edges[triangle]:
+            assert edge in updated_triangles2edges[triangle]
+
+    for triangle in updated_triangles2edges:
+        assert triangle in swaps.triangles2edges
+        assert len(updated_triangles2edges[triangle]) == len(swaps.triangles2edges[triangle])
+
+        for edge in updated_triangles2edges[triangle]:
+            assert edge in swaps.triangles2edges[triangle]
+
+    for triangle in created_triangles:
+        assert triangle in swaps.triangles2edges
 
 def test_init_assortativity():
     pass
