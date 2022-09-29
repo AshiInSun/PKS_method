@@ -53,7 +53,7 @@ class MarkovChain:
         # minimum k is 2
         # use modulo to avoid having k greater than the size of the graph
         #TODO ya peut etre plus propre
-        k = 2 + (np.random.zipf(self.gamma) % self.graph.M  )
+        k = 2 + (np.random.zipf(self.gamma) % (self.graph.M-2))
 
         return k
 
