@@ -1,4 +1,4 @@
-""" Swap class, used to perform k-edge on a graph
+""" MarkovChain class, used to perform k-edge on a graph
 """
 
 import os
@@ -6,12 +6,11 @@ import ipdb
 import numpy as np
 import argparse
 
-
 from Graph import Graph
 from progressbar import ProgressBar
 from collections import defaultdict
 
-class Swap:
+class MarkovChain:
     """ make swaps """
 
     def __init__(self, graph, N_swap = 0, gamma=0, debug=False):
@@ -158,17 +157,17 @@ class Swap:
             edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)
         """
 
-        if self.debug:
-            # check that (u, v) and (x, y) exist in current data structure
-            for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-                departure = (u,v) if u < v else (v,u)
-                arrival = (x, y) if x < y else (y,x)
-                assert (u,v) in self.graph.edges
-                assert (v,u) in self.graph.edges
-                assert (x,y) in self.graph.edges
-                assert (y,x) in self.graph.edges
-                assert departure in self.graph.unique_edges
-                assert arrival in self.graph.unique_edges
+        #if self.debug:
+        #    # check that (u, v) and (x, y) exist in current data structure
+        #    for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+        #        departure = (u,v) if u < v else (v,u)
+        #        arrival = (x, y) if x < y else (y,x)
+        #        assert (u,v) in self.graph.edges
+        #        assert (v,u) in self.graph.edges
+        #        assert (x,y) in self.graph.edges
+        #        assert (y,x) in self.graph.edges
+        #        assert departure in self.graph.unique_edges
+        #        assert arrival in self.graph.unique_edges
 
         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
@@ -178,17 +177,17 @@ class Swap:
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
             old_edge = self.graph.unique_edges[e_idx]
-            assert goal_edge not in self.graph.edges
-            assert goal_edge not in self.graph.unique_edges
+            #assert goal_edge not in self.graph.edges
+            #assert goal_edge not in self.graph.unique_edges
             self.graph.unique_edges[e_idx] = goal_edge
 
             old_edge = (u, v) if u < v else (v, u)
 
-            if self.debug:
-                # check that goal_edge doesn't already exist in data structure
-                assert len(set(self.graph.unique_edges)) == self.graph.M
-                # check that old_edge has indeed been replaced
-                assert old_edge not in self.graph.unique_edges
+            #if self.debug:
+            #    # check that goal_edge doesn't already exist in data structure
+            #    assert len(set(self.graph.unique_edges)) == self.graph.M
+            #    # check that old_edge has indeed been replaced
+            #    assert old_edge not in self.graph.unique_edges
 
             if self.graph.directed:
                 v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
@@ -196,8 +195,8 @@ class Swap:
 
                 # perform swap
                 #try:
-                assert self.graph.out_neighbors[u][v_out_idx] == v
-                assert self.graph.in_neighbors[y][x_in_idx] == x
+                #assert self.graph.out_neighbors[u][v_out_idx] == v
+                #assert self.graph.in_neighbors[y][x_in_idx] == x
                 self.graph.out_neighbors[u][v_out_idx] = y
                 self.graph.in_neighbors[y][x_in_idx] = u
                 #except:
@@ -225,114 +224,114 @@ class Swap:
             if not self.graph.directed:
                 del self.graph.edges[(v,u)]
 
-        if self.debug:
-            # check that links are in all data structures
-            for u, v in self.graph.unique_edges:
-                assert (u, v) in self.graph.edges
+        #if self.debug:
+        #    # check that links are in all data structures
+        #    for u, v in self.graph.unique_edges:
+        #        assert (u, v) in self.graph.edges
 
-            for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-                departure = (u,v) if u < v else (v,u)
-                arrival = (x, y) if x < y else (y,x)
-                goal_edge = (u, y) if u < y else (y ,u)
+        #    for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+        #        departure = (u,v) if u < v else (v,u)
+        #        arrival = (x, y) if x < y else (y,x)
+        #        goal_edge = (u, y) if u < y else (y ,u)
 
-                assert (u,v) not in self.graph.edges
-                assert (v,u) not in self.graph.edges
-                assert (x,y) not in self.graph.edges
-                assert (y,x) not in self.graph.edges
-                assert (u,y) in self.graph.edges
-                assert (y,u) in self.graph.edges
+        #        assert (u,v) not in self.graph.edges
+        #        assert (v,u) not in self.graph.edges
+        #        assert (x,y) not in self.graph.edges
+        #        assert (y,x) not in self.graph.edges
+        #        assert (u,y) in self.graph.edges
+        #        assert (y,u) in self.graph.edges
 
-                assert goal_edge in self.graph.unique_edges
-                assert departure not in self.graph.unique_edges
-                assert arrival not in self.graph.unique_edges
+        #        assert goal_edge in self.graph.unique_edges
+        #        assert departure not in self.graph.unique_edges
+        #        assert arrival not in self.graph.unique_edges
 
 
-    def perform_swap_directed(self, edge_to_swap, permutation, edge_to_swap_idx):
-        """
-            When permutation is accepted, swap the edges in the graph data structure.
+    #def perform_swap_directed(self, edge_to_swap, permutation, edge_to_swap_idx):
+    #    """
+    #        When permutation is accepted, swap the edges in the graph data structure.
 
-            Parameters:
-            edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the
-                           edges in edge_to_swap
-            edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)
-        """
+    #        Parameters:
+    #        edge_to_swap : list of the edges to swap
+    #        permutation  : list of the edges with which we should swap the
+    #                       edges in edge_to_swap
+    #        edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)
+    #    """
 
-        if self.debug:
-            # check that (u, v) and (x, y) exist in current data structure
-            for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-                departure = (u,v) if u < v else (v,u)
-                arrival = (x, y) if x < y else (y,x)
-                assert (u,v) in self.graph.edges
-                assert (v,u) in self.graph.edges
-                assert (x,y) in self.graph.edges
-                assert (y,x) in self.graph.edges
-                assert departure in self.graph.unique_edges
-                assert arrival in self.graph.unique_edges
+    #    if self.debug:
+    #        # check that (u, v) and (x, y) exist in current data structure
+    #        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+    #            departure = (u,v) if u < v else (v,u)
+    #            arrival = (x, y) if x < y else (y,x)
+    #            assert (u,v) in self.graph.edges
+    #            assert (v,u) in self.graph.edges
+    #            assert (x,y) in self.graph.edges
+    #            assert (y,x) in self.graph.edges
+    #            assert departure in self.graph.unique_edges
+    #            assert arrival in self.graph.unique_edges
 
-        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+    #    for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
-            # naming departure edge = (u,v) and arrival edge = (x,y) , goal edge = (u, y)
-            goal_edge = (u, y) if u < y else (y ,u)
-            old_edge = self.graph.unique_edges[e_idx]
+    #        # naming departure edge = (u,v) and arrival edge = (x,y) , goal edge = (u, y)
+    #        goal_edge = (u, y) if u < y else (y ,u)
+    #        old_edge = self.graph.unique_edges[e_idx]
 
-            self.graph.unique_edges[e_idx] = goal_edge
+    #        self.graph.unique_edges[e_idx] = goal_edge
 
-            old_edge = (u, v) if u < v else (v, u)
+    #        old_edge = (u, v) if u < v else (v, u)
 
-            if self.debug:
-                # check that goal_edge doesn't already exist in data structure
-                assert len(set(self.graph.unique_edges)) == self.graph.M
-                # check that old_edge has indeed been replaced
-                assert old_edge not in self.graph.unique_edges
+    #        if self.debug:
+    #            # check that goal_edge doesn't already exist in data structure
+    #            assert len(set(self.graph.unique_edges)) == self.graph.M
+    #            # check that old_edge has indeed been replaced
+    #            assert old_edge not in self.graph.unique_edges
 
-            v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
-            y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
-            #x_idx, y_idx, x_out_idx, y_in_idx = self.graph.edges[(y,x)] # shouldn't exist
+    #        v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
+    #        y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
+    #        #x_idx, y_idx, x_out_idx, y_in_idx = self.graph.edges[(y,x)] # shouldn't exist
 
-            #v_idx = self.graph.edges[(u,v)]
-            #u_idx =  self.graph.edges[(v,u)]
-            #y_idx = self.graph.edges[(x,y)]
-            #x_idx =  self.graph.edges[(y,x)]
+    #        #v_idx = self.graph.edges[(u,v)]
+    #        #u_idx =  self.graph.edges[(v,u)]
+    #        #y_idx = self.graph.edges[(x,y)]
+    #        #x_idx =  self.graph.edges[(y,x)]
 
-            # perform swap
-            self.graph.neighbors[u][v_idx] = y # on change v dans neighbors (u)
-            self.graph.neighbors[y][x_idx] = u
-            self.graph.out_neighbors[u][v_out_idx] = y
-            self.graph.in_neighbors[y][x_in_idx] = u
-            # j'ai envie de faire self.graph.neighbors[y][x_idx] = u : x y va disparaitre pour etre remplacé par x y' => x sera plus voisin de y donc pas de pb 
-            #self.graph.neighbors[y][x_idx] = u
+    #        # perform swap
+    #        self.graph.neighbors[u][v_idx] = y # on change v dans neighbors (u)
+    #        self.graph.neighbors[y][x_idx] = u
+    #        self.graph.out_neighbors[u][v_out_idx] = y
+    #        self.graph.in_neighbors[y][x_in_idx] = u
+    #        # j'ai envie de faire self.graph.neighbors[y][x_idx] = u : x y va disparaitre pour etre remplacé par x y' => x sera plus voisin de y donc pas de pb 
+    #        #self.graph.neighbors[y][x_idx] = u
 
-            self.graph.edges[(u,y)] = (v_idx, u_idx, v_out_idx, u_in_idx)
-            #self.graph.edges[(y,u)] = (
-            #self.graph.edges[(u,y)] = v_idx
-            #self.graph.edges[(y,u)] = x_idx
+    #        self.graph.edges[(u,y)] = (v_idx, u_idx, v_out_idx, u_in_idx)
+    #        #self.graph.edges[(y,u)] = (
+    #        #self.graph.edges[(u,y)] = v_idx
+    #        #self.graph.edges[(y,u)] = x_idx
 
-        for (u, v), (x,y) in zip(edge_to_swap, permutation):
-            del self.graph.edges[(u,v)]
-            if not self.graph.directed:
-                del self.graph.edges[(v,u)]
+    #    for (u, v), (x,y) in zip(edge_to_swap, permutation):
+    #        del self.graph.edges[(u,v)]
+    #        if not self.graph.directed:
+    #            del self.graph.edges[(v,u)]
 
-        if self.debug:
-            # check that links are in all data structures
-            for u, v in self.graph.unique_edges:
-                assert (u, v) in self.graph.edges
+    #    if self.debug:
+    #        # check that links are in all data structures
+    #        for u, v in self.graph.unique_edges:
+    #            assert (u, v) in self.graph.edges
 
-            for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-                departure = (u,v) if u < v else (v,u)
-                arrival = (x, y) if x < y else (y,x)
-                goal_edge = (u, y) if u < y else (y ,u)
+    #        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+    #            departure = (u,v) if u < v else (v,u)
+    #            arrival = (x, y) if x < y else (y,x)
+    #            goal_edge = (u, y) if u < y else (y ,u)
 
-                assert (u,v) not in self.graph.edges
-                assert (v,u) not in self.graph.edges
-                assert (x,y) not in self.graph.edges
-                assert (y,x) not in self.graph.edges
-                assert (u,y) in self.graph.edges
-                assert (y,u) in self.graph.edges
+    #            assert (u,v) not in self.graph.edges
+    #            assert (v,u) not in self.graph.edges
+    #            assert (x,y) not in self.graph.edges
+    #            assert (y,x) not in self.graph.edges
+    #            assert (u,y) in self.graph.edges
+    #            assert (y,u) in self.graph.edges
 
-                assert goal_edge in self.graph.unique_edges
-                assert departure not in self.graph.unique_edges
-                assert arrival not in self.graph.unique_edges
+    #            assert goal_edge in self.graph.unique_edges
+    #            assert departure not in self.graph.unique_edges
+    #            assert arrival not in self.graph.unique_edges
 
 
     def init_assortativity(self):
@@ -474,15 +473,15 @@ class Swap:
                                 self.edges2triangles[(v,u)].append(current_triangle)
                                 self.triangles2edges[current_triangle].append((v,u))
 
-        if self.debug:
-            for edge in self.edges2triangles:
-                for triangle in self.edges2triangles[edge]:
-                    assert edge in self.triangles2edges[triangle]
-            for triangle in self.triangles2edges:
-                assert (len(self.triangles2edges[triangle]) == 3 or len(self.triangles2edges[triangle]) == 6), f'length is {len(self.triangles2edges[triangle])}, {self.triangles2edges[triangle]}' 
-                for edge in self.triangles2edges[triangle]:
-                    assert triangle in self.edges2triangles[edge]
-                    assert edge in self.graph.edges
+        #if self.debug:
+        #    for edge in self.edges2triangles:
+        #        for triangle in self.edges2triangles[edge]:
+        #            assert edge in self.triangles2edges[triangle]
+        #    for triangle in self.triangles2edges:
+        #        assert (len(self.triangles2edges[triangle]) == 3 or len(self.triangles2edges[triangle]) == 6), f'length is {len(self.triangles2edges[triangle])}, {self.triangles2edges[triangle]}' 
+        #        for edge in self.triangles2edges[triangle]:
+        #            assert triangle in self.edges2triangles[edge]
+        #            assert edge in self.graph.edges
 
     def update_triangles(self, edge_to_swap, permutation):
         
@@ -494,13 +493,13 @@ class Swap:
         """
         ### TODO SPLIT EN PLUSIEURS FONCTIONS / TROP LONG
         # TODO version graphe dirigé
-        if self.debug:
-            for (u,v) in self.edges2triangles:
-                assert (v,u) in self.edges2triangles
-                for triangle in self.edges2triangles[(u,v)]:
-                    assert triangle in self.edges2triangles[(v,u)]
-                for triangle in self.edges2triangles[(v,u)]:
-                    assert triangle in self.edges2triangles[(u,v)]
+        #if self.debug:
+        #    for (u,v) in self.edges2triangles:
+        #        assert (v,u) in self.edges2triangles
+        #        for triangle in self.edges2triangles[(u,v)]:
+        #            assert triangle in self.edges2triangles[(v,u)]
+        #        for triangle in self.edges2triangles[(v,u)]:
+        #            assert triangle in self.edges2triangles[(u,v)]
            
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
             if self.graph.directed:
@@ -540,15 +539,15 @@ class Swap:
                             del self.edges2triangles[edge]
                     del self.triangles2edges[current_triangle]
 
-            if self.debug:
-                assert not (u,v) in self.edges2triangles, f'{(u,v)}, {self.edges2triangles[(u,v)]}, {self.triangles2edges[self.edges2triangles[(u,v)][0]]}'
-                assert not (v,u) in self.edges2triangles
+            #if self.debug:
+            #    assert not (u,v) in self.edges2triangles, f'{(u,v)}, {self.edges2triangles[(u,v)]}, {self.triangles2edges[self.edges2triangles[(u,v)][0]]}'
+            #    assert not (v,u) in self.edges2triangles
 
-                for triangle in self.triangles2edges:
-                    assert not (u,v) in self.triangles2edges[triangle]
-                    assert not (v,u) in self.triangles2edges[triangle]
+            #    for triangle in self.triangles2edges:
+            #        assert not (u,v) in self.triangles2edges[triangle]
+            #        assert not (v,u) in self.triangles2edges[triangle]
 
-                assert v not in self.graph.neighbors[u]
+            #    assert v not in self.graph.neighbors[u]
 
             # created triangles
             created = []
@@ -568,7 +567,7 @@ class Swap:
                             self._add_directed_triangle(u, y, current_triangle)
                             self._add_directed_triangle(y, neigh, current_triangle)
                             self._add_directed_triangle(neigh, u, current_triangle)
-                            assert current_triangle in self.triangles2edges
+                            #assert current_triangle in self.triangles2edges
                     else:
                         for (node_1, node_2) in ((a,b) for idx, a in enumerate(current_triangle) for b in current_triangle[idx+1:]):
                             self.edges2triangles[(node_1, node_2)].append(current_triangle)
@@ -577,26 +576,26 @@ class Swap:
                             self.edges2triangles[(node_2, node_1)].append(current_triangle)
                             self.triangles2edges[current_triangle].append((node_2, node_1))
 
-            for triangle in created:
-                assert triangle in self.triangles2edges
+            #for triangle in created:
+            #    assert triangle in self.triangles2edges
            
-            if self.debug:
-                assert not (u,v) in self.edges2triangles
-                assert not (v,u) in self.edges2triangles
+            #if self.debug:
+            #    assert not (u,v) in self.edges2triangles
+            #    assert not (v,u) in self.edges2triangles
 
-                for triangle in self.triangles2edges:
-                    assert not (u,v) in self.triangles2edges[triangle]
-                    assert not (v,u) in self.triangles2edges[triangle]
+            #    for triangle in self.triangles2edges:
+            #        assert not (u,v) in self.triangles2edges[triangle]
+            #        assert not (v,u) in self.triangles2edges[triangle]
       
-        if self.debug:
-            for edge in self.edges2triangles:
-                for triangle in self.edges2triangles[edge]:
-                    assert edge in self.triangles2edges[triangle]
-            for triangle in self.triangles2edges:
-                assert (len(self.triangles2edges[triangle]) == 3 or len(self.triangles2edges[triangle]) == 6), f'length is {len(self.triangles2edges[triangle])}, {self.triangles2edges[triangle]}' 
-                for edge in self.triangles2edges[triangle]:
-                    assert triangle in self.edges2triangles[edge]
-                    assert edge in self.graph.edges, f'triangle {triangle} edge {edge}'
+        #if self.debug:
+        #    for edge in self.edges2triangles:
+        #        for triangle in self.edges2triangles[edge]:
+        #            assert edge in self.triangles2edges[triangle]
+        #    for triangle in self.triangles2edges:
+        #        assert (len(self.triangles2edges[triangle]) == 3 or len(self.triangles2edges[triangle]) == 6), f'length is {len(self.triangles2edges[triangle])}, {self.triangles2edges[triangle]}' 
+        #        for edge in self.triangles2edges[triangle]:
+        #            assert triangle in self.edges2triangles[edge]
+        #            assert edge in self.graph.edges, f'triangle {triangle} edge {edge}'
 
     def metric(self):
         pass
@@ -649,76 +648,51 @@ class Swap:
         else:
             return True
 
-    def run(self):
+    def run(self, N_swap=None):
         """
             K-edge swap algorithm.
             Start by computing assortativity initial value, then 
             perform N_swap, each time checking the constraints and computing
             metrics.
         """
+        # populate assortativity values
+        window = []
+
+        if N_swap == None:
+            N_swap = self.N_swap
+
         accept_rate = 0
         refusal_rate = 0
+
+        # initialize values
         self.init_assortativity()
         self.init_joint_degree()
         self.count_triangles()
 
-        if self.debug and not self.graph.directed:
-                for (u,v) in self.graph.edges:
-                    assert (v,u) in self.graph.edges
-                for (u,v) in self.edges2triangles:
-                    assert (v,u) in self.edges2triangles
-        for (u,v) in self.edges2triangles:
-            assert (u,v) in self.graph.edges
+        # run N_swap swap
         pb = ProgressBar()
         for swap_idx in pb(range(self.N_swap)):
+            
+            # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
-            for (u,v) in self.edges2triangles:
-                assert (u,v) in self.graph.edges
-
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
             accept_permutation = self.check_swap(edge_to_swap, permutation)
-            if (accept_permutation):
+            accept_jd = self.update_joint_degree(edge_to_swap, permutation)
+
+            # if swap is accepted, perform swap and update graph metrics values
+            if (accept_permutation and accept_jd):
                 accept_rate += 1 
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
-                if self.debug and not self.graph.directed:
-                    for (u,v) in self.graph.edges:
-                        assert (v,u) in self.graph.edges
-                    for (u,v) in self.edges2triangles:
-                        assert (v,u) in self.edges2triangles
-                #for (u,v) in self.edges2triangles:
-                #    assert (u,v) in self.graph.edges
 
-                assert len(self.graph.unique_edges) == self.graph.M
-
-                assert len(self.graph.unique_edges) == len(set(self.graph.unique_edges))
                 self.update_triangles(edge_to_swap, permutation)
-                for (u,v) in self.edges2triangles:
-                    assert (u,v) in self.graph.edges
-                #for (u,v) in self.graph.edges:
-                #    assert self.graph.neighbors[u][self.graph.edges[(u,v)]] == v
-                #for (u,v) in self.graph.edges:
-                #    assert (v,u) in self.graph.edges
-                #for (u,v) in self.edges2triangles:
-                #    assert (v,u) in self.edges2triangles
-
-                # measure convergence
-
                 self.update_assortativity(edge_to_swap, permutation)
-                #updated_assortativity = self.assortativity
-                accept_jd = self.update_joint_degree(edge_to_swap, permutation)
-
-
-                # compare with complete assortativity
-                # TODO only when --check
-                #self.init_assortativity()
-                #if not np.isclose(updated_assortativity, self.assortativity):
-                #    print(f" updated {updated_assortativity} whole {self.assortativity}")
-                #print(self.assortativity)
-
-                self.metric()
+                
+                #self.metric()
             else:
                 refusal_rate += 1
+            window.append(self.assortativity)
         print(f'accepted : {accept_rate} , refused : {refusal_rate}')
+        return window
 
 
 
@@ -730,7 +704,7 @@ def main():
             help='path to the dataset')
     parser.add_argument('-o', '--output', type=str, default="./gp_references.out",
             help='path to the output')
-    parser.add_argument('-n', '--N_swap', type=int, default=10000,
+    parser.add_argument('-n', '--N_swap', type=int, default=1000000,
             help='number of swap')
     parser.add_argument('-g', '--gamma', type=int, default=2,
 	    help='exponent of zipf law, for pick K value')
@@ -751,11 +725,11 @@ def main():
     print('reading graph')
     mygraph.read_ssv(args.dataset)
     print('performing swaps')
-    swaps = Swap(mygraph, args.N_swap, args.gamma, args.debug)
+    mc = MarkovChain(mygraph, args.N_swap, args.gamma, args.debug)
     print(swaps.assortativity)
-    swaps.run()
+    mc.run()
     print('writing graph')
-    swaps.graph.to_ael(args.output)
+    mc.graph.to_ael(args.output)
     #for j in pb(range(1000000)):
     #    edge_to_swap, permutation = mygraph.find_swap(4)
     #    mygraph.perform_swap(edge_to_swap, permutation)

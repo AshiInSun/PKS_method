@@ -1,7 +1,7 @@
 import pytest
-
+import numpy as np
 from Graph import Graph
-from Swap import Swap
+from MarkovChain import MarkovChain
 
 def test_directed_graph():
     mygraph = Graph(True)
@@ -28,19 +28,19 @@ def test_undirected_graph():
         assert mygraph.neighbors[u][v_idx] == v
         assert mygraph.neighbors[v][u_idx] == u
 
-def test_directed_swaps():
+def test_directed_mc():
     # TODO : peut être ajouter test ou on enchaine un swap et son inverse + vérifier si on retourne bien au graphe de départ ?
     mygraph = Graph(True)
     mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
-    swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
 
     edge_to_swap = [(43, 34), (57, 62), (36, 7), (12, 51), (27, 48), (49, 62), (11, 46), (8, 23), (56, 22), (59, 61)]
     permutation = [(59, 61), (43, 34), (57, 62), (36, 7), (12, 51), (27, 48), (49, 62), (11, 46), (8, 23), (56, 22)]
     edge_to_swap_idx = [1090, 1185, 100, 458, 1015, 1123, 436, 333, 734, 915]
 
-    accept_permutation = swaps.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
-    swaps.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
     for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
@@ -70,18 +70,18 @@ def test_directed_swaps():
         assert mygraph.out_neighbors[u][v_out_idx] == v
         assert mygraph.in_neighbors[v][u_in_idx] == u
 
-def test_undirected_swaps():
+def test_undirected_mc():
     mygraph = Graph(False)
     mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
-    swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
 
     edge_to_swap = [(578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382), (28, 29)]
     permutation = [(28, 29), (578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382)]
     edge_to_swap_idx = [972, 1343, 1281, 502, 566, 662, 837, 1300, 709, 59]
 
-    accept_permutation = swaps.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
-    swaps.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
     for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
@@ -112,63 +112,63 @@ def test_init_triangles():
     # undirected
     mygraph = Graph(False)
     mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
-    swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
-    swaps.count_triangles()
-    assert len(swaps.triangles2edges) == 32
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
+    mc.count_triangles()
+    assert len(mc.triangles2edges) == 32
 
     # directed
     mygraph = Graph(True)
     mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
-    swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
-    swaps.count_triangles()
-    assert len(swaps.triangles2edges) == 9781
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
+    mc.count_triangles()
+    assert len(mc.triangles2edges) == 9781
 
 
 def test_update_triangles():
     # undirected
     mygraph = Graph(False)
     mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
-    swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
-    swaps.count_triangles()
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
+    mc.count_triangles()
 
     edge_to_swap = [(469, 470), (1085, 1086), (428, 732)]
     permutation = [(1085, 1086), (428, 732), (469, 470)]
     edge_to_swap_idx = [831, 1363, 768]
     destroyed_triangles = [(428, 429, 732)]
 
-    assert destroyed_triangles[0] in swaps.triangles2edges
+    assert destroyed_triangles[0] in mc.triangles2edges
     
-    accept_permutation = swaps.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
-    swaps.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
     # check that the following triangles are correctly removed by swap
-    assert destroyed_triangles[0] in swaps.triangles2edges
+    assert destroyed_triangles[0] in mc.triangles2edges
 
-    swaps.update_triangles(edge_to_swap, permutation)
+    mc.update_triangles(edge_to_swap, permutation)
 
-    assert destroyed_triangles[0] not in swaps.triangles2edges
+    assert destroyed_triangles[0] not in mc.triangles2edges
     
-    updated_triangles2edges = swaps.triangles2edges.copy()
-    swaps.count_triangles()
-    for triangle in swaps.triangles2edges:
+    updated_triangles2edges = mc.triangles2edges.copy()
+    mc.count_triangles()
+    for triangle in mc.triangles2edges:
         assert triangle in updated_triangles2edges
-        for edge in swaps.triangles2edges[triangle]:
+        for edge in mc.triangles2edges[triangle]:
             assert edge in updated_triangles2edges[triangle]
 
     for triangle in updated_triangles2edges:
-        assert triangle in swaps.triangles2edges
-        assert len(updated_triangles2edges[triangle]) == len(swaps.triangles2edges[triangle])
+        assert triangle in mc.triangles2edges
+        assert len(updated_triangles2edges[triangle]) == len(mc.triangles2edges[triangle])
 
         for edge in updated_triangles2edges[triangle]:
-            assert edge in swaps.triangles2edges[triangle]
+            assert edge in mc.triangles2edges[triangle]
     # directed
     mygraph = Graph(True)
     mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
-    swaps = Swap(mygraph, 10, 2, False) # TODO : debug ? 
-    swaps.count_triangles()
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
+    mc.count_triangles()
 
-    assert len(swaps.triangles2edges) == 9781
+    assert len(mc.triangles2edges) == 9781
     edge_to_swap = [(18, 33), (48, 62)]
     permutation = [(48, 62), (18, 33)]
     edge_to_swap_idx = [647, 1112]
@@ -189,42 +189,58 @@ def test_update_triangles():
             (33, 48, 53), (33, 48, 54), (33, 34, 48), (33, 35, 48), (33, 48, 55), 
             (33, 48, 57)]
 
-    accept_permutation = swaps.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
-    swaps.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
     for triangle in destroyed_triangles:
-        assert triangle in swaps.triangles2edges
+        assert triangle in mc.triangles2edges
 
     for triangle in created_triangles:
-        assert triangle not in swaps.triangles2edges
+        assert triangle not in mc.triangles2edges
 
-    swaps.update_triangles(edge_to_swap, permutation)
+    mc.update_triangles(edge_to_swap, permutation)
 
     for triangle in destroyed_triangles:
-        assert triangle not in swaps.triangles2edges
+        assert triangle not in mc.triangles2edges
 
-    updated_triangles2edges = swaps.triangles2edges.copy()
-    swaps.count_triangles()
-    for triangle in swaps.triangles2edges:
+    updated_triangles2edges = mc.triangles2edges.copy()
+    mc.count_triangles()
+    for triangle in mc.triangles2edges:
         assert triangle in updated_triangles2edges
-        for edge in swaps.triangles2edges[triangle]:
+        for edge in mc.triangles2edges[triangle]:
             assert edge in updated_triangles2edges[triangle]
 
     for triangle in updated_triangles2edges:
-        assert triangle in swaps.triangles2edges
-        assert len(updated_triangles2edges[triangle]) == len(swaps.triangles2edges[triangle])
+        assert triangle in mc.triangles2edges
+        assert len(updated_triangles2edges[triangle]) == len(mc.triangles2edges[triangle])
 
         for edge in updated_triangles2edges[triangle]:
-            assert edge in swaps.triangles2edges[triangle]
+            assert edge in mc.triangles2edges[triangle]
 
     for triangle in created_triangles:
-        assert triangle in swaps.triangles2edges
+        assert triangle in mc.triangles2edges
 
 def test_init_assortativity():
     pass
 
 def test_update_assortativity():
-    # compare update & init 
-    pass
+    mygraph = Graph(False)
+    mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
+    mc.init_assortativity()
+
+    edge_to_swap = [(578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382), (28, 29)]
+    permutation = [(28, 29), (578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382)]
+    edge_to_swap_idx = [972, 1343, 1281, 502, 566, 662, 837, 1300, 709, 59]
+
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    assert accept_permutation == True
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.update_assortativity(edge_to_swap, permutation)
+    updated_assortativity = mc.assortativity
+    mc.init_assortativity()
+
+    print(updated_assortativity, mc.assortativity)
+    assert updated_assortativity == mc.assortativity
 
