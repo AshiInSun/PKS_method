@@ -1,6 +1,8 @@
 import pytest
 import numpy as np
 from Graph import Graph
+from progressbar import ProgressBar
+
 from MarkovChain import MarkovChain
 
 def test_directed_graph():
@@ -221,6 +223,49 @@ def test_update_triangles():
     for triangle in created_triangles:
         assert triangle in mc.triangles2edges
 
+def test_update_triangles_random():
+    # undirected
+    mygraph = Graph(True)
+    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
+
+    mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
+    mc.count_triangles()
+    k = 4
+    for swap_idx in range(1000):
+        edge_to_swap, permutation, edge_to_swap_idx = mc.find_swap(k)
+        accept_permutation = mc.check_swap(edge_to_swap, permutation)
+
+        if (accept_permutation):
+            mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+            mc.update_triangles(edge_to_swap, permutation)
+            updated_triangles2edges = mc.triangles2edges.copy()
+            updated_edges2triangles = mc.edges2triangles.copy()
+
+            mc.count_triangles()
+
+            for triangle in mc.triangles2edges:
+                assert triangle in updated_triangles2edges
+                for edge in mc.triangles2edges[triangle]:
+                    assert edge in updated_triangles2edges[triangle]
+
+            for triangle in updated_triangles2edges:
+                assert triangle in mc.triangles2edges
+                assert len(updated_triangles2edges[triangle]) == len(mc.triangles2edges[triangle])
+
+            for edge in updated_edges2triangles:
+                assert edge in mc.edges2triangles
+                for triangle in updated_edges2triangles[edge]:
+                    assert triangle in mc.edges2triangles[edge]
+
+            for edge in mc.edges2triangles:
+                assert edge in updated_edges2triangles
+                for triangle in mc.edges2triangles[edge]:
+                    assert triangle in updated_edges2triangles[edge]
+
+
+
+
+
 def test_init_assortativity():
     pass
 
@@ -243,4 +288,13 @@ def test_update_assortativity():
 
     print(updated_assortativity, mc.assortativity)
     assert updated_assortativity == mc.assortativity
+
+def test_edges2triangles():
+    mygraph = Graph(True)
+    mygraph.read_ssv('edge_list')
+    mc = MarkovChain(mygraph, 10, 2, False)
+    edge_to_swap = [(26, 31),(35, 59),(11, 9),(41, 58)]
+    permutation = [ (41, 58),(26, 31),(35, 59),(11, 9)]
+    mc.count_triangles()
+    accept = mc.check_swap(edge_to_swap, permutation)
 
