@@ -231,7 +231,7 @@ def test_update_triangles_random():
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.count_triangles()
     k = 4
-    for swap_idx in range(1000):
+    for swap_idx in range(10000):
         edge_to_swap, permutation, edge_to_swap_idx = mc.find_swap(k)
         accept_permutation = mc.check_swap(edge_to_swap, permutation)
 
@@ -243,19 +243,21 @@ def test_update_triangles_random():
 
             mc.count_triangles()
 
+            for triangle in updated_triangles2edges:
+                assert triangle in mc.triangles2edges
+                assert len(updated_triangles2edges[triangle]) == len(mc.triangles2edges[triangle])
+            for edge in updated_edges2triangles:
+                assert edge in mc.edges2triangles
+                for triangle in updated_edges2triangles[edge]:
+                    assert triangle in mc.edges2triangles[edge]
+
+
             for triangle in mc.triangles2edges:
                 assert triangle in updated_triangles2edges
                 for edge in mc.triangles2edges[triangle]:
                     assert edge in updated_triangles2edges[triangle]
 
-            for triangle in updated_triangles2edges:
-                assert triangle in mc.triangles2edges
-                assert len(updated_triangles2edges[triangle]) == len(mc.triangles2edges[triangle])
 
-            for edge in updated_edges2triangles:
-                assert edge in mc.edges2triangles
-                for triangle in updated_edges2triangles[edge]:
-                    assert triangle in mc.edges2triangles[edge]
 
             for edge in mc.edges2triangles:
                 assert edge in updated_edges2triangles

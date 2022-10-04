@@ -54,8 +54,10 @@ class Stat():
         print('estimating eta')
         while d_eta > u:
             eta += 0.05 * self.mc.graph.M
+            print(f'considering eta {eta}')
             d_eta = 0
             for c in range(C):
+                print(f'running {c}th MC')
                 n_swap = eta
                 for t in range(T):
                     mc[c].run(n_swap)
@@ -70,15 +72,16 @@ class Stat():
     def run_dfgls(self):
         # measure density of graph and use Dutta et al. Fig5 decision tree for sampling gap
         print('measuring density')
-        d = self.mc.graph.M/(self.mc.graph.N * (self.mc.graph.N -1))
-        if self.mc.graph.directed:
-            d = d/2
-        if d < 0.134:
-            print('using eta=2m')
-            eta = 2 * self.mc.graph.M
-        else:
-            print('estimating eta')
-            eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+        #d = self.mc.graph.M/(self.mc.graph.N * (self.mc.graph.N -1))
+        #if self.mc.graph.directed:
+        #    d = d/2
+        #if d < 0.134:
+        #    print('using eta=2m')
+        #    eta = 2 * self.mc.graph.M
+        #else:
+        #    print('estimating eta')
+        #    eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+        eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
 
         has_converged = False
         print('testing convergence')

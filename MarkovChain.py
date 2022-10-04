@@ -42,6 +42,28 @@ class MarkovChain:
         self.joint_degree = np.zeros(0)
         self.debug = debug
 
+    def __dump__(self, edge_to_swap, permutation):
+        """Write graph and permutation, useful for debugging"""
+        with open('dump.log', 'w') as fout:
+            fout.write('neighbors\n')
+            for node in self.graph.neighbors:
+                fout.write(f'{node}: {self.graph.neighbors[node]}\n')
+            fout.write('edges\n')
+            for edge in self.graph.edges:
+                fout.write(f'{edge}: {self.graph.edges[edge]}\n')
+            fout.write('edges2triangles\n')
+            for edge in self.edges2triangles:
+                fout.write(f'{edge}: {self.edges2triangles[edge]}\n')
+            fout.write('triangles2edges\n')
+            for triangle in self.triangles2edges:
+                fout.write(f'{triangle}: {self.triangles2edges[triangle]}\n')
+            fout.write('edge_to_swap and permutation\n')
+            for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
+                fout.write(f'{(u,v)}, {(x,y)}\n')
+
+            
+
+
     def pick_k(self):
         """
             Pick k value using zipf distribution.
@@ -135,9 +157,12 @@ class MarkovChain:
             if goal_edge in self.graph.edges:
                 #accept_permutation = False
                 return False
-            else:
-                # debugging: check that edges2triangles is correct
-                assert not goal_edge in self.edges2triangles
+            #else:
+            #    # debugging: check that edges2triangles is correct
+            #    #try:
+            #    assert not goal_edge in self.edges2triangles
+            #    #except:
+            #    #    self.__dump__(edge_to_swap, permutation)
 
         if len(set(goal_edges)) == len(goal_edges): # NOTE : VERIFIER QU'ON A PAS DEUX SWAP QUI VISENT LE MEME LIEN !!
             accept_permutation = True
@@ -515,10 +540,6 @@ class MarkovChain:
                 # for each triangle, remove them and remove edges 
                 for current_triangle in destroyed_triangles:
 
-                    # remove destroyed triangle from edges2triangles
-                    if self.debug:
-                        assert len(self.triangles2edges[current_triangle]) == 6
-
                     for edge in self.triangles2edges[current_triangle]:
                         self.edges2triangles[edge].remove(current_triangle)
                         if len(self.edges2triangles[edge]) == 0:
@@ -575,6 +596,27 @@ class MarkovChain:
                             
                             self.edges2triangles[(node_2, node_1)].append(current_triangle)
                             self.triangles2edges[current_triangle].append((node_2, node_1))
+
+        updated_triangles2edges = self.triangles2edges.copy()
+        updated_edges2triangles = self.edges2triangles.copy()
+
+        self.count_triangles()
+
+        for triangle in updated_triangles2edges:
+            try:
+                assert triangle in self.triangles2edges
+                assert len(updated_triangles2edges[triangle]) == len(self.triangles2edges[triangle])
+            except:
+                ipdb.set_trace()
+                assert triangle in self.triangles2edges
+                assert len(updated_triangles2edges[triangle]) == len(self.triangles2edges[triangle])
+
+        for edge in updated_edges2triangles:
+            assert edge in self.edges2triangles
+            for triangle in updated_edges2triangles[edge]:
+                assert triangle in self.edges2triangles[edge]
+
+
 
             #for triangle in created:
             #    assert triangle in self.triangles2edges
@@ -670,11 +712,12 @@ class MarkovChain:
         self.count_triangles()
 
         # run N_swap swap
-        pb = ProgressBar()
-        for swap_idx in pb(range(self.N_swap)):
+        #pb = ProgressBar()
+        for swap_idx in range(self.N_swap):
             
             # pick k, permutation, and check if swap can be accepted
-            k = self.pick_k()
+            #k = self.pick_k()
+            k=4
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
             accept_permutation = self.check_swap(edge_to_swap, permutation)
             accept_jd = self.update_joint_degree(edge_to_swap, permutation)
@@ -726,7 +769,6 @@ def main():
     mygraph.read_ssv(args.dataset)
     print('performing swaps')
     mc = MarkovChain(mygraph, args.N_swap, args.gamma, args.debug)
-    print(swaps.assortativity)
     mc.run()
     print('writing graph')
     mc.graph.to_ael(args.output)
