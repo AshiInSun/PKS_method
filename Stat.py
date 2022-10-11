@@ -93,8 +93,20 @@ class Stat():
                 has_converged = True
 
 
-    def run_kolmogorov_smirnov(self):
-        test_stat = kstest(x, z)
+    def run_kolmogorov_smirnov(self, other):
+        eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+
+        has_converged = False
+        print('testing convergence')
+        C = 200 # TODO CHECK NUMBER OF CHAINS
+        KS_samples = []
+        for c in range(C):
+            mc.append(MarkovChain(graph, N_swap, gamma))
+            mc[c].run()
+            KS_samples.append(mc.assortativity)
+
+        
+        test_stat, p_value = kstest(KS_samples, other)
         pass
 
 def main():

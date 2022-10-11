@@ -61,9 +61,6 @@ class MarkovChain:
             for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
                 fout.write(f'{(u,v)}, {(x,y)}\n')
 
-            
-
-
     def pick_k(self):
         """
             Pick k value using zipf distribution.
@@ -182,18 +179,6 @@ class MarkovChain:
             edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)
         """
 
-        #if self.debug:
-        #    # check that (u, v) and (x, y) exist in current data structure
-        #    for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-        #        departure = (u,v) if u < v else (v,u)
-        #        arrival = (x, y) if x < y else (y,x)
-        #        assert (u,v) in self.graph.edges
-        #        assert (v,u) in self.graph.edges
-        #        assert (x,y) in self.graph.edges
-        #        assert (y,x) in self.graph.edges
-        #        assert departure in self.graph.unique_edges
-        #        assert arrival in self.graph.unique_edges
-
         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
             # naming departure edge = (u,v) and arrival edge = (x,y) , goal edge = (u, y)
@@ -208,26 +193,12 @@ class MarkovChain:
 
             old_edge = (u, v) if u < v else (v, u)
 
-            #if self.debug:
-            #    # check that goal_edge doesn't already exist in data structure
-            #    assert len(set(self.graph.unique_edges)) == self.graph.M
-            #    # check that old_edge has indeed been replaced
-            #    assert old_edge not in self.graph.unique_edges
-
             if self.graph.directed:
                 v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
                 y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
 
-                # perform swap
-                #try:
-                #assert self.graph.out_neighbors[u][v_out_idx] == v
-                #assert self.graph.in_neighbors[y][x_in_idx] == x
                 self.graph.out_neighbors[u][v_out_idx] = y
                 self.graph.in_neighbors[y][x_in_idx] = u
-                #except:
-                #    ipdb.set_trace()
-                #    self.graph.out_neighbors[u][v_out_idx] = y
-                #    self.graph.in_neighbors[y][x_in_idx] = u
 
                 self.graph.edges[(u,y)] = (v_idx, x_idx, v_out_idx, x_in_idx)
             else:
@@ -248,116 +219,6 @@ class MarkovChain:
             del self.graph.edges[(u,v)]
             if not self.graph.directed:
                 del self.graph.edges[(v,u)]
-
-        #if self.debug:
-        #    # check that links are in all data structures
-        #    for u, v in self.graph.unique_edges:
-        #        assert (u, v) in self.graph.edges
-
-        #    for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-        #        departure = (u,v) if u < v else (v,u)
-        #        arrival = (x, y) if x < y else (y,x)
-        #        goal_edge = (u, y) if u < y else (y ,u)
-
-        #        assert (u,v) not in self.graph.edges
-        #        assert (v,u) not in self.graph.edges
-        #        assert (x,y) not in self.graph.edges
-        #        assert (y,x) not in self.graph.edges
-        #        assert (u,y) in self.graph.edges
-        #        assert (y,u) in self.graph.edges
-
-        #        assert goal_edge in self.graph.unique_edges
-        #        assert departure not in self.graph.unique_edges
-        #        assert arrival not in self.graph.unique_edges
-
-
-    #def perform_swap_directed(self, edge_to_swap, permutation, edge_to_swap_idx):
-    #    """
-    #        When permutation is accepted, swap the edges in the graph data structure.
-
-    #        Parameters:
-    #        edge_to_swap : list of the edges to swap
-    #        permutation  : list of the edges with which we should swap the
-    #                       edges in edge_to_swap
-    #        edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)
-    #    """
-
-    #    if self.debug:
-    #        # check that (u, v) and (x, y) exist in current data structure
-    #        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-    #            departure = (u,v) if u < v else (v,u)
-    #            arrival = (x, y) if x < y else (y,x)
-    #            assert (u,v) in self.graph.edges
-    #            assert (v,u) in self.graph.edges
-    #            assert (x,y) in self.graph.edges
-    #            assert (y,x) in self.graph.edges
-    #            assert departure in self.graph.unique_edges
-    #            assert arrival in self.graph.unique_edges
-
-    #    for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-
-    #        # naming departure edge = (u,v) and arrival edge = (x,y) , goal edge = (u, y)
-    #        goal_edge = (u, y) if u < y else (y ,u)
-    #        old_edge = self.graph.unique_edges[e_idx]
-
-    #        self.graph.unique_edges[e_idx] = goal_edge
-
-    #        old_edge = (u, v) if u < v else (v, u)
-
-    #        if self.debug:
-    #            # check that goal_edge doesn't already exist in data structure
-    #            assert len(set(self.graph.unique_edges)) == self.graph.M
-    #            # check that old_edge has indeed been replaced
-    #            assert old_edge not in self.graph.unique_edges
-
-    #        v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
-    #        y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
-    #        #x_idx, y_idx, x_out_idx, y_in_idx = self.graph.edges[(y,x)] # shouldn't exist
-
-    #        #v_idx = self.graph.edges[(u,v)]
-    #        #u_idx =  self.graph.edges[(v,u)]
-    #        #y_idx = self.graph.edges[(x,y)]
-    #        #x_idx =  self.graph.edges[(y,x)]
-
-    #        # perform swap
-    #        self.graph.neighbors[u][v_idx] = y # on change v dans neighbors (u)
-    #        self.graph.neighbors[y][x_idx] = u
-    #        self.graph.out_neighbors[u][v_out_idx] = y
-    #        self.graph.in_neighbors[y][x_in_idx] = u
-    #        # j'ai envie de faire self.graph.neighbors[y][x_idx] = u : x y va disparaitre pour etre remplacé par x y' => x sera plus voisin de y donc pas de pb 
-    #        #self.graph.neighbors[y][x_idx] = u
-
-    #        self.graph.edges[(u,y)] = (v_idx, u_idx, v_out_idx, u_in_idx)
-    #        #self.graph.edges[(y,u)] = (
-    #        #self.graph.edges[(u,y)] = v_idx
-    #        #self.graph.edges[(y,u)] = x_idx
-
-    #    for (u, v), (x,y) in zip(edge_to_swap, permutation):
-    #        del self.graph.edges[(u,v)]
-    #        if not self.graph.directed:
-    #            del self.graph.edges[(v,u)]
-
-    #    if self.debug:
-    #        # check that links are in all data structures
-    #        for u, v in self.graph.unique_edges:
-    #            assert (u, v) in self.graph.edges
-
-    #        for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
-    #            departure = (u,v) if u < v else (v,u)
-    #            arrival = (x, y) if x < y else (y,x)
-    #            goal_edge = (u, y) if u < y else (y ,u)
-
-    #            assert (u,v) not in self.graph.edges
-    #            assert (v,u) not in self.graph.edges
-    #            assert (x,y) not in self.graph.edges
-    #            assert (y,x) not in self.graph.edges
-    #            assert (u,y) in self.graph.edges
-    #            assert (y,u) in self.graph.edges
-
-    #            assert goal_edge in self.graph.unique_edges
-    #            assert departure not in self.graph.unique_edges
-    #            assert arrival not in self.graph.unique_edges
-
 
     def init_assortativity(self):
         """
@@ -405,10 +266,7 @@ class MarkovChain:
             Given a K-edge swap, update assortativy value using generalised formual from
             "Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences"
         """
-
-        # TODO CHECK IF THAT WORKS (math + practice)
         N = 0 
-
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
 
             # new edge is (u,y), disappearing edge is (u,v)
@@ -448,11 +306,7 @@ class MarkovChain:
                 we store each triangle thrice in a set of tuplet, with each node as a starting point,
                 e.g. for triangle (u,v,w) we store {(u,v,w), (v,w,u), (w,u,v)}. We store each link
                 involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)
-
-
         """
-
-    
 
         nb_triangles = 0
         for node_1 in self.graph.neighbors.keys():
@@ -498,16 +352,6 @@ class MarkovChain:
                                 self.edges2triangles[(v,u)].append(current_triangle)
                                 self.triangles2edges[current_triangle].append((v,u))
 
-        #if self.debug:
-        #    for edge in self.edges2triangles:
-        #        for triangle in self.edges2triangles[edge]:
-        #            assert edge in self.triangles2edges[triangle]
-        #    for triangle in self.triangles2edges:
-        #        assert (len(self.triangles2edges[triangle]) == 3 or len(self.triangles2edges[triangle]) == 6), f'length is {len(self.triangles2edges[triangle])}, {self.triangles2edges[triangle]}' 
-        #        for edge in self.triangles2edges[triangle]:
-        #            assert triangle in self.edges2triangles[edge]
-        #            assert edge in self.graph.edges
-
     def update_triangles(self, edge_to_swap, permutation):
         
         """
@@ -516,16 +360,6 @@ class MarkovChain:
             - if the initial edge was involved in a triangle, remove triangle from sets
             - if the goal edge creates a triangle, add it to the sets
         """
-        ### TODO SPLIT EN PLUSIEURS FONCTIONS / TROP LONG
-        # TODO version graphe dirigé
-        #if self.debug:
-        #    for (u,v) in self.edges2triangles:
-        #        assert (v,u) in self.edges2triangles
-        #        for triangle in self.edges2triangles[(u,v)]:
-        #            assert triangle in self.edges2triangles[(v,u)]
-        #        for triangle in self.edges2triangles[(v,u)]:
-        #            assert triangle in self.edges2triangles[(u,v)]
-           
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
             if self.graph.directed:
                 goal_edge = (u, y)
@@ -551,24 +385,12 @@ class MarkovChain:
                 destroyed_triangles = self.edges2triangles[(v,u)].copy() 
 
                 for current_triangle in destroyed_triangles:
-                    #self.triangles.remove(current_triangle)
-                    # remove destroyed triangle from edges2triangles
                     for edge in self.triangles2edges[current_triangle]:
                         #try:
                         self.edges2triangles[edge].remove(current_triangle)
                         if len(self.edges2triangles[edge]) == 0:
                             del self.edges2triangles[edge]
                     del self.triangles2edges[current_triangle]
-
-            #if self.debug:
-            #    assert not (u,v) in self.edges2triangles, f'{(u,v)}, {self.edges2triangles[(u,v)]}, {self.triangles2edges[self.edges2triangles[(u,v)][0]]}'
-            #    assert not (v,u) in self.edges2triangles
-
-            #    for triangle in self.triangles2edges:
-            #        assert not (u,v) in self.triangles2edges[triangle]
-            #        assert not (v,u) in self.triangles2edges[triangle]
-
-            #    assert v not in self.graph.neighbors[u]
 
             # created triangles
             created = []
@@ -616,79 +438,98 @@ class MarkovChain:
             for triangle in updated_edges2triangles[edge]:
                 assert triangle in self.edges2triangles[edge]
 
-
-
-            #for triangle in created:
-            #    assert triangle in self.triangles2edges
-           
-            #if self.debug:
-            #    assert not (u,v) in self.edges2triangles
-            #    assert not (v,u) in self.edges2triangles
-
-            #    for triangle in self.triangles2edges:
-            #        assert not (u,v) in self.triangles2edges[triangle]
-            #        assert not (v,u) in self.triangles2edges[triangle]
-      
-        #if self.debug:
-        #    for edge in self.edges2triangles:
-        #        for triangle in self.edges2triangles[edge]:
-        #            assert edge in self.triangles2edges[triangle]
-        #    for triangle in self.triangles2edges:
-        #        assert (len(self.triangles2edges[triangle]) == 3 or len(self.triangles2edges[triangle]) == 6), f'length is {len(self.triangles2edges[triangle])}, {self.triangles2edges[triangle]}' 
-        #        for edge in self.triangles2edges[triangle]:
-        #            assert triangle in self.edges2triangles[edge]
-        #            assert edge in self.graph.edges, f'triangle {triangle} edge {edge}'
-
-    def metric(self):
-        pass
-
     def init_joint_degree(self):
         # check max degree .. 
         max_degree = 0
         for node in self.graph.neighbors:
-            if len(self.graph.neighbors) > max_degree:
-                max_degree = len(self.graph.neighbors)
+            if len(self.graph.neighbors[node]) > max_degree:
+                max_degree = len(self.graph.neighbors[node])
 
         # initialize matrix
         self.joint_degree = np.zeros((max_degree, max_degree))
+        edge_cache = set()
+
 
         # compute matrix // TODO : ATTENTION indice - 1
         for node in self.graph.neighbors:
             for neighbor in self.graph.neighbors[node]:
-                self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-                self.joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
+                #if (node, neighbor)in edge_cache:
+                #    continue
+                deg_1 = len(self.graph.neighbors[node]) - 1
+                deg_2 = len(self.graph.neighbors[neighbor]) - 1
+                #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+                self.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
+                self.joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
+
+                #edge_cache.add((node, neighbor))
+
+
+                #self.joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
 
 
         # verification DEBUG : somme par ligne = nombre noeud ayant tel degré
-        return
+        #return
 
     def update_joint_degree(self, edge_to_swap, permutation):
+
+        swapped_nodes =list(set(sum(edge_to_swap, ())))
+        #print(swapped_nodes)
+        swapped_deg = list(set([len(mc.graph.neighbors[n])-1 for n in swapped_nodes]))
+        #mc.init_joint_degree()
+
         changes = dict()
-        for (u, v), (x,y) in zip(edge_to_swap, permutation):
+        #updated_joint_degree = mc.joint_degree.copy()
+        updated_joint_degree = np.zeros(mc.joint_degree.shape)
 
-            goal_edge = (u, y) if u < y else (y ,u)
+        print('before changes')
+        edge_cache = set()
+        mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+        mc.init_joint_degree()
 
-            deg_u = len(self.graph.neighbors[u])
-            deg_v = len(self.graph.neighbors[v])
-            deg_x = len(self.graph.neighbors[x])
-            deg_y = len(self.graph.neighbors[y])
+        # compute matrix // TODO : ATTENTION indice - 1
+        #ipdb.set_trace()
+        print(swapped_deg)
+        for node in mc.graph.neighbors:
+            for neighbor in mc.graph.neighbors[node]:
+                if (node, neighbor) in edge_cache:
+                    continue
+                deg_1 = len(mc.graph.neighbors[node]) - 1
+                deg_2 = len(mc.graph.neighbors[neighbor]) - 1
+                if deg_1 in swapped_deg or deg_2 in swapped_deg:
+                #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+                    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1
+                else:
+                    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] = mc.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)]
 
-            if (deg_u, deg_v) in changes:
-                changes[(deg_u, deg_v)] -= 1
-            else:
-                changes[(deg_u, deg_v)] = self.joint_degree[deg_u, deg_v]
-
-            if (deg_u, deg_y) in changes:
-                changes[(deg_u, deg_y)] -= 1
-            else:
-                changes[(deg_u, deg_y)] = self.joint_degree[deg_u, deg_y]
+                edge_cache.add((node, neighbor))
 
 
-        for (deg_u, deg_v) in changes:
-            if changes[(deg_u, deg_v)] != self.joint_degree[deg_u, deg_v]:
-                return False
-        else:
-            return True
+        #changes = dict()
+        #for (u, v), (x,y) in zip(edge_to_swap, permutation):
+
+        #    goal_edge = (u, y) if u < y else (y ,u)
+
+        #    deg_u = len(self.graph.neighbors[u])
+        #    deg_v = len(self.graph.neighbors[v])
+        #    deg_x = len(self.graph.neighbors[x])
+        #    deg_y = len(self.graph.neighbors[y])
+
+        #    if (deg_u, deg_v) in changes:
+        #        changes[(deg_u-1, deg_v-1)] -= 1
+        #    else:
+        #        changes[(deg_u-1, deg_v-1)] = self.joint_degree[deg_u-1, deg_v-1]
+
+        #    if (deg_u, deg_y) in changes:
+        #        changes[(deg_u-1, deg_y-1)] += 1
+        #    else:
+        #        changes[(deg_u-1, deg_y-1)] = self.joint_degree[deg_u-1, deg_y-1]
+
+
+        #for (deg_u, deg_v) in changes:
+        #    if changes[(deg_u-1, deg_v-1)] != self.joint_degree[deg_u-1, deg_v-1]:
+        #        return False
+        #else:
+        #    return True
 
     def run(self, N_swap=None):
         """
@@ -738,7 +579,203 @@ class MarkovChain:
         return window
 
 
+def debug():
+    mygraph = Graph(False)
+    mygraph.read_ssv('unit_clean')#TODO
+    #mygraph.read_ssv('data/euroroad.tsv')#TODO
 
+    mc = MarkovChain(mygraph, 10, 2, False)
+    edge_to_swap = [(1, 2), (5,6)]
+    permutation = [(5, 6), (1, 2)]
+    edge_to_swap_idx = [1, 8]
+
+    swapped_nodes =list(set(sum(edge_to_swap, ())))
+    #print(swapped_nodes)
+    swapped_deg = list(set([len(mc.graph.neighbors[n])-1 for n in swapped_nodes]))
+    mc.init_joint_degree()
+    print(mc.joint_degree)
+    #updated_joint_degree = mc.joint_degree.copy()
+    updated_joint_degree = np.zeros(mc.joint_degree.shape)
+
+    print('before changes')
+    #mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    #mc.init_joint_degree()
+
+    # compute matrix // TODO : ATTENTION indice - 1
+    #ipdb.set_trace()
+    print(swapped_deg)
+
+    for node in mc.graph.neighbors:
+        if node in swapped_nodes:
+            continue
+        print(f'updating {node}')
+        for neighbor in mc.graph.neighbors[node]:
+            deg_1 = len(mc.graph.neighbors[node]) - 1
+            deg_2 = len(mc.graph.neighbors[neighbor]) - 1
+            updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2 # mc.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)]
+            updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2 # mc.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)]
+    #for node in swapped_nodes:
+    #    # 
+    #ipdb.set_trace()
+    print(updated_joint_degree)
+    for (u, v), (x,y) in zip(edge_to_swap, permutation):
+
+        if mc.graph.directed:
+            goal_edge = (u, y)
+        else:
+            goal_edge = (u, y) if u < y else (y ,u)
+        _neighbors = dict()
+        _neighbors[u] = mc.graph.neighbors[u].copy()
+        _neighbors[y] = mc.graph.neighbors[y].copy()
+        if mc.graph.directed:
+            v_idx, u_idx, v_out_idx, u_in_idx = mc.graph.edges[(u,v)]
+            y_idx, x_idx, y_out_idx, x_in_idx = mc.graph.edges[(x,y)]
+        else:
+            v_idx = mc.graph.edges[(u,v)]
+            u_idx =  mc.graph.edges[(v,u)]
+            y_idx = mc.graph.edges[(x,y)]
+            x_idx =  mc.graph.edges[(y,x)]
+        _neighbors[u][v_idx] = y
+        _neighbors[y][x_idx] = u
+        #ipdb.set_trace()
+        for node in [u, y]:
+            for neighbor in _neighbors[node]:
+                #if (node, neighbor)in edge_cache:
+                #    continue
+                deg_1 = len(mc.graph.neighbors[node]) - 1
+                deg_2 = len(mc.graph.neighbors[neighbor]) - 1
+                print(f'{deg_1} {deg_2}')
+
+                #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+                updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
+                updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
+
+        #for neighbor in u_neighbors:
+        #    #if (node, neighbor)in edge_cache:
+        #    #    continue
+        #    deg_1 = len(mc.graph.neighbors[u]) - 1
+        #    deg_2 = len(mc.graph.neighbors[neighbor]) - 1
+        #    print(f'{deg_1} {deg_2}')
+        #    #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+
+        #    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
+        #    #updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
+        #for neighbor in y_neighbors:
+        #    #if (node, neighbor)in edge_cache:
+        #    #    continue
+        #    deg_1 = len(mc.graph.neighbors[y]) - 1
+        #    deg_2 = len(mc.graph.neighbors[neighbor]) - 1
+        #    print(f'{deg_1} {deg_2}')
+
+        #    #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+        #    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
+        #    #updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
+        #print('___')
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.init_joint_degree()
+    print(mc.joint_degree)
+    print(updated_joint_degree)
+    exit()
+
+
+    #for deg in swapped_deg:
+    #    updated_joint_degree[deg-1, :] = 0
+    #    updated_joint_degree[:, deg-1] = 0
+    #    for node in mc.graph.deg2nodes:
+    #        for neighbor in mc.graph.neighbors[node]:
+    #            if (node, neighbor) in edge_cache:
+    #                continue
+    #            deg_1 = len(mc.graph.neighbors[node]) - 1
+    #            deg_2 = len(mc.graph.neighbors[neighbor]) - 1
+    #            #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+    #            updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1
+    #            edge_cache.add((node, neighbor))
+
+    #for node in self.graph.neighbors:
+    #    for neighbor in self.graph.neighbors[node]:
+    #        if (node, neighbor) not in edge_to_swap:
+    #            continue
+    #        deg_1 = len(self.graph.neighbors[node]) - 1
+    #        deg_2 = len(self.graph.neighbors[neighbor]) - 1
+    #        #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+    #        self.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1
+    #        edge_cache.add((node, neighbor))
+
+
+    #        #self.joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
+
+    #for (u, v), (x,y) in zip(edge_to_swap, permutation):
+
+    #    goal_edge = (u, y) #if u < y else (y ,u)
+    #    deg_u = len(mc.graph.neighbors[u]) - 1
+    #    deg_v = len(mc.graph.neighbors[v]) - 1
+    #    deg_x = len(mc.graph.neighbors[x]) - 1
+    #    deg_y = len(mc.graph.neighbors[y]) - 1
+
+    #    #updated_joint_degree[deg_u-1, deg_v-1] -=1
+    #    #updated_joint_degree[deg_v-1, deg_u-1] -=1
+    #    #updated_joint_degree[deg_x-1, deg_y-1] -=1
+    #    #updated_joint_degree[deg_y-1, deg_x-1] -=1
+
+    #    updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)] -=1
+    #    updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)] -=1
+
+    #    updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)] +=1
+
+    #    print(f'{min(deg_u, deg_v) } {max(deg_u, deg_v) }')
+    #    print(mc.joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
+    #    print(updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
+
+    #    print(f'{min(deg_u, deg_y) }  {max(deg_u, deg_y) }')
+
+    #    print(mc.joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
+    #    print(updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
+
+    #    print(f' {min(deg_x, deg_y)} {max(deg_x, deg_y) }')
+    #    print(mc.joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
+    #    print(updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
+    #    print('----')
+
+
+    ##ipdb.set_trace() 
+
+    print('after changes')
+
+    #for (u, v), (x,y) in zip(edge_to_swap, permutation):
+    #    deg_u = len(mc.graph.neighbors[u]) - 1
+    #    deg_v = len(mc.graph.neighbors[v]) - 1
+    #    deg_x = len(mc.graph.neighbors[x]) - 1
+    #    deg_y = len(mc.graph.neighbors[y]) - 1
+
+    #    print(f'{min(deg_u, deg_v) } {max(deg_u, deg_v) }')
+
+    #    print(mc.joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
+    #    print(updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
+
+    #    print(f'{min(deg_u, deg_y) }  {max(deg_u, deg_y) }')
+
+    #    print(mc.joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
+    #    print(updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
+
+    #    print(f' {min(deg_x, deg_y)} {max(deg_x, deg_y) }')
+
+    #    print(mc.joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
+    #    print(updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
+    #    print('----')
+
+    difference = mc.joint_degree - updated_joint_degree
+    print(np.nonzero(difference))
+    A1 = np.nonzero(difference)[0]
+    A2 =  np.nonzero(difference)[1]
+    print('differences')
+    for i in A1: 
+        for j in A2: 
+            if  mc.joint_degree[i,j] !=  updated_joint_degree[i,j]:
+
+                print(f'{i} {j}')
+                print(f'{mc.joint_degree[i,j]}, {updated_joint_degree[i,j]}')
+
+    assert (mc.joint_degree == updated_joint_degree).all()
 
 
 def main():
@@ -778,6 +815,6 @@ def main():
     #mygraph.to_ael()
 
 if __name__ == "__main__": 
-    main()
-
+    #main()
+    debug()
 

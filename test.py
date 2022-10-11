@@ -231,7 +231,7 @@ def test_update_triangles_random():
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.count_triangles()
     k = 4
-    for swap_idx in range(10000):
+    for swap_idx in range(10):
         edge_to_swap, permutation, edge_to_swap_idx = mc.find_swap(k)
         accept_permutation = mc.check_swap(edge_to_swap, permutation)
 
@@ -264,13 +264,6 @@ def test_update_triangles_random():
                 for triangle in mc.edges2triangles[edge]:
                     assert triangle in updated_edges2triangles[edge]
 
-
-
-
-
-def test_init_assortativity():
-    pass
-
 def test_update_assortativity():
     mygraph = Graph(False)
     mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
@@ -300,3 +293,114 @@ def test_edges2triangles():
     mc.count_triangles()
     accept = mc.check_swap(edge_to_swap, permutation)
 
+
+#def test_init_joint_degree():
+#    mygraph = Graph(True)
+#    mygraph.read_ssv('edge_list')
+#    mc = MarkovChain(mygraph, 10, 2, False)
+#    mc.init_joint_degree()
+#
+#    deg_count = dict()
+#    for node in mygraph.neighbors:
+#        if len(mygraph.neighbors[node]) in deg_count:
+#            deg_count[len(mygraph.neighbors[node])] += 1
+#        else:
+#            deg_count[len(mygraph.neighbors[node])] = 1
+#           
+#    #only computing upper right triangle, since matrix is symmetric
+#    # make matrix symetric
+#    for i in range(mc.joint_degree.shape[0]):
+#        for j in range(i+1):
+#            mc.joint_degree[i,j] = mc.joint_degree[j,i]
+#    for degree in deg_count:
+#        assert sum(mc.joint_degree[:,degree-1]) == deg_count[degree] * degree * 2 
+
+def test_init_joint_degree_small():
+    mygraph = Graph(False)
+    mygraph.neighbors[0].append(1)
+    mygraph.neighbors[1].append(0)
+    mygraph.neighbors[1].append(2)
+    mygraph.neighbors[1].append(4)
+    mygraph.neighbors[2].append(1)
+    mygraph.neighbors[2].append(4)
+    mygraph.neighbors[2].append(6)
+    mygraph.neighbors[3].append(4)
+    mygraph.neighbors[3].append(6)
+    mygraph.neighbors[4].append(1)
+    mygraph.neighbors[4].append(2)
+    mygraph.neighbors[4].append(3)
+    mygraph.neighbors[4].append(6)
+    mygraph.neighbors[5].append(6)
+    mygraph.neighbors[6].append(2)
+    mygraph.neighbors[6].append(3)
+    mygraph.neighbors[6].append(4)
+    mygraph.neighbors[6].append(5)
+
+    #mygraph.read_ssv('edge_list')
+    mc = MarkovChain(mygraph, 10, 2, False)
+    mc.init_joint_degree()
+
+    # only computing upper right triangle
+    gold_joint_degree = np.array([[0,0,1,1],[0,0,0,2],[1,0,2,3],[1,2,3,2]])
+    #gold_joint_degree = np.array([[0,0,1,1],[0,0,0,2],[0,0,2,3],[0,0,0,2]])
+
+    print( mc.joint_degree)
+    print(gold_joint_degree)
+    assert (mc.joint_degree == gold_joint_degree).all()
+    #deg_count = dict()
+    #for node in mygraph.neighbors:
+    #    if len(mygraph.neighbors[node]) in deg_count:
+    #        deg_count[len(mygraph.neighbors[node])] += 1
+    #    else:
+    #        deg_count[len(mygraph.neighbors[node])] = 1
+    #       
+    #for i in range(mc.joint_degree.shape[0]):
+    #    for j in range(mc.joint_degree.shape[1]):
+    #        assert mc.joint_degree[i,j] == mc.joint_degree[j,i]
+    #for degree in deg_count:
+    #    assert sum(mc.joint_degree[degree-1, :]) == deg_count[degree] * degree 
+
+
+#def test_update_joint_degree():
+#    mygraph = Graph(True)
+#    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
+#
+#    mc = MarkovChain(mygraph, 10, 2, False)
+#    edge_to_swap = [(43, 34), (57, 62), (59, 61)]#, (36, 7), (12, 51), (27, 48), (49, 62), (11, 46), (8, 23), (56, 22), (59, 61)]
+#    permutation = [(59, 61), (43, 34), (57,62)]#, (57, 62), (36, 7), (12, 51), (27, 48), (49, 62), (11, 46), (8, 23), (56, 22)]
+#    edge_to_swap_idx = [1090, 1185]#, 100, 458, 1015, 1123, 436, 333, 734, 915]
+#
+#    mc.init_joint_degree()
+#
+#    changes = dict()
+#    updated_joint_degree = mc.joint_degree.copy()
+#    for (u, v), (x,y) in zip(edge_to_swap, permutation):
+#
+#        goal_edge = (u, y) #if u < y else (y ,u)
+#
+#        deg_u = len(mc.graph.neighbors[u]) - 1
+#        deg_v = len(mc.graph.neighbors[v]) - 1
+#        deg_x = len(mc.graph.neighbors[x]) - 1
+#        deg_y = len(mc.graph.neighbors[y]) - 1
+#
+#        #updated_joint_degree[deg_u-1, deg_v-1] -=1
+#        #updated_joint_degree[deg_v-1, deg_u-1] -=1
+#        #updated_joint_degree[deg_x-1, deg_y-1] -=1
+#        #updated_joint_degree[deg_y-1, deg_x-1] -=1
+#        updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)] -=1
+#        updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)] +=1
+#
+#      
+#        #updated_joint_degree[deg_u-1, deg_y-1] +=1
+#        #updated_joint_degree[deg_y-1, deg_u-1] +=1
+#    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+#
+#    mc.init_joint_degree()
+#    difference = mc.joint_degree - updated_joint_degree
+#    print(np.nonzero(difference))
+#    A1 = np.nonzero(difference)[0]
+#    A2 =  np.nonzero(difference)[1]
+#    for i in A1: 
+#        for j in A2: 
+#            print(f'{mc.joint_degree[i,j]}, {updated_joint_degree[i,j]}')
+#    assert (mc.joint_degree == updated_joint_degree).all()
