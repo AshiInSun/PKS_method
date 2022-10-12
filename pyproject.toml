@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm", "numpy", "pytest", "arch", "scipy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "K-edge-swap"
+version = "1.0"
+authors = [
+  { name="Julien Karadayi"},
+]
+description = "Perform K-edge swaps on graph to generate randomly uniform graph given conditions."
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://gitlab.lip6.fr/jkaradayi/code-swap-proba-partage"
+"Bug Tracker" = "https://gitlab.lip6.fr/jkaradayi/code-swap-proba-partage/-/issues"

@@ -1,13 +1,42 @@
+# This file is part of K-edge-swap.
+#
+#    K-edge-swap is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+#    K-edge-swap is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
+
 import pytest
 import numpy as np
-from Graph import Graph
+import os
+
+from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
 
-from MarkovChain import MarkovChain
+from kedgeswap.MarkovChain import MarkovChain
 
-def test_directed_graph():
+@pytest.fixture
+def japanese_macaques(request):
     mygraph = Graph(True)
-    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
+    mygraph.read_ssv(os.path.join(request.fspath.dirname,'japanese_macaques.tsv'))
+    return mygraph 
+
+@pytest.fixture
+def euroroad(request):
+    mygraph = Graph(False)
+    mygraph.read_ssv(os.path.join(request.fspath.dirname,'euroroad.tsv'))
+    return mygraph 
+
+@pytest.fixture
+def handcrafted(request):
+    mygraph = Graph(False)
+    mygraph.read_ssv(os.path.join(request.fspath.dirname,'handcrafted.tsv'))
+    return mygraph 
+
+def test_directed_graph(japanese_macaques):
+    #mygraph = Graph(True)
+    #mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
+    mygraph=japanese_macaques
     for (u,v) in mygraph.edges:
         #assert (v,u) not in mygraph.edges
         
@@ -18,9 +47,10 @@ def test_directed_graph():
         assert mygraph.out_neighbors[u][v_out_idx] == v
         assert mygraph.in_neighbors[v][u_in_idx] == u
 
-def test_undirected_graph():
-    mygraph = Graph(False)
-    mygraph.read_ssv('data/euroroad.tsv')#TODO
+def test_undirected_graph(euroroad):
+    #mygraph = Graph(False)
+    #mygraph.read_ssv('data/euroroad.tsv')#TODO
+    mygraph=euroroad
     for (u,v) in mygraph.edges:
         #assert (v,u) not in mygraph.edges
         
@@ -30,10 +60,11 @@ def test_undirected_graph():
         assert mygraph.neighbors[u][v_idx] == v
         assert mygraph.neighbors[v][u_idx] == u
 
-def test_directed_mc():
+def test_directed_mc(japanese_macaques):
     # TODO : peut être ajouter test ou on enchaine un swap et son inverse + vérifier si on retourne bien au graphe de départ ?
-    mygraph = Graph(True)
-    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
+    #mygraph = Graph(True)
+    #mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
+    mygraph = japanese_macaques
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
 
     edge_to_swap = [(43, 34), (57, 62), (36, 7), (12, 51), (27, 48), (49, 62), (11, 46), (8, 23), (56, 22), (59, 61)]
@@ -72,9 +103,10 @@ def test_directed_mc():
         assert mygraph.out_neighbors[u][v_out_idx] == v
         assert mygraph.in_neighbors[v][u_in_idx] == u
 
-def test_undirected_mc():
-    mygraph = Graph(False)
-    mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+def test_undirected_mc(euroroad):
+    #mygraph = Graph(False)
+    #mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+    mygraph=euroroad
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
 
     edge_to_swap = [(578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382), (28, 29)]
@@ -110,26 +142,29 @@ def test_undirected_mc():
         assert mygraph.neighbors[u][v_idx] == v
         assert mygraph.neighbors[v][u_idx] == u
 
-def test_init_triangles():
+def test_init_triangles(euroroad, japanese_macaques):
     # undirected
-    mygraph = Graph(False)
-    mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+    #mygraph = Graph(False)
+    #mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+    mygraph=euroroad
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.count_triangles()
     assert len(mc.triangles2edges) == 32
 
     # directed
-    mygraph = Graph(True)
-    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
+    #mygraph = Graph(True)
+    #mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
+    mygraph = japanese_macaques
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.count_triangles()
     assert len(mc.triangles2edges) == 9781
 
 
-def test_update_triangles():
+def test_update_triangles(euroroad, japanese_macaques):
     # undirected
-    mygraph = Graph(False)
-    mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+    mygraph=euroroad
+    #mygraph = Graph(False)
+    #mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.count_triangles()
 
@@ -164,9 +199,9 @@ def test_update_triangles():
 
         for edge in updated_triangles2edges[triangle]:
             assert edge in mc.triangles2edges[triangle]
-    # directed
-    mygraph = Graph(True)
-    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
+
+    # directed # TODO Split in two tests ? 
+    mygraph = japanese_macaques
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.count_triangles()
 
@@ -223,11 +258,10 @@ def test_update_triangles():
     for triangle in created_triangles:
         assert triangle in mc.triangles2edges
 
-def test_update_triangles_random():
-    # undirected
-    mygraph = Graph(True)
-    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
-
+def test_update_triangles_random(japanese_macaques):
+    #mygraph = Graph(True)
+    #mygraph.read_ssv('data/japanese_macaques.tsv')#TODO FIXTURES
+    mygraph=japanese_macaques
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.count_triangles()
     k = 4
@@ -264,9 +298,10 @@ def test_update_triangles_random():
                 for triangle in mc.edges2triangles[edge]:
                     assert triangle in updated_edges2triangles[edge]
 
-def test_update_assortativity():
-    mygraph = Graph(False)
-    mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+def test_update_assortativity(euroroad):
+    #mygraph = Graph(False)
+    #mygraph.read_ssv('data/euroroad.tsv')#TODO FIXTURES
+    mygraph=euroroad
     mc = MarkovChain(mygraph, 10, 2, False) # TODO : debug ? 
     mc.init_assortativity()
 
@@ -294,9 +329,10 @@ def test_update_assortativity():
 #    accept = mc.check_swap(edge_to_swap, permutation)
 #
 
-def test_init_joint_degree():
-    mygraph = Graph(True)
-    mygraph.read_ssv('unit_clean')
+def test_init_joint_degree(handcrafted):
+    #mygraph = Graph(True)
+    #mygraph.read_ssv('unit_clean')
+    mygraph=handcrafted
     mc = MarkovChain(mygraph, 10, 2, False)
     mc.init_joint_degree()
 
@@ -314,9 +350,10 @@ def test_init_joint_degree():
     for degree in deg_count:
         assert sum(mc.joint_degree[:,degree-1]) == deg_count[degree] * degree 
 
-def test_init_joint_degree_small():
-    mygraph = Graph(False)
-    mygraph.read_ssv('unit_clean')#TODO
+def test_init_joint_degree_small(handcrafted):
+    #mygraph = Graph(False)
+    #mygraph.read_ssv('unit_clean')#TODO
+    mygraph=handcrafted
 
     mc = MarkovChain(mygraph, 10, 2, False)
     mc.init_joint_degree()
@@ -326,9 +363,10 @@ def test_init_joint_degree_small():
 
     assert (mc.joint_degree == gold_joint_degree).all()
 
-def test_update_joint_degree():
-    mygraph = Graph(False)
-    mygraph.read_ssv('unit_clean')#TODO
+def test_update_joint_degree(handcrafted):
+    #mygraph = Graph(False)
+    #mygraph.read_ssv('unit_clean')#TODO
+    mygraph = handcrafted
 
     mc = MarkovChain(mygraph, 10, 2, False)
     mc.init_joint_degree()
@@ -343,9 +381,10 @@ def test_update_joint_degree():
     mc.init_joint_degree()
     assert (mc.joint_degree == updated_joint_degree).all()
 
-def test_update_joint_degree_directed():
-    mygraph = Graph(True)
-    mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
+def test_update_joint_degree_directed(japanese_macaques):
+    #mygraph = Graph(True)
+    #mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
+    mygraph=japanese_macaques
 
     mc = MarkovChain(mygraph, 10, 2, False)
     edge_to_swap = [(5, 38), (46, 57), (3, 28), (46, 62)]
