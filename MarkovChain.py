@@ -147,20 +147,17 @@ class MarkovChain:
 
             # avoid loops
             if u == y:
-                #accept_permutation = False
                 return False
 
             # avoid multiple edges
             if goal_edge in self.graph.edges:
-                #accept_permutation = False
                 return False
-            #else:
-            #    # debugging: check that edges2triangles is correct
-            #    #try:
-            #    assert not goal_edge in self.edges2triangles
-            #    #except:
-            #    #    self.__dump__(edge_to_swap, permutation)
 
+            # check joint degree matrix
+            #updated_joint_degree = self.update_joint_degree(edge_to_swap, permutation)
+            #if not (updated_joint_degree == self.joint_degree).all():
+            #    return False
+             
         if len(set(goal_edges)) == len(goal_edges): # NOTE : VERIFIER QU'ON A PAS DEUX SWAP QUI VISENT LE MEME LIEN !!
             accept_permutation = True
         else:
@@ -187,8 +184,6 @@ class MarkovChain:
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
             old_edge = self.graph.unique_edges[e_idx]
-            #assert goal_edge not in self.graph.edges
-            #assert goal_edge not in self.graph.unique_edges
             self.graph.unique_edges[e_idx] = goal_edge
 
             old_edge = (u, v) if u < v else (v, u)
@@ -212,7 +207,6 @@ class MarkovChain:
 
             # perform swap
             self.graph.neighbors[u][v_idx] = y # on change v dans neighbors (u)
-            # j'ai envie de faire self.graph.neighbors[y][x_idx] = u : x y va disparaitre pour etre remplacé par x y' => x sera plus voisin de y donc pas de pb 
             self.graph.neighbors[y][x_idx] = u
 
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
@@ -405,12 +399,10 @@ class MarkovChain:
                     #    # triangle has already been acounted for 
                     #    continue
 
-                    # TODO attention marche pas pour dirigé a cause du sorted(current_triangle)
                     if self.graph.directed:
                             self._add_directed_triangle(u, y, current_triangle)
                             self._add_directed_triangle(y, neigh, current_triangle)
                             self._add_directed_triangle(neigh, u, current_triangle)
-                            #assert current_triangle in self.triangles2edges
                     else:
                         for (node_1, node_2) in ((a,b) for idx, a in enumerate(current_triangle) for b in current_triangle[idx+1:]):
                             self.edges2triangles[(node_1, node_2)].append(current_triangle)
@@ -439,7 +431,6 @@ class MarkovChain:
                 assert triangle in self.edges2triangles[edge]
 
     def init_joint_degree(self):
-        # check max degree .. 
         max_degree = 0
         for node in self.graph.neighbors:
             if len(self.graph.neighbors[node]) > max_degree:
@@ -447,89 +438,57 @@ class MarkovChain:
 
         # initialize matrix
         self.joint_degree = np.zeros((max_degree, max_degree))
-        edge_cache = set()
-
 
         # compute matrix // TODO : ATTENTION indice - 1
         for node in self.graph.neighbors:
             for neighbor in self.graph.neighbors[node]:
-                #if (node, neighbor)in edge_cache:
-                #    continue
                 deg_1 = len(self.graph.neighbors[node]) - 1
                 deg_2 = len(self.graph.neighbors[neighbor]) - 1
-                #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
+
+                # each edge is added twice
                 self.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
                 self.joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
 
-                #edge_cache.add((node, neighbor))
-
-
-                #self.joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
-
-
-        # verification DEBUG : somme par ligne = nombre noeud ayant tel degré
-        #return
-
     def update_joint_degree(self, edge_to_swap, permutation):
+        updated_joint_degree = self.joint_degree.copy()
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
 
-        swapped_nodes =list(set(sum(edge_to_swap, ())))
-        #print(swapped_nodes)
-        swapped_deg = list(set([len(mc.graph.neighbors[n])-1 for n in swapped_nodes]))
-        #mc.init_joint_degree()
+            if self.graph.directed:
+                goal_edge = (u, y)
+            else:
+                goal_edge = (u, y) if u < y else (y ,u)
+            _neighbors = dict()
+            _neighbors[u] = self.graph.neighbors[u].copy()
+            _neighbors[y] = self.graph.neighbors[y].copy()
+            if self.graph.directed:
+                v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
+                y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
+            else:
+                v_idx = self.graph.edges[(u,v)]
+                u_idx = self.graph.edges[(v,u)]
+                y_idx = self.graph.edges[(x,y)]
+                x_idx = self.graph.edges[(y,x)]
+            
+            # get updated neighborhoods
+            _neighbors[u][v_idx] = y
+            _neighbors[y][x_idx] = u
 
-        changes = dict()
-        #updated_joint_degree = mc.joint_degree.copy()
-        updated_joint_degree = np.zeros(mc.joint_degree.shape)
-
-        print('before changes')
-        edge_cache = set()
-        mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
-        mc.init_joint_degree()
-
-        # compute matrix // TODO : ATTENTION indice - 1
-        #ipdb.set_trace()
-        print(swapped_deg)
-        for node in mc.graph.neighbors:
-            for neighbor in mc.graph.neighbors[node]:
-                if (node, neighbor) in edge_cache:
-                    continue
-                deg_1 = len(mc.graph.neighbors[node]) - 1
-                deg_2 = len(mc.graph.neighbors[neighbor]) - 1
-                if deg_1 in swapped_deg or deg_2 in swapped_deg:
-                #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-                    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1
-                else:
-                    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] = mc.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)]
-
-                edge_cache.add((node, neighbor))
+            deg_u = len(_neighbors[u]) - 1
+            deg_v = len(self.graph.neighbors[v]) -1
+            deg_x = len(self.graph.neighbors[x]) -1
+            deg_y = len(_neighbors[y]) -1
 
 
-        #changes = dict()
-        #for (u, v), (x,y) in zip(edge_to_swap, permutation):
+            updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)] -= 1/2
+            updated_joint_degree[max(deg_u, deg_v), min(deg_u, deg_v)] -= 1/2
 
-        #    goal_edge = (u, y) if u < y else (y ,u)
+            updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)] -= 1/2
+            updated_joint_degree[max(deg_x, deg_y), min(deg_x, deg_y)] -= 1/2
 
-        #    deg_u = len(self.graph.neighbors[u])
-        #    deg_v = len(self.graph.neighbors[v])
-        #    deg_x = len(self.graph.neighbors[x])
-        #    deg_y = len(self.graph.neighbors[y])
+            updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)] += 1#/2
+            updated_joint_degree[max(deg_u, deg_y), min(deg_u, deg_y)] += 1#/2
 
-        #    if (deg_u, deg_v) in changes:
-        #        changes[(deg_u-1, deg_v-1)] -= 1
-        #    else:
-        #        changes[(deg_u-1, deg_v-1)] = self.joint_degree[deg_u-1, deg_v-1]
-
-        #    if (deg_u, deg_y) in changes:
-        #        changes[(deg_u-1, deg_y-1)] += 1
-        #    else:
-        #        changes[(deg_u-1, deg_y-1)] = self.joint_degree[deg_u-1, deg_y-1]
-
-
-        #for (deg_u, deg_v) in changes:
-        #    if changes[(deg_u-1, deg_v-1)] != self.joint_degree[deg_u-1, deg_v-1]:
-        #        return False
-        #else:
-        #    return True
+        return updated_joint_degree
 
     def run(self, N_swap=None):
         """
@@ -557,8 +516,7 @@ class MarkovChain:
         for swap_idx in range(self.N_swap):
             
             # pick k, permutation, and check if swap can be accepted
-            #k = self.pick_k()
-            k=4
+            k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
             accept_permutation = self.check_swap(edge_to_swap, permutation)
             accept_jd = self.update_joint_degree(edge_to_swap, permutation)
@@ -577,206 +535,6 @@ class MarkovChain:
             window.append(self.assortativity)
         print(f'accepted : {accept_rate} , refused : {refusal_rate}')
         return window
-
-
-def debug():
-    mygraph = Graph(False)
-    mygraph.read_ssv('unit_clean')#TODO
-    #mygraph.read_ssv('data/euroroad.tsv')#TODO
-
-    mc = MarkovChain(mygraph, 10, 2, False)
-    edge_to_swap = [(1, 2), (5,6)]
-    permutation = [(5, 6), (1, 2)]
-    edge_to_swap_idx = [1, 8]
-
-    swapped_nodes =list(set(sum(edge_to_swap, ())))
-    #print(swapped_nodes)
-    swapped_deg = list(set([len(mc.graph.neighbors[n])-1 for n in swapped_nodes]))
-    mc.init_joint_degree()
-    print(mc.joint_degree)
-    #updated_joint_degree = mc.joint_degree.copy()
-    updated_joint_degree = np.zeros(mc.joint_degree.shape)
-
-    print('before changes')
-    #mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
-    #mc.init_joint_degree()
-
-    # compute matrix // TODO : ATTENTION indice - 1
-    #ipdb.set_trace()
-    print(swapped_deg)
-
-    for node in mc.graph.neighbors:
-        if node in swapped_nodes:
-            continue
-        print(f'updating {node}')
-        for neighbor in mc.graph.neighbors[node]:
-            deg_1 = len(mc.graph.neighbors[node]) - 1
-            deg_2 = len(mc.graph.neighbors[neighbor]) - 1
-            updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2 # mc.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)]
-            updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2 # mc.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)]
-    #for node in swapped_nodes:
-    #    # 
-    #ipdb.set_trace()
-    print(updated_joint_degree)
-    for (u, v), (x,y) in zip(edge_to_swap, permutation):
-
-        if mc.graph.directed:
-            goal_edge = (u, y)
-        else:
-            goal_edge = (u, y) if u < y else (y ,u)
-        _neighbors = dict()
-        _neighbors[u] = mc.graph.neighbors[u].copy()
-        _neighbors[y] = mc.graph.neighbors[y].copy()
-        if mc.graph.directed:
-            v_idx, u_idx, v_out_idx, u_in_idx = mc.graph.edges[(u,v)]
-            y_idx, x_idx, y_out_idx, x_in_idx = mc.graph.edges[(x,y)]
-        else:
-            v_idx = mc.graph.edges[(u,v)]
-            u_idx =  mc.graph.edges[(v,u)]
-            y_idx = mc.graph.edges[(x,y)]
-            x_idx =  mc.graph.edges[(y,x)]
-        _neighbors[u][v_idx] = y
-        _neighbors[y][x_idx] = u
-        #ipdb.set_trace()
-        for node in [u, y]:
-            for neighbor in _neighbors[node]:
-                #if (node, neighbor)in edge_cache:
-                #    continue
-                deg_1 = len(mc.graph.neighbors[node]) - 1
-                deg_2 = len(mc.graph.neighbors[neighbor]) - 1
-                print(f'{deg_1} {deg_2}')
-
-                #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-                updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
-                updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
-
-        #for neighbor in u_neighbors:
-        #    #if (node, neighbor)in edge_cache:
-        #    #    continue
-        #    deg_1 = len(mc.graph.neighbors[u]) - 1
-        #    deg_2 = len(mc.graph.neighbors[neighbor]) - 1
-        #    print(f'{deg_1} {deg_2}')
-        #    #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-
-        #    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
-        #    #updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
-        #for neighbor in y_neighbors:
-        #    #if (node, neighbor)in edge_cache:
-        #    #    continue
-        #    deg_1 = len(mc.graph.neighbors[y]) - 1
-        #    deg_2 = len(mc.graph.neighbors[neighbor]) - 1
-        #    print(f'{deg_1} {deg_2}')
-
-        #    #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-        #    updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
-        #    #updated_joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
-        #print('___')
-    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
-    mc.init_joint_degree()
-    print(mc.joint_degree)
-    print(updated_joint_degree)
-    exit()
-
-
-    #for deg in swapped_deg:
-    #    updated_joint_degree[deg-1, :] = 0
-    #    updated_joint_degree[:, deg-1] = 0
-    #    for node in mc.graph.deg2nodes:
-    #        for neighbor in mc.graph.neighbors[node]:
-    #            if (node, neighbor) in edge_cache:
-    #                continue
-    #            deg_1 = len(mc.graph.neighbors[node]) - 1
-    #            deg_2 = len(mc.graph.neighbors[neighbor]) - 1
-    #            #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-    #            updated_joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1
-    #            edge_cache.add((node, neighbor))
-
-    #for node in self.graph.neighbors:
-    #    for neighbor in self.graph.neighbors[node]:
-    #        if (node, neighbor) not in edge_to_swap:
-    #            continue
-    #        deg_1 = len(self.graph.neighbors[node]) - 1
-    #        deg_2 = len(self.graph.neighbors[neighbor]) - 1
-    #        #self.joint_degree[len(self.graph.neighbors[node]) - 1, len(self.graph.neighbors[neighbor]) - 1] += 1
-    #        self.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1
-    #        edge_cache.add((node, neighbor))
-
-
-    #        #self.joint_degree[len(self.graph.neighbors[neighbor]) - 1, len(self.graph.neighbors[node]) - 1] += 1
-
-    #for (u, v), (x,y) in zip(edge_to_swap, permutation):
-
-    #    goal_edge = (u, y) #if u < y else (y ,u)
-    #    deg_u = len(mc.graph.neighbors[u]) - 1
-    #    deg_v = len(mc.graph.neighbors[v]) - 1
-    #    deg_x = len(mc.graph.neighbors[x]) - 1
-    #    deg_y = len(mc.graph.neighbors[y]) - 1
-
-    #    #updated_joint_degree[deg_u-1, deg_v-1] -=1
-    #    #updated_joint_degree[deg_v-1, deg_u-1] -=1
-    #    #updated_joint_degree[deg_x-1, deg_y-1] -=1
-    #    #updated_joint_degree[deg_y-1, deg_x-1] -=1
-
-    #    updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)] -=1
-    #    updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)] -=1
-
-    #    updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)] +=1
-
-    #    print(f'{min(deg_u, deg_v) } {max(deg_u, deg_v) }')
-    #    print(mc.joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
-    #    print(updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
-
-    #    print(f'{min(deg_u, deg_y) }  {max(deg_u, deg_y) }')
-
-    #    print(mc.joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
-    #    print(updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
-
-    #    print(f' {min(deg_x, deg_y)} {max(deg_x, deg_y) }')
-    #    print(mc.joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
-    #    print(updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
-    #    print('----')
-
-
-    ##ipdb.set_trace() 
-
-    print('after changes')
-
-    #for (u, v), (x,y) in zip(edge_to_swap, permutation):
-    #    deg_u = len(mc.graph.neighbors[u]) - 1
-    #    deg_v = len(mc.graph.neighbors[v]) - 1
-    #    deg_x = len(mc.graph.neighbors[x]) - 1
-    #    deg_y = len(mc.graph.neighbors[y]) - 1
-
-    #    print(f'{min(deg_u, deg_v) } {max(deg_u, deg_v) }')
-
-    #    print(mc.joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
-    #    print(updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)])
-
-    #    print(f'{min(deg_u, deg_y) }  {max(deg_u, deg_y) }')
-
-    #    print(mc.joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
-    #    print(updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)])
-
-    #    print(f' {min(deg_x, deg_y)} {max(deg_x, deg_y) }')
-
-    #    print(mc.joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
-    #    print(updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)])
-    #    print('----')
-
-    difference = mc.joint_degree - updated_joint_degree
-    print(np.nonzero(difference))
-    A1 = np.nonzero(difference)[0]
-    A2 =  np.nonzero(difference)[1]
-    print('differences')
-    for i in A1: 
-        for j in A2: 
-            if  mc.joint_degree[i,j] !=  updated_joint_degree[i,j]:
-
-                print(f'{i} {j}')
-                print(f'{mc.joint_degree[i,j]}, {updated_joint_degree[i,j]}')
-
-    assert (mc.joint_degree == updated_joint_degree).all()
-
 
 def main():
     parser = argparse.ArgumentParser(description='k edge swap')
@@ -809,12 +567,7 @@ def main():
     mc.run()
     print('writing graph')
     mc.graph.to_ael(args.output)
-    #for j in pb(range(1000000)):
-    #    edge_to_swap, permutation = mygraph.find_swap(4)
-    #    mygraph.perform_swap(edge_to_swap, permutation)
-    #mygraph.to_ael()
 
 if __name__ == "__main__": 
-    #main()
-    debug()
+    main()
 

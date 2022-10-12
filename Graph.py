@@ -49,6 +49,18 @@ class Graph:
         self.unique_edges = list()
         self.directed = directed # directed graph flag
 
+    def copy(self):
+        graph_copy = Graph()
+        graph_copy.N = self.N
+        graph_copy.M = self.M
+        graph_copy.neighbors = self.neighbors.copy()
+        graph_copy.in_neighbors = self.in_neighbors.copy()
+        graph_copy.out_neighbors = self.out_neighbors.copy()
+        graph_copy.edges = self.edges.copy()
+        graph_copy.unique_edges = self.unique_edges.copy()
+        graph_copy.directed = self.directed
+        return graph_copy
+
     def read_ssv(self, in_file):
         """ Read space separated values
             Input format is separated with spaces, e.g.:
