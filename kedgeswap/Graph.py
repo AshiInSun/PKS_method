@@ -12,7 +12,7 @@ TODO - plus de doc,
      - ajouter mesures
 """
 import os
-import ipdb
+#import ipdb
 
 import numpy as np
 import argparse

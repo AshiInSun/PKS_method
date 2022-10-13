@@ -10,7 +10,7 @@
 """
 
 import os
-import ipdb
+#import ipdb
 import numpy as np
 import argparse
 
@@ -21,7 +21,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, debug=False):
+    def __init__(self, graph, N_swap = 0, gamma=0):
         """
             Class to handle k-edge random swap
 
@@ -48,7 +48,7 @@ class MarkovChain:
         self.edges2triangles = defaultdict(list)
         self.triangles2edges = defaultdict(list)
         self.joint_degree = np.zeros(0)
-        self.debug = debug
+        #self.debug = debug
 
     def __dump__(self, edge_to_swap, permutation):
         """Write graph and permutation, useful for debugging"""
@@ -424,19 +424,19 @@ class MarkovChain:
 
         self.count_triangles()
 
-        for triangle in updated_triangles2edges:
-            try:
-                assert triangle in self.triangles2edges
-                assert len(updated_triangles2edges[triangle]) == len(self.triangles2edges[triangle])
-            except:
-                ipdb.set_trace()
-                assert triangle in self.triangles2edges
-                assert len(updated_triangles2edges[triangle]) == len(self.triangles2edges[triangle])
+        #for triangle in updated_triangles2edges:
+        #    try:
+        #        assert triangle in self.triangles2edges
+        #        assert len(updated_triangles2edges[triangle]) == len(self.triangles2edges[triangle])
+        #    except:
+        #        #ipdb.set_trace()
+        #        assert triangle in self.triangles2edges
+        #        assert len(updated_triangles2edges[triangle]) == len(self.triangles2edges[triangle])
 
-        for edge in updated_edges2triangles:
-            assert edge in self.edges2triangles
-            for triangle in updated_edges2triangles[edge]:
-                assert triangle in self.edges2triangles[edge]
+        #for edge in updated_edges2triangles:
+        #    assert edge in self.edges2triangles
+        #    for triangle in updated_edges2triangles[edge]:
+        #        assert triangle in self.edges2triangles[edge]
 
     def init_joint_degree(self):
         max_degree = 0
@@ -560,8 +560,8 @@ def main():
             help='enable to make some unit test during run. Default to false, significantly slows run.')
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
             help='increase verbosity')
-    parser.add_argument('--debug', action='store_true', default=False,
-            help='enable debugging, user assertions to check that all is working')
+    #parser.add_argument('--debug', action='store_true', default=False,
+    #        help='enable debugging, user assertions to check that all is working')
 
     args = parser.parse_args()
 
@@ -571,7 +571,7 @@ def main():
     print('reading graph')
     mygraph.read_ssv(args.dataset)
     print('performing swaps')
-    mc = MarkovChain(mygraph, args.N_swap, args.gamma, args.debug)
+    mc = MarkovChain(mygraph, args.N_swap, args.gamma)
     mc.run()
     print('writing graph')
     mc.graph.to_ael(args.output)

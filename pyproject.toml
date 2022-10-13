@@ -1,20 +1,27 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm", "numpy", "pytest", "arch", "scipy"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-name = "K-edge-swap"
+name = "kedgeswap"
 version = "1.0"
 authors = [
   { name="Julien Karadayi"},
 ]
 description = "Perform K-edge swaps on graph to generate randomly uniform graph given conditions."
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "pytest",
+    "arch",
+    "progressbar"
 ]
 
 [project.urls]
