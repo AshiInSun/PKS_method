@@ -76,16 +76,20 @@ class Stat():
 
             d_eta = 0
             for c in range(C):
+                if d_eta > u:
+                    continue
+
                 if self.verbose:
                     print(f'MCMC {c}/{C}')
                 n_swap = int(np.round(eta))
-                pb = ProgressBar()
-                for t in pb(range(T)):
+                for t in range(T):
 
                     mc[c].run(n_swap)
                     S_T.append(mc[c].assortativity)
                 d_c = self.CheckAutocorrLag1(S_T, alpha)
                 d_eta += d_c
+                if self.verbose:
+                    print(f'for eta={eta}: d_eta={d_eta}, u={u}')
 
         return eta
 
