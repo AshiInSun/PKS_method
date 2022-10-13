@@ -70,15 +70,18 @@ class Stat():
         eta = 0
         d_eta = C
         while d_eta > u:
+            eta += 0.05 * self.mc.graph.M
             if self.verbose:
                 print(f'considering eta {eta}...')
-            eta += 0.05 * self.mc.graph.M
+
             d_eta = 0
             for c in range(C):
                 if self.verbose:
                     print(f'MCMC {c}/{C}')
                 n_swap = eta
-                for t in range(T):
+                pb = ProgressBar()
+                for t in pb(range(T)):
+
                     mc[c].run(n_swap)
                     S_T.append(mc[c].assortativity)
                 d_c = CheckAutocorrLag1(S_T, alpha)
