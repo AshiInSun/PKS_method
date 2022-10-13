@@ -7,6 +7,7 @@
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
 
 import os
+import scipy
 import argparse
 import numpy as np
 
@@ -46,8 +47,7 @@ class Stat():
 
         """
 
-        #N_swap = 1000 * self.mc.graph.M # burn in 
-        N_swap = 10 * self.mc.graph.M # burn in 
+        N_swap = 1000 * self.mc.graph.M # burn in 
         C = 10 # TODO CHECK NUMBER OF CHAINS
         T = 500
         S_T = [] # list of degree assortativity of size T
@@ -78,19 +78,20 @@ class Stat():
             for c in range(C):
                 if self.verbose:
                     print(f'MCMC {c}/{C}')
-                n_swap = eta
+                n_swap = int(eta)
                 pb = ProgressBar()
                 for t in pb(range(T)):
 
                     mc[c].run(n_swap)
                     S_T.append(mc[c].assortativity)
-                d_c = CheckAutocorrLag1(S_T, alpha)
+                d_c = self.CheckAutocorrLag1(S_T, alpha)
+                d_c = 0
                 d_eta += d_c
 
         return eta
 
 
-    def run_dfgls(self):
+    def run_dfgls(self, output):
         # measure density of graph and use Dutta et al. Fig5 decision tree for sampling gap
         #d = self.mc.graph.M/(self.mc.graph.N * (self.mc.graph.N -1))
         #if self.mc.graph.directed:
@@ -107,12 +108,13 @@ class Stat():
         if self.verbose:
             print('running markov chain and checking convergence...')
         while (not has_converged):
-            window = self.mc.run(eta)
+            window = self.mc.run(int(eta))
             test = DFGLS(window)
             if self.verbose:
                 print(test.summary)
             if np.abs(test.stat) > np.abs(test.critical_values["1%"]): # TODO check real test ..
                 has_converged = True
+                self.mc.graph.to_ssv(output)
 
 
     def run_kolmogorov_smirnov(self, other):

@@ -545,9 +545,9 @@ class MarkovChain:
             self.count_triangles()
 
         # run N_swap swap
-        for swap_idx in range(self.N_swap):
+        for swap_idx in range(N_swap):
             if self.verbose and (swap_idx % 1000 == 0):
-                print(f'swap {swap_idx}/{self.N_swap}')
+                print(f'swap {swap_idx}/{N_swap}')
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)

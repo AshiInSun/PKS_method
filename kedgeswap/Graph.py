@@ -202,6 +202,5 @@ class Graph:
 
     def to_ssv(self, output):
         with open(output, 'w') as fout:
-            for node in self.neighbors:
-                for neighbor in self.neighbors[node]:
-                    fout.write(f'{node} {neighbor}\n')
+            for node_in, node_out in self.unique_edges:
+                fout.write(f'{node_in} {node_out}\n')
