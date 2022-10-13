@@ -78,14 +78,13 @@ class Stat():
             for c in range(C):
                 if self.verbose:
                     print(f'MCMC {c}/{C}')
-                n_swap = int(eta)
+                n_swap = int(np.round(eta))
                 pb = ProgressBar()
                 for t in pb(range(T)):
 
                     mc[c].run(n_swap)
                     S_T.append(mc[c].assortativity)
                 d_c = self.CheckAutocorrLag1(S_T, alpha)
-                d_c = 0
                 d_eta += d_c
 
         return eta
@@ -108,7 +107,7 @@ class Stat():
         if self.verbose:
             print('running markov chain and checking convergence...')
         while (not has_converged):
-            window = self.mc.run(int(eta))
+            window = self.mc.run(int(np.round(eta)))
             test = DFGLS(window)
             if self.verbose:
                 print(test.summary)

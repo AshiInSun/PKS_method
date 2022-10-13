@@ -573,6 +573,7 @@ class MarkovChain:
             window.append(self.assortativity)
 
         if self.verbose:
+            print(window)
             print(f'accepted : {accept_rate} , refused : {refusal_rate}')
 
         return window
