@@ -7,21 +7,23 @@
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
 
 import os
-import numpy as np
 import argparse
+import numpy as np
 
-from kedgeswap.Graph import Graph
-from arch.unitroot import DFGLS
-from kedgeswap.MarkovChain import MarkovChain
 from scipy.stats import kstest
+from arch.unitroot import DFGLS
+from kedgeswap.Graph import Graph
+from progressbar import ProgressBar
+from kedgeswap.MarkovChain import MarkovChain
 
 # bouger triangle + assortativité dans stats ? 
 class Stat():
 
-    def __init__(self, mc):
-        self.use_dfgls = True
-        self.use_ks = False
+    def __init__(self, mc, use_dfgls=True, use_ks=False, verbose=False):
+        self.use_dfgls = use_dfgls
+        self.use_ks = use_ks
         self.mc = mc # markov chain
+        self.verbose = verbose
 
     @staticmethod
     def CheckAutocorrLag1(S_T, alpha):
@@ -44,28 +46,37 @@ class Stat():
 
         """
 
-        N_swap = 1000 * self.mc.graph.M # burn in 
+        #N_swap = 1000 * self.mc.graph.M # burn in 
+        N_swap = 10 * self.mc.graph.M # burn in 
         C = 10 # TODO CHECK NUMBER OF CHAINS
         T = 500
         S_T = [] # list of degree assortativity of size T
         u = 1 # lower bound on number of mcmc chains that have significant lag-1 autocorrelation
         mc = [] # list of C MCMC
         alpha = 0.04 # significance level for each test
-        print('burn in')
+
+        if self.verbose:
+            print(f'estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
+            print(f'burn in...')
         for c in range(C):
+            if self.verbose:
+                print(f'MCMC {c}/{C}')
             mc.append(MarkovChain(graph, N_swap, gamma))
             mc[c].run()
 
         # Measure sampling gap
+        if self.verbose:
+            print(f'measuring sampling gap...')
         eta = 0
         d_eta = C
-        print('estimating eta')
         while d_eta > u:
+            if self.verbose:
+                print(f'considering eta {eta}...')
             eta += 0.05 * self.mc.graph.M
-            print(f'considering eta {eta}')
             d_eta = 0
             for c in range(C):
-                print(f'running {c}th MC')
+                if self.verbose:
+                    print(f'MCMC {c}/{C}')
                 n_swap = eta
                 for t in range(T):
                     mc[c].run(n_swap)
@@ -73,13 +84,11 @@ class Stat():
                 d_c = CheckAutocorrLag1(S_T, alpha)
                 d_eta += d_c
 
-        print(f'eta is {eta}')
         return eta
 
 
     def run_dfgls(self):
         # measure density of graph and use Dutta et al. Fig5 decision tree for sampling gap
-        print('measuring density')
         #d = self.mc.graph.M/(self.mc.graph.N * (self.mc.graph.N -1))
         #if self.mc.graph.directed:
         #    d = d/2
@@ -92,11 +101,13 @@ class Stat():
         eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
 
         has_converged = False
-        print('testing convergence')
+        if self.verbose:
+            print('running markov chain and checking convergence...')
         while (not has_converged):
             window = self.mc.run(eta)
             test = DFGLS(window)
-            print(test.summary)
+            if self.verbose:
+                print(test.summary)
             if np.abs(test.stat) > np.abs(test.critical_values["1%"]): # TODO check real test ..
                 has_converged = True
 
@@ -116,43 +127,4 @@ class Stat():
         
         test_stat, p_value = kstest(KS_samples, other)
         pass
-
-def main():
-    parser = argparse.ArgumentParser(description='k edge swap')
-    parser.add_argument('-f', '--dataset', type=str, default="./gp_references.txt",
-            help='path to the dataset')
-    parser.add_argument('-o', '--output', type=str, default="./gp_references.out",
-            help='path to the output')
-    parser.add_argument('-n', '--N_swap', type=int, default=1000000,
-            help='number of swap')
-    parser.add_argument('-g', '--gamma', type=int, default=2,
-	    help='exponent of zipf law, for pick K value')
-    parser.add_argument('-d', '--directed', action='store_true', default=False,
-            help='enable if input graph is directed')
-    parser.add_argument('--check', action='store_true', default=False,
-            help='enable to make some unit test during run. Default to false, significantly slows run.')
-    parser.add_argument('-v', '--verbose', action='store_true', default=False,
-            help='increase verbosity')
-    parser.add_argument('--debug', action='store_true', default=False,
-            help='enable debugging, user assertions to check that all is working')
-
-    args = parser.parse_args()
-
-    #file_in = "./gp_references.txt"
-
-    mygraph = Graph(args.directed)
-    print('reading graph')
-    mygraph.read_ssv(args.dataset)
-    print('init markov chain')
-    mc = MarkovChain(mygraph, args.N_swap, args.gamma, args.debug)
-    #mc.run()
-    print('init Stat')
-    stat = Stat(mc)
-    print('run MCMC')
-    stat.run_dfgls()
-    #mc.graph.to_ael(args.output)
-
-
-if __name__ == "__main__":
-    main()
 

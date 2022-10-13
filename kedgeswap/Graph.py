@@ -199,3 +199,9 @@ class Graph:
                     fout.write(f'{" ".join(to_write[node_in])}\n')
                 else:
                     fout.write(f'\n')
+
+    def to_ssv(self, output):
+        with open(output, 'w') as fout:
+            for node in self.neighbors:
+                for neighbor in self.neighbors[node]:
+                    fout.write(f'{node} {neighbor}\n')
