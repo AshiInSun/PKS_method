@@ -7,6 +7,7 @@
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
 
 import os
+import ipdb
 import scipy
 import argparse
 import numpy as np
@@ -20,22 +21,28 @@ from kedgeswap.MarkovChain import MarkovChain
 # bouger triangle + assortativité dans stats ? 
 class Stat():
 
-    def __init__(self, mc, use_dfgls=True, use_ks=False, verbose=False):
+    def __init__(self, mc, use_dfgls=True, use_ks=False, eta=None, verbose=False):
         self.use_dfgls = use_dfgls
         self.use_ks = use_ks
         self.mc = mc # markov chain
+        self.eta = eta
         self.verbose = verbose
 
     @staticmethod
     def CheckAutocorrLag1(S_T, alpha):
         T = len(S_T)
         tau = 10 # lag at which the sample autocorr is calculated
-        a = np.correlate(S_T, S_T, mode='full')[T] # mode=full: convolution over each point of overlap - take value at T to get lag=1
+        mean_st = np.mean(S_T)
+        var_st = np.var(S_T)
+
+        a = np.correlate(S_T-mean_st, S_T-mean_st, mode='full')[T] # mode=full: convolution over each point of overlap - take value at T to get lag=1
+        a = a/ (var_st * len(S_T))
 
         mu = -1/T
         sigma_2 = (T**4 - 4 * T**3 + 4 * T - 4) / ((T+1)* T**2 * (T-1)**2)
         A = (a - mu)/np.sqrt(sigma_2)
-        z = scipy.stats.norm.ppf(alpha) #TODO Check if alpha or 1-alpha # (1-alpha) th quantile of N(O,1)
+        z = scipy.stats.norm.ppf(1-alpha) #TODO Check if alpha or 1-alpha # (1-alpha) th quantile of N(O,1)
+        print(f'autocorr lag 1 A {A} 1-a {z} a {scipy.stats.norm.ppf(1-alpha)}') 
         if A > z:
             return 1
         else:
@@ -50,7 +57,7 @@ class Stat():
         N_swap = 1000 * self.mc.graph.M # burn in 
         C = 10 # TODO CHECK NUMBER OF CHAINS
         T = 500
-        S_T = [] # list of degree assortativity of size T
+        #S_T = [] # list of degree assortativity of size T
         u = 1 # lower bound on number of mcmc chains that have significant lag-1 autocorrelation
         mc = [] # list of C MCMC
         alpha = 0.04 # significance level for each test
@@ -58,11 +65,13 @@ class Stat():
         if self.verbose:
             print(f'estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
             print(f'burn in...')
-        for c in range(C):
-            if self.verbose:
-                print(f'MCMC {c}/{C}')
-            mc.append(MarkovChain(graph, N_swap, gamma))
-            mc[c].run()
+        #for c in range(C):
+        #    if self.verbose:
+        #        print(f'MCMC {c}/{C}')
+        #    mc.append(MarkovChain(graph, N_swap, gamma))
+        #    mc[c].run()
+        burn_in = MarkovChain(graph, N_swap, gamma)
+        burn_in.run()
 
         # Measure sampling gap
         if self.verbose:
@@ -71,17 +80,35 @@ class Stat():
         d_eta = C
         while d_eta > u:
             eta += 0.05 * self.mc.graph.M
+            #eta += 1 * self.mc.graph.M
+
             if self.verbose:
                 print(f'considering eta {eta}...')
 
             d_eta = 0
             for c in range(C):
+                S_T = []
                 if d_eta > u:
                     continue
+
+                if len(mc) <= c:
+                    if self.verbose:
+                        print(f'copying burn in...')
+                    mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma))
+                else:
+                    if self.verbose:
+                        print(f'copying burn in...')
+                    mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma)
+
+
+                #mc[c].run()
 
                 if self.verbose:
                     print(f'MCMC {c}/{C}')
                 n_swap = int(np.round(eta))
+                if self.verbose:
+                    print(f'running...')
+
                 for t in range(T):
 
                     mc[c].run(n_swap)
@@ -105,7 +132,10 @@ class Stat():
         #else:
         #    print('estimating eta')
         #    eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
-        eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+        if self.eta is None:
+            eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+        else:
+            eta = self.eta
 
         has_converged = False
         if self.verbose:
