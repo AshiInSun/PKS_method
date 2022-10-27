@@ -16,14 +16,14 @@ from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
 
-def run(dataset, directed, gamma, use_jd, use_triangles, use_dfgls, use_ks, eta, output, verbose):
+def run(dataset, directed, gamma, use_jd, use_triangles, use_assortativity, use_dfgls, use_ks, eta, output, verbose):
 
     # read graph
     graph = Graph(directed)
     graph.read_ssv(dataset)
 
     # initialize MCMC
-    mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, use_triangles=use_triangles, verbose=verbose)
+    mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, use_triangles=use_triangles, use_assortativity=use_assortativity, verbose=verbose)
 
     # initialize metrics
     stat = Stat(mc, use_dfgls, use_ks, eta, verbose)
@@ -82,8 +82,12 @@ def main():
     parser.add_argument('-jd', '--jointdegree', action='store_true', default=False,
             help='enable to use the joint degree matrix as a measure to accept or refuse a swap')
 
+    #TODO triangles and assortativity are mutually exclusive
     parser.add_argument('-t', '--triangles', action='store_true', default=False,
-            help='enable to search the triangles in the graph at each step of the markov chain')
+            help='enable to count the triangles in the graph at each step of the markov chain. Use this count to estimate the convergence of the Markov Chain')
+
+    parser.add_argument('-a', '--assortativity', action='store_true', default=False,
+            help='enable to estimate the convergence using the assortativity.')
 
     parser.add_argument('-dfgls', '--dfgls', action='store_true', default=True,
             help='estimate convergence of the markov chain using the Dickey-Fuller Generalised Least Square method on the degree assortativity')
@@ -96,7 +100,7 @@ def main():
 
     args = parser.parse_args()
 
-    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, args.dfgls, args.kolmogorovsmirnov, args.eta, args.output, args.verbose)
+    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, args.assortativity, args.dfgls, args.kolmogorovsmirnov, args.eta, args.output, args.verbose)
 
 if __name__ == "__main__":
     main()

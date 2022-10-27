@@ -20,7 +20,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, verbose=False):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, verbose=False):
         """
             Class to handle k-edge random swap
 
@@ -48,6 +48,7 @@ class MarkovChain:
         self.triangles2edges = defaultdict(list)
         self.use_jd = use_jd
         self.use_triangles = use_triangles
+        self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
         self.joint_degree = np.zeros(0)
         self.verbose=verbose
         #self.debug = debug
@@ -424,10 +425,6 @@ class MarkovChain:
                             self.edges2triangles[(node_2, node_1)].append(current_triangle)
                             self.triangles2edges[current_triangle].append((node_2, node_1))
 
-        updated_triangles2edges = self.triangles2edges.copy()
-        updated_edges2triangles = self.edges2triangles.copy()
-
-        self.count_triangles()
 
     def init_joint_degree(self):
         """ Initialize the joint degree matrix.
@@ -501,6 +498,7 @@ class MarkovChain:
             _neighbors[u][v_idx] = y
             _neighbors[y][x_idx] = u
 
+
             # get degree of each node involved
             deg_u = len(_neighbors[u]) - 1
             deg_v = len(self.graph.neighbors[v]) -1
@@ -537,16 +535,19 @@ class MarkovChain:
         refusal_rate = 0
 
         # initialize values
-        self.init_assortativity()
 
         if self.use_jd:
             self.init_joint_degree()
+
         if self.use_triangles:
             self.count_triangles()
+        elif self.use_assortativity:
+            self.init_assortativity()
 
         # run N_swap swap
         for swap_idx in range(N_swap):
             if self.verbose and (swap_idx % 1000 == 0):
+
                 print(f'swap {swap_idx}/{N_swap}')
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
@@ -559,10 +560,12 @@ class MarkovChain:
             if (accept_permutation):
                 accept_rate += 1 
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
-                self.update_assortativity(edge_to_swap, permutation)
 
-                if self.use_triangles:
+                if self.use_assortativity:
+                    self.update_assortativity(edge_to_swap, permutation)
+                elif self.use_triangles:
                     self.update_triangles(edge_to_swap, permutation)
+
                 if self.use_jd:
                     self.joint_degree = updated_jd
                 
@@ -570,10 +573,12 @@ class MarkovChain:
                 refusal_rate += 1
 
             # populate assortativity values
-            window.append(self.assortativity)
+            if self.use_assortativity:
+                window.append(self.assortativity)
+            elif self.use_triangles:
+                window.append(len(self.triangles2edges))
 
         if self.verbose:
-            print(window)
             print(f'accepted : {accept_rate} , refused : {refusal_rate}')
 
         return window

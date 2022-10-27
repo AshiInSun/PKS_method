@@ -35,8 +35,12 @@ class Stat():
         mean_st = np.mean(S_T)
         var_st = np.var(S_T)
 
-        a = np.correlate(S_T-mean_st, S_T-mean_st, mode='full')[T] # mode=full: convolution over each point of overlap - take value at T to get lag=1
-        a = a/ (var_st * len(S_T))
+        R_1 = 1/T * sum( np.multiply(S_T[:-1] -mean_st, S_T[1:] - mean_st))
+        R_0 = 1/T * sum( np.multiply(S_T -mean_st, S_T - mean_st))
+        #a_i = R_1/R_0
+        a = R_1/R_0
+        #a = np.correlate(S_T-mean_st, S_T-mean_st, mode='full')[T] # mode=full: convolution over each point of overlap - take value at T to get lag=1
+        #a = a/ (var_st * len(S_T))
 
         mu = -1/T
         sigma_2 = (T**4 - 4 * T**3 + 4 * T - 4) / ((T+1)* T**2 * (T-1)**2)
@@ -46,7 +50,7 @@ class Stat():
         if A > z:
             return 1
         else:
-            0
+            return 0
 
     def estimate_sampling_gap(self, graph, gamma):
         """ Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of 
@@ -79,7 +83,9 @@ class Stat():
         eta = 0
         d_eta = C
         while d_eta > u:
-            eta += 0.05 * self.mc.graph.M
+            #eta += 0.05 * self.mc.graph.M
+            eta += 0.5 * self.mc.graph.M
+
             #eta += 1 * self.mc.graph.M
 
             if self.verbose:
@@ -145,7 +151,9 @@ class Stat():
             test = DFGLS(window)
             if self.verbose:
                 print(test.summary)
-            if np.abs(test.stat) > np.abs(test.critical_values["1%"]): # TODO check real test ..
+            #if np.abs(test.stat) > np.abs(test.critical_values["1%"]): # TODO check real test ..
+            if test.stat < test.critical_values["1%"]: # TODO check real test ..
+
                 has_converged = True
                 self.mc.graph.to_ssv(output)
 
