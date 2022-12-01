@@ -10,6 +10,7 @@
 """
 
 import os
+import gzip
 import argparse
 import numpy as np
 
@@ -20,7 +21,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, verbose=False):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, verbose=False, keep_record=False, log_dir = None):
         """
             Class to handle k-edge random swap
 
@@ -40,6 +41,8 @@ class MarkovChain:
         self.graph = graph
         self.N_swap = N_swap
         self.gamma = gamma
+        self.possible_ks = range(2, graph.M)
+        self.k_distrib = np.array([1/(k**self.gamma) for k in self.possible_ks])
         self.force_k = True
         self.assortativity = 0
         self.D = 0 # assortativity denominator - does not depend on links
@@ -50,27 +53,31 @@ class MarkovChain:
         self.use_triangles = use_triangles
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
         self.joint_degree = np.zeros(0)
-        self.verbose=verbose
+        self.verbose = verbose
+        self.keep_record = keep_record
+        self.output_file = 0 # number of graph dumped
+        self.log_dir = log_dir # directory to dump graph and swap when asked
         #self.debug = debug
 
-    def __dump__(self, edge_to_swap, permutation):
+    def __dump__(self, edge_to_swap, permutation, n_cycle, n_swapped, output_file):
         """Write graph and permutation, useful for debugging"""
-        with open('dump.log', 'w') as fout:
-            fout.write('neighbors\n')
+        with gzip.open(output_file, 'wb') as fout:
+            fout.write('neighbors\n'.encode())
             for node in self.graph.neighbors:
-                fout.write(f'{node}: {self.graph.neighbors[node]}\n')
-            fout.write('edges\n')
+                fout.write(f'{node}: {self.graph.neighbors[node]}\n'.encode())
+            fout.write('edges\n'.encode())
             for edge in self.graph.edges:
-                fout.write(f'{edge}: {self.graph.edges[edge]}\n')
-            fout.write('edges2triangles\n')
+                fout.write(f'{edge}: {self.graph.edges[edge]}\n'.encode())
+            fout.write('edges2triangles\n'.encode())
             for edge in self.edges2triangles:
-                fout.write(f'{edge}: {self.edges2triangles[edge]}\n')
-            fout.write('triangles2edges\n')
+                fout.write(f'{edge}: {self.edges2triangles[edge]}\n'.encode())
+            fout.write('triangles2edges\n'.encode())
             for triangle in self.triangles2edges:
-                fout.write(f'{triangle}: {self.triangles2edges[triangle]}\n')
-            fout.write('edge_to_swap and permutation\n')
+                fout.write(f'{triangle}: {self.triangles2edges[triangle]}\n'.encode())
+            fout.write('edge_to_swap and permutation\n'.encode())
             for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
-                fout.write(f'{(u,v)}, {(x,y)}\n')
+                fout.write(f'{(u,v)}, {(x,y)}\n'.encode())
+            fout.write(f'number of cycle {n_cycle}, number of edges swapped {n_swapped}\n'.encode())
 
     def pick_k(self):
         """
@@ -82,7 +89,8 @@ class MarkovChain:
         """
         # minimum k is 2
         # use modulo to avoid having k greater than the size of the graph
-        k = 2 + (np.random.zipf(self.gamma) % (self.graph.M-2))
+        #k = 2 + (np.random.zipf(self.gamma) % (self.graph.M-2))
+        k = np.random.choice(a=self.possible_ks ,p=1/sum(self.k_distrib) * self.k_distrib)
 
         return k
 
@@ -525,6 +533,33 @@ class MarkovChain:
             perform N_swap, each time checking the constraints and computing
             metrics.
         """
+        def write_swap(ets, p):
+            with  open('swap', 'a') as fout:
+                fout.write(f'{len(ets)}\n')
+                for e1, e2 in zip(ets, p):
+                    fout.write(f'{e1[0]} {e1[1]} : {e2[0]} {e2[1]}\n')
+                fout.write(f'\n\n')
+
+        def detect_cycles(ets, p):
+            all_tagged = []
+            flat_all_tagged = []
+            for e1, e2 in zip(ets, p):
+                if e1==e2:
+                    continue
+                if e1 in flat_all_tagged:
+                    continue
+                tagged = []
+                tagged.append(e2)
+                flat_all_tagged.append(e2)
+                __e2 = e2
+                while __e2 != e1:
+                    e2_idx = ets.index(__e2)
+                    __e2 = p[e2_idx]
+                    tagged.append(__e2)
+                    flat_all_tagged.append(__e2)
+                all_tagged.append(tagged)
+            return len(all_tagged), len(flat_all_tagged)
+
         # populate assortativity values
         window = []
 
@@ -533,6 +568,8 @@ class MarkovChain:
 
         accept_rate = 0
         refusal_rate = 0
+        acc_rate_byk = defaultdict(int)
+        ref_rate_byk = defaultdict(int)
 
         # initialize values
 
@@ -558,7 +595,10 @@ class MarkovChain:
 
             # if swap is accepted, perform swap and update graph metrics values
             if (accept_permutation):
+
                 accept_rate += 1 
+                acc_rate_byk[k] += 1
+
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
                 if self.use_assortativity:
@@ -568,9 +608,21 @@ class MarkovChain:
 
                 if self.use_jd:
                     self.joint_degree = updated_jd
-                
+                write_swap(edge_to_swap, permutation) 
+
+                # write graph and swap
+                if self.keep_record:
+
+                    n_cycle, n_edge_swap = detect_cycles(edge_to_swap, permutation)
+                    self.output_file += 1
+                    output_file = self.graph.dataset_name + f'_{self.output_file}.log.gz'
+                    if self.log_dir is not None:
+                        output_file = os.path.join(self.log_dir, output_file)
+                    self.__dump__(edge_to_swap, permutation, n_cycle, n_edge_swap, output_file)
+
             else:
                 refusal_rate += 1
+                ref_rate_byk[k] += 1
 
             # populate assortativity values
             if self.use_assortativity:
@@ -579,7 +631,13 @@ class MarkovChain:
                 window.append(len(self.triangles2edges))
 
         if self.verbose:
+            accepted_rate_by_k = sorted(acc_rate_byk.items())
+            refused_rate_by_k = sorted(ref_rate_byk.items())
             print(f'accepted : {accept_rate} , refused : {refusal_rate}')
+            print(f'accepted by k {accepted_rate_by_k}')
+            print('refused')
+            print(refused_rate_by_k)
+            #print(f'accepted : {accept_rate} , refused : {refusal_rate}')
 
         return window
 

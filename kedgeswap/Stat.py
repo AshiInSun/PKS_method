@@ -8,6 +8,7 @@
 
 import os
 import ipdb
+import time
 import scipy
 import argparse
 import numpy as np
@@ -16,6 +17,7 @@ from scipy.stats import kstest
 from arch.unitroot import DFGLS
 from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
+from joblib import Parallel, delayed
 from kedgeswap.MarkovChain import MarkovChain
 
 # bouger triangle + assortativité dans stats ? 
@@ -57,6 +59,16 @@ class Stat():
         Dutta, U. (2022). Sampling random graphs with specified degree sequences 
 
         """
+        def run_chain(c):
+            S_T = []
+            n_swap = int(np.round(eta))
+            for t in range(T):
+                mc[c].run(n_swap)
+                if mc[c].use_assortativity:
+                    S_T.append(mc[c].assortativity)
+                else:
+                    S_T.append(len(mc[c].triangles2edges))
+            return S_T
 
         N_swap = 1000 * self.mc.graph.M # burn in 
         C = 10 # TODO CHECK NUMBER OF CHAINS
@@ -74,17 +86,23 @@ class Stat():
         #        print(f'MCMC {c}/{C}')
         #    mc.append(MarkovChain(graph, N_swap, gamma))
         #    mc[c].run()
-        burn_in = MarkovChain(graph, N_swap, gamma)
+        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
         burn_in.run()
 
         # Measure sampling gap
         if self.verbose:
             print(f'measuring sampling gap...')
-        eta = 0
+        # Start with eta = 10 * M, then dichotomic search if successful, otherwise * 2
+        eta = 10 * self.mc.graph.M
         d_eta = C
-        while d_eta > u:
+        prev_d_eta = C
+        prev_eta = eta
+        #while d_eta > u:
+        tuned = False
+        while (not tuned): 
             #eta += 0.05 * self.mc.graph.M
-            eta += 0.5 * self.mc.graph.M
+            #eta += 0.5 * self.mc.graph.M
+            #eta = 2 * eta
 
             #eta += 1 * self.mc.graph.M
 
@@ -100,29 +118,41 @@ class Stat():
                 if len(mc) <= c:
                     if self.verbose:
                         print(f'copying burn in...')
-                    mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma))
+                    mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None))
                 else:
                     if self.verbose:
                         print(f'copying burn in...')
-                    mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma)
+                    mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
 
 
                 #mc[c].run()
 
-                if self.verbose:
-                    print(f'MCMC {c}/{C}')
-                n_swap = int(np.round(eta))
-                if self.verbose:
-                    print(f'running...')
+            S_Ts = Parallel(n_jobs=5)(delayed(run_chain)(c) for c in range(C))
+            for c in range(C):
+                #if self.verbose:
+                #    print(f'MCMC {c}/{C}')
+                #n_swap = int(np.round(eta))
+                #if self.verbose:
+                #    print(f'running...')
 
-                for t in range(T):
+                #for t in range(T):
 
-                    mc[c].run(n_swap)
-                    S_T.append(mc[c].assortativity)
-                d_c = self.CheckAutocorrLag1(S_T, alpha)
+                #    mc[c].run(n_swap)
+                #    S_T.append(mc[c].assortativity)
+                d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
                 d_eta += d_c
                 if self.verbose:
                     print(f'for eta={eta}: d_eta={d_eta}, u={u}')
+            if d_eta <= u:
+                prev_eta = eta
+                eta = eta/2
+            elif d_eta > u and prev_d_eta <= u:
+
+                tuned = True
+                eta = prev_eta
+            elif d_eta > u and prev_d_eta > u:
+                prev_eta = eta
+                eta = 2 * eta
 
         return eta
 
@@ -139,24 +169,33 @@ class Stat():
         #    print('estimating eta')
         #    eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
         if self.eta is None:
+            t0 = time.time()
             eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+            t1 = time.time()
+            print(f'eta estimation {t1 - t0}')
         else:
             eta = self.eta
 
         has_converged = False
         if self.verbose:
             print('running markov chain and checking convergence...')
+        t0 = time.time()
         while (not has_converged):
             window = self.mc.run(int(np.round(eta)))
             test = DFGLS(window)
-            if self.verbose:
+            #if self.verbose:
+            try:
                 print(test.summary)
+            except:
+                print("Warning, dfgls doesn't have enough observation to compute.")
+                continue
             #if np.abs(test.stat) > np.abs(test.critical_values["1%"]): # TODO check real test ..
             if test.stat < test.critical_values["1%"]: # TODO check real test ..
 
                 has_converged = True
                 self.mc.graph.to_ssv(output)
-
+        t1 = time.time()
+        print(f'convergence {t1 - t0}')
 
     def run_kolmogorov_smirnov(self, other):
         eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
@@ -166,7 +205,7 @@ class Stat():
         C = 200 # TODO CHECK NUMBER OF CHAINS
         KS_samples = []
         for c in range(C):
-            mc.append(MarkovChain(graph, N_swap, gamma))
+            mc.append(MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose))
             mc[c].run()
             KS_samples.append(mc.assortativity)
 

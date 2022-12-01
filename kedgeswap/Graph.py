@@ -17,6 +17,7 @@ import os
 import numpy as np
 import argparse
 
+from pathlib import Path
 from collections import defaultdict
 
 
@@ -55,6 +56,7 @@ class Graph:
         self.edges = dict()
         self.unique_edges = list()
         self.directed = directed # directed graph flag
+        self.dataset_name = None
 
     def copy(self):
         graph_copy = Graph()
@@ -86,6 +88,7 @@ class Graph:
             else they are stored as (src, dest) with src < dest.
             Self Loop and multi-graphs are not accepted.
         """
+        self.dataset_name = Path(in_file).stem 
         with open(in_file, 'r') as fin:
             for line in fin:
                 

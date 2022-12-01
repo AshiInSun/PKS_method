@@ -16,14 +16,14 @@ from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
 
-def run(dataset, directed, gamma, use_jd, use_triangles, use_assortativity, use_dfgls, use_ks, eta, output, verbose):
+def run(dataset, directed, gamma, use_jd, use_triangles, use_assortativity, use_dfgls, use_ks, eta, output, verbose, keep_record, log_dir):
 
     # read graph
     graph = Graph(directed)
     graph.read_ssv(dataset)
 
     # initialize MCMC
-    mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, use_triangles=use_triangles, use_assortativity=use_assortativity, verbose=verbose)
+    mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, use_triangles=use_triangles, use_assortativity=use_assortativity, verbose=verbose, keep_record=keep_record, log_dir=log_dir)
 
     # initialize metrics
     stat = Stat(mc, use_dfgls, use_ks, eta, verbose)
@@ -98,9 +98,15 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
             help='increase verbosity')
 
+    parser.add_argument('--keep_record', action='store_true', default=False,
+            help='save all the intermidiate graphs and the swaps')
+    parser.add_argument('--log_dir', default=None,
+            help='When keep_record enabled, can save all logs in a directory specified by log_dir.')
+
+
     args = parser.parse_args()
 
-    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, args.assortativity, args.dfgls, args.kolmogorovsmirnov, args.eta, args.output, args.verbose)
+    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, args.assortativity, args.dfgls, args.kolmogorovsmirnov, args.eta, args.output, args.verbose, args.keep_record, args.log_dir)
 
 if __name__ == "__main__":
     main()
