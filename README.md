@@ -19,7 +19,19 @@ Code python pour les expériences de génération de graphes aléatoires
 	- progressbar # TODO pas utile juste joli..
     - python3 
     - arch : pip install arch
-    
+   
+## Format d'entrée
+
+* Le paquet prend en entrée des graphes au format "edge-list" séparés par des espaces: 
+
+  1 2
+  1 3
+  4 5
+  5 6
+
+* Si un lien apparait plusieurs fois, un seul exemplaire du lien sera conservé dans la structure stockée. Si le graphe est dirigé, le lecteur fera une différence entre un lien "u v" et le lien réciproque "v u", sinon il sera stocké sous la forme "u v" avec u < v.
+
+* Les boucles ne sont pas conservées.
 
 ## Utilisation
 * Notation: V est l'ensemble des noeuds du graph, E est l'ensemble des liens du graph. 
