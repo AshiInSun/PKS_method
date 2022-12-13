@@ -7,7 +7,7 @@
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
 
 import os
-import ipdb
+#import ipdb
 import time
 import scipy
 import argparse
@@ -97,14 +97,8 @@ class Stat():
         d_eta = C
         prev_d_eta = C
         prev_eta = eta
-        #while d_eta > u:
         tuned = False
         while (not tuned): 
-            #eta += 0.05 * self.mc.graph.M
-            #eta += 0.5 * self.mc.graph.M
-            #eta = 2 * eta
-
-            #eta += 1 * self.mc.graph.M
 
             if self.verbose:
                 print(f'considering eta {eta}...')
@@ -129,23 +123,14 @@ class Stat():
 
             S_Ts = Parallel(n_jobs=5)(delayed(run_chain)(c) for c in range(C))
             for c in range(C):
-                #if self.verbose:
-                #    print(f'MCMC {c}/{C}')
-                #n_swap = int(np.round(eta))
-                #if self.verbose:
-                #    print(f'running...')
-
-                #for t in range(T):
-
-                #    mc[c].run(n_swap)
-                #    S_T.append(mc[c].assortativity)
                 d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
                 d_eta += d_c
                 if self.verbose:
                     print(f'for eta={eta}: d_eta={d_eta}, u={u}')
             if d_eta <= u:
                 prev_eta = eta
-                eta = eta/2
+                #eta = eta/2
+                tuned = True
             elif d_eta > u and prev_d_eta <= u:
 
                 tuned = True
@@ -171,6 +156,7 @@ class Stat():
         if self.eta is None:
             t0 = time.time()
             eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+            self.eta = eta
             t1 = time.time()
             print(f'eta estimation {t1 - t0}')
         else:

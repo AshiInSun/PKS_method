@@ -6,18 +6,20 @@ Code python pour les expériences de génération de graphes aléatoires
 
 * To install package avec requirement: 
 
-    pip install -e ./
+    pip install ./
 
 * To check if everything works well:
 
     pytest tests/test.py
 
 * Requirements : 
+    - pip and setuptools : pip install --upgrade pip setuptools wheel
 	- numpy
 	- argparse
 	- progressbar # TODO pas utile juste joli..
     - python3 
     - arch : pip install arch
+    
 
 ## Utilisation
 * Notation: V est l'ensemble des noeuds du graph, E est l'ensemble des liens du graph. 
@@ -32,12 +34,34 @@ Code python pour les expériences de génération de graphes aléatoires
 * Stat.py estime le sampling gap et mesure la convergence
 
 * example d'utilisation: 
-	python main.py -f ./gp_references.txt -o ./gp_references.out 
+	python main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out
 
+* paramètrage de main.py:
 
-## TODO
-- ajouter autres contraintes validité de l'échange TODO a implémenter + tester:
-	- 4) graphe simple dirigé avec liens mutuels
-	- 5) graphe simple dirigé avec motifs triangulaires
-- ajouter métriques suivi convergence
+    * -f : donner le chemin vers le fichier d'entrée (format edge list, noeuds séparés par des espaces)
+
+    * -o : donner le chemin vers le fichier de sortie. Va écrire 10000 graphes post-convergence.
+
+    * -n : optionnel: nombre de swaps demandés.
+
+    * -g : exposant de la loi 1/n^g permettant de choisir k.
+
+    * -d : activer si le graphe d'entrée est dirigé.
+
+    * -e : optionnel: spécifier le "sampling gap". Si non spécifié, une methode d'estimation (assez lente) est utilisée.
+
+    * -jd : optionnel: activer pour chercher des swaps qui conservent la "joint degree matrix" constante. Attention, option incompatible avec "-a" puisque l'assortativité reste aussi constante, et donc ne permet pas de verifier la convergence.
+
+    * -t : optionnel: activer pour suivre la convergence en regardant le nombre de triangles dans le graphe. Option obligatoire si "-jd" est activé. Attention, option incompatible avec "-a", choisir l'un ou l'autre.
+
+    * -a : optionnel (activé par défaut): activer pour suivre la convergence en regardant l'assortativité du graphe. Attention, option incompatible avec "-t" et "-jd".
+
+    * -dfgls : optionnel (activé par défaut): méthode utilisé pour suivre la convergence (Dick Fulley Generalized Least Square utilisé sur la série temporelle de l'assortativité ou du nombre de triangles selon l'option -a ou -t).
+
+    
+    * -v : optionnel: augment la verbosité
+
+    * --keep_record : optionnel: permet de sauvegarder tous les graphes et tout les swaps ayant permis de generer ces graphes.
+
+    * --log_dir : optionnel: à utiliser si --keep_record est activé. Spécifie un dossier dans lequel les graphes et swaps sont sauvegardés.
 

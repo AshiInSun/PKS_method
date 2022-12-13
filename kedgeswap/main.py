@@ -30,6 +30,12 @@ def run(dataset, directed, gamma, use_jd, use_triangles, use_assortativity, use_
 
     # start run
     stat.run_dfgls(output)
+
+    # when fully converged, run and save outputs
+    for j in range(12501):
+        output_name = output + f'_{j}'
+        stat.mc.run(int(np.round(stat.eta)))
+        stat.mc.graph.to_ssv(output_name)
     ## start run
     ## estimate sampling gap
     #print('estimating sampling gap...')
@@ -65,7 +71,7 @@ def main():
             help='path to the dataset')
 
     parser.add_argument('-o', '--output', type=str, default=None, 
-            help='path to the output')
+            help='path to the file output, will write sampled graph using this name.')
 
     parser.add_argument('-n', '--N_swap', type=int, default=1000000,
             help='number of swap')
@@ -86,7 +92,7 @@ def main():
     parser.add_argument('-t', '--triangles', action='store_true', default=False,
             help='enable to count the triangles in the graph at each step of the markov chain. Use this count to estimate the convergence of the Markov Chain')
 
-    parser.add_argument('-a', '--assortativity', action='store_true', default=False,
+    parser.add_argument('-a', '--assortativity', action='store_true', default=True,
             help='enable to estimate the convergence using the assortativity.')
 
     parser.add_argument('-dfgls', '--dfgls', action='store_true', default=True,
