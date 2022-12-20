@@ -21,7 +21,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, verbose=False, keep_record=False, log_dir = None):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, verbose=False, keep_record=False, log_dir = None, debug=False):
         """
             Class to handle k-edge random swap
 
@@ -43,7 +43,7 @@ class MarkovChain:
         self.gamma = gamma
         self.possible_ks = range(2, graph.M)
         self.k_distrib = np.array([1/(k**self.gamma) for k in self.possible_ks])
-        self.force_k = True
+        self.force_k = False
         self.assortativity = 0
         self.D = 0 # assortativity denominator - does not depend on links
         #self.triangles = set() # set of all triangles in graph
@@ -57,7 +57,7 @@ class MarkovChain:
         self.keep_record = keep_record
         self.output_file = 0 # number of graph dumped
         self.log_dir = log_dir # directory to dump graph and swap when asked
-        #self.debug = debug
+        self.debug = debug
 
     def __dump__(self, edge_to_swap, permutation, n_cycle, n_swapped, output_file):
         """Write graph and permutation, useful for debugging"""
@@ -88,8 +88,6 @@ class MarkovChain:
             k (int) : number of edges to swap
         """
         # minimum k is 2
-        # use modulo to avoid having k greater than the size of the graph
-        #k = 2 + (np.random.zipf(self.gamma) % (self.graph.M-2))
         k = np.random.choice(a=self.possible_ks ,p=1/sum(self.k_distrib) * self.k_distrib)
 
         return k
@@ -123,7 +121,7 @@ class MarkovChain:
             edge_to_swap = [self.graph.unique_edges[e_idx] for e_idx in _edge_to_swap]
         else:
             # for undirected graphs, pick if edges are reversed or not
-            edge_to_swap = [(self.graph.unique_edges[e_idx][0], self.graph.unique_edges[e_idx][1]) 
+            edge_to_swap = [(self.graph.unique_edges[e_idx][1], self.graph.unique_edges[e_idx][0]) 
                                 if np.random.choice([True, False]) 
                        else (self.graph.unique_edges[e_idx][0], self.graph.unique_edges[e_idx][1]) for e_idx in _edge_to_swap]
 
@@ -568,8 +566,8 @@ class MarkovChain:
 
         accept_rate = 0
         refusal_rate = 0
-        acc_rate_byk = defaultdict(int)
-        ref_rate_byk = defaultdict(int)
+        #acc_rate_byk = defaultdict(int)
+        #ref_rate_byk = defaultdict(int)
 
         # initialize values
 
@@ -583,9 +581,12 @@ class MarkovChain:
 
         # run N_swap swap
         for swap_idx in range(N_swap):
-            if self.verbose and (swap_idx % 1000 == 0):
 
-                print(f'swap {swap_idx}/{N_swap}')
+            # print a dot every 1000 swap to show progress
+            if self.verbose and (swap_idx % 1000 == 0):
+                #print(f'swap {swap_idx}/{N_swap}')
+                print('.', end='')
+
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
@@ -596,21 +597,36 @@ class MarkovChain:
             # if swap is accepted, perform swap and update graph metrics values
             if (accept_permutation):
 
+                # if debug is enabled, check that degree sequence is constant
+                if self.debug:
+                    debug_deg_seq = []
+                    previous_debug_deg_seq = []
+
+                    for node in range(self.graph.N):
+                        previous_debug_deg_seq.append(len(self.graph.neighbors[node]))
+
                 accept_rate += 1 
-                acc_rate_byk[k] += 1
+                #acc_rate_byk[k] += 1
 
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
+                if self.debug:
+                     for node in range(self.graph.N):
+                        debug_deg_seq.append(len(self.graph.neighbors[node]))
+                     assert debug_deg_seq == previous_debug_deg_seq, 'ERROR : degree sequence changed!' 
+
+                # compute value of interest to follow convergence
                 if self.use_assortativity:
                     self.update_assortativity(edge_to_swap, permutation)
                 elif self.use_triangles:
                     self.update_triangles(edge_to_swap, permutation)
 
-                if self.use_jd:
-                    self.joint_degree = updated_jd
+                
+                #if self.use_jd:
+                #    self.joint_degree = updated_jd
                 write_swap(edge_to_swap, permutation) 
 
-                # write graph and swap
+                # if keep_record is enabled, write graph and swap (as gzip)
                 if self.keep_record:
 
                     n_cycle, n_edge_swap = detect_cycles(edge_to_swap, permutation)
@@ -622,7 +638,7 @@ class MarkovChain:
 
             else:
                 refusal_rate += 1
-                ref_rate_byk[k] += 1
+                #ref_rate_byk[k] += 1
 
             # populate assortativity values
             if self.use_assortativity:
@@ -631,13 +647,7 @@ class MarkovChain:
                 window.append(len(self.triangles2edges))
 
         if self.verbose:
-            accepted_rate_by_k = sorted(acc_rate_byk.items())
-            refused_rate_by_k = sorted(ref_rate_byk.items())
             print(f'accepted : {accept_rate} , refused : {refusal_rate}')
-            print(f'accepted by k {accepted_rate_by_k}')
-            print('refused')
-            print(refused_rate_by_k)
-            #print(f'accepted : {accept_rate} , refused : {refusal_rate}')
 
         return window
 

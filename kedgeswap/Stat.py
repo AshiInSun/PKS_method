@@ -7,7 +7,6 @@
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
 
 import os
-#import ipdb
 import time
 import scipy
 import argparse
@@ -23,9 +22,9 @@ from kedgeswap.MarkovChain import MarkovChain
 # bouger triangle + assortativité dans stats ? 
 class Stat():
 
-    def __init__(self, mc, use_dfgls=True, use_ks=False, eta=None, verbose=False):
-        self.use_dfgls = use_dfgls
-        self.use_ks = use_ks
+    def __init__(self, mc, use_dfgls=True, eta=None, verbose=False):
+        #self.use_dfgls = use_dfgls
+        #self.use_ks = use_ks
         self.mc = mc # markov chain
         self.eta = eta
         self.verbose = verbose
@@ -48,7 +47,6 @@ class Stat():
         sigma_2 = (T**4 - 4 * T**3 + 4 * T - 4) / ((T+1)* T**2 * (T-1)**2)
         A = (a - mu)/np.sqrt(sigma_2)
         z = scipy.stats.norm.ppf(1-alpha) #TODO Check if alpha or 1-alpha # (1-alpha) th quantile of N(O,1)
-        print(f'autocorr lag 1 A {A} 1-a {z} a {scipy.stats.norm.ppf(1-alpha)}') 
         if A > z:
             return 1
         else:
@@ -110,12 +108,8 @@ class Stat():
                     continue
 
                 if len(mc) <= c:
-                    if self.verbose:
-                        print(f'copying burn in...')
                     mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None))
                 else:
-                    if self.verbose:
-                        print(f'copying burn in...')
                     mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
 
 
@@ -143,22 +137,13 @@ class Stat():
 
 
     def run_dfgls(self, output):
-        # measure density of graph and use Dutta et al. Fig5 decision tree for sampling gap
-        #d = self.mc.graph.M/(self.mc.graph.N * (self.mc.graph.N -1))
-        #if self.mc.graph.directed:
-        #    d = d/2
-        #if d < 0.134:
-        #    print('using eta=2m')
-        #    eta = 2 * self.mc.graph.M
-        #else:
-        #    print('estimating eta')
-        #    eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+
         if self.eta is None:
             t0 = time.time()
             eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
-            print(f'eta estimation {t1 - t0}')
+            print(f'eta estimation {t1 - t0} seconds')
         else:
             eta = self.eta
 
@@ -169,33 +154,34 @@ class Stat():
         while (not has_converged):
             window = self.mc.run(int(np.round(eta)))
             test = DFGLS(window)
-            #if self.verbose:
+
             try:
-                print(test.summary)
+                if self.verbose:
+                    print(f'test statistic : {test.stat},\n Markov chain is stationnary if test statistic < {test.critical_values["1%"]}')
+                    #print(test.summary)
+
+                if test.stat < test.critical_values["1%"]:
+                    has_converged = True
+                    self.mc.graph.to_ssv(output)
             except:
-                print("Warning, dfgls doesn't have enough observation to compute.")
+                print("Warning, dfgls doesn't have enough unique observations to compute.")
                 continue
-            #if np.abs(test.stat) > np.abs(test.critical_values["1%"]): # TODO check real test ..
-            if test.stat < test.critical_values["1%"]: # TODO check real test ..
 
-                has_converged = True
-                self.mc.graph.to_ssv(output)
         t1 = time.time()
-        print(f'convergence {t1 - t0}')
+        print(f'convergence {t1 - t0} seconds')
 
-    def run_kolmogorov_smirnov(self, other):
-        eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+    #def run_kolmogorov_smirnov(self, other):
+    #    eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+    #    has_converged = False
+    #    print('testing convergence')
+    #    C = 200 # TODO CHECK NUMBER OF CHAINS
+    #    KS_samples = []
+    #    for c in range(C):
+    #        mc.append(MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose))
+    #        mc[c].run()
+    #        KS_samples.append(mc.assortativity)
 
-        has_converged = False
-        print('testing convergence')
-        C = 200 # TODO CHECK NUMBER OF CHAINS
-        KS_samples = []
-        for c in range(C):
-            mc.append(MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose))
-            mc[c].run()
-            KS_samples.append(mc.assortativity)
-
-        
-        test_stat, p_value = kstest(KS_samples, other)
-        pass
+    #    
+    #    test_stat, p_value = kstest(KS_samples, other)
+    #    pass
 

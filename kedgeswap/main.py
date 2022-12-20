@@ -7,61 +7,47 @@
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
 
 import os
+import sys
 import argparse
 import numpy as np
 
+from progressbar import ProgressBar
 from arch.unitroot import DFGLS
 from kedgeswap.Stat import Stat
 from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
 
-def run(dataset, directed, gamma, use_jd, use_triangles, use_assortativity, use_dfgls, use_ks, eta, output, verbose, keep_record, log_dir):
+def run(dataset, directed, gamma, use_jd, 
+        use_triangles, use_assortativity, use_dfgls, 
+        eta, output, verbose, keep_record, log_dir, 
+        output_number, debug):
 
     # read graph
+    print('Reading graph...')
     graph = Graph(directed)
     graph.read_ssv(dataset)
 
     # initialize MCMC
-    mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, use_triangles=use_triangles, use_assortativity=use_assortativity, verbose=verbose, keep_record=keep_record, log_dir=log_dir)
+    print('Initializing markov chain')
+    mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, 
+            use_triangles=use_triangles, use_assortativity=use_assortativity, verbose=verbose, 
+            keep_record=keep_record, log_dir=log_dir, debug=debug)
 
     # initialize metrics
-    stat = Stat(mc, use_dfgls, use_ks, eta, verbose)
+    stat = Stat(mc, use_dfgls, eta, verbose)
 
     # start run
+    print('Starting Markov Chain convergence...')
     stat.run_dfgls(output)
 
     # when fully converged, run and save outputs
-    for j in range(12501):
+    print(f'Writing {output_number} graph samples...')
+    pb = ProgressBar()
+    for j in pb(range(output_number)):
         output_name = output + f'_{j}'
         stat.mc.run(int(np.round(stat.eta)))
         stat.mc.graph.to_ssv(output_name)
-    ## start run
-    ## estimate sampling gap
-    #print('estimating sampling gap...')
-    #eta = stat.estimate_sampling_gap(mc.graph, mc.gamma)
-
-    #if verbose:
-    #    print(f'sampling gap is {eta}')
-
-    ## run markov chain and follow convergence
-    #print(f'running Markov Chain...')
-    #has_converged = False
-    #while (not has_converged):
-
-    #    # run eta swaps and populate degree assortativity window
-    #    window = mc.run(eta)
-
-    #    # test convergence on degree assortativity window
-
-    #    test = DFGLS(window)
-    #    if verbose:
-    #        # write summary of statistics test
-    #        print(test.summary)
-
-    #    if np.abs(test.stat) > np.abs(test.critical_values["1%"]):
-    #        has_converged = True
-    #        mc.graph.to_ssv(output)
 
 
 def main():
@@ -88,21 +74,41 @@ def main():
     parser.add_argument('-jd', '--jointdegree', action='store_true', default=False,
             help='enable to use the joint degree matrix as a measure to accept or refuse a swap')
 
-    #TODO triangles and assortativity are mutually exclusive
-    parser.add_argument('-t', '--triangles', action='store_true', default=False,
-            help='enable to count the triangles in the graph at each step of the markov chain. Use this count to estimate the convergence of the Markov Chain')
+    parser.add_argument('--output_number', type=int, default=1000,
+            help='set the number of graph to generate after Markov Chain convergence.'
+            ' Default to 10000')
 
-    parser.add_argument('-a', '--assortativity', action='store_true', default=True,
-            help='enable to estimate the convergence using the assortativity.')
+    #TODO triangles and assortativity are mutually exclusive
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-a', '--assortativity', action='store_true', default=False,
+            help='enable to estimate the convergence using the assortativity. -a and -t are mutually exclusive.'
+            'When no method is selected, this one is chosen by default. Warning: does not work with --jd')
+
+    group.add_argument('-t', '--triangles', action='store_true', default=False,
+            help='enable to count the triangles in the graph at each step of the markov chain.'
+            'Use this count to estimate the convergence of the Markov Chain.'
+            '-a and -t are mutually excluseive. If --jd is chosen, use -t.')
+
+    #parser.add_argument('-t', '--triangles', action='store_true', default=False,
+    #        help='enable to count the triangles in the graph at each step of the markov chain.' 
+    #             'Use this count to estimate the convergence of the Markov Chain')
+
+    #parser.add_argument('-a', '--assortativity', action='store_true', default=False,
+    #        help='enable to estimate the convergence using the assortativity.')
 
     parser.add_argument('-dfgls', '--dfgls', action='store_true', default=True,
-            help='estimate convergence of the markov chain using the Dickey-Fuller Generalised Least Square method on the degree assortativity')
+            help='estimate convergence of the markov chain using the Dickey-Fuller'
+            'Generalised Least Square method on the degree assortativity')
 
-    parser.add_argument('-ks', '--kolmogorovsmirnov', action='store_true', default=False,
-            help='compare degree assortativity distribution to another generation method.') # TODO to define...
+    #parser.add_argument('-ks', '--kolmogorovsmirnov', action='store_true', default=False,
+    #        help='compare degree assortativity distribution to '
+    #        'another generation method.') # TODO to define...
 
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
             help='increase verbosity')
+
+    parser.add_argument('--debug', action='store_true', default=False,
+            help='enable debug options (slows down process because it checks a lot of things)')
 
     parser.add_argument('--keep_record', action='store_true', default=False,
             help='save all the intermidiate graphs and the swaps')
@@ -111,8 +117,13 @@ def main():
 
 
     args = parser.parse_args()
-
-    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, args.assortativity, args.dfgls, args.kolmogorovsmirnov, args.eta, args.output, args.verbose, args.keep_record, args.log_dir)
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit()
+    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, 
+            args.assortativity, args.dfgls,
+            args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
+            args.output_number, args.debug)
 
 if __name__ == "__main__":
     main()
