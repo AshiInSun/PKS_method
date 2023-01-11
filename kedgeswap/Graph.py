@@ -5,12 +5,6 @@
 #    K-edge-swap is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
-"""
-TODO - plus de doc, 
-     - faire classe séparée pour les swap plutôt qu'intégrer à la classe graphe"
-     - ajouter contraintes
-     - ajouter mesures
-"""
 import os
 #import ipdb
 
@@ -29,25 +23,24 @@ class Graph:
         N (int) : number of nodes
         M (int) : number of edges
         neighbors (dict(list)) : store adjacency list for each node
-        in_neighbors (dict(list)) : used only in directed graph, for each node
+        in_neighbors (dict(list)) : used only in directed graph, for each node\
                        store their neighbors from "in-edges"
-        out_neighbors (dict(list)) : used only in directed graph, for each node
+        out_neighbors (dict(list)) : used only in directed graph, for each node\
                         store their neighbors from "out-edges"
-        edges (dict()) : in undirected graph: for each edge (u,v), store the position
-                        of v in the adjacency list of u
-                        in directed graph: for each edge (u,v), store a quartuplet
-                        (v_idx, u_idx, v_out_idx, u_in_idx), where:
-                          v_idx is the position of v in u's adjacency list
-                          u_idx is the position of u in v's adjacency list
-                          v_out_idx is the position of v in out_neighbors[u]
-                          u_in_idx is the position of u in in_neighbors[v]
-        unique_edges (list()): used mostly for undirected graph, to store one version
+        edges (dict()) : in undirected graph: for each edge (u,v), store the position\
+                        of v in the adjacency list of u\
+                        in directed graph: for each edge (u,v), store a quartuplet\
+                        (v_idx, u_idx, v_out_idx, u_in_idx), where:\
+                          v_idx is the position of v in u's adjacency list\
+                          u_idx is the position of u in v's adjacency list\
+                          v_out_idx is the position of v in out_neighbors[u]_\
+                          u_in_idx is the position of u in in_neighbors[v]\
+        unique_edges (list()): used mostly for undirected graph, to store one version\
                                of each edge
         directed (bool) : enable if graph is directed
     """
 
     def __init__(self, directed = False):
-        # TODO clarifier quels structures utiles / pas utiles
         self.N = 0 # number of node
         self.M = 0 # number of edges
         self.neighbors = defaultdict(list) # is used as out_neighbors when directed
@@ -98,7 +91,8 @@ class Graph:
                 node_in, node_out = int(_node_in), int(_node_out)
 
                 if _node_in == _node_out:
-                    raise ValueError("self loop detected")
+                    #raise ValueError("self loop detected")
+                    continue
 
                 # add to graph
                 if self.directed :

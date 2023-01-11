@@ -58,6 +58,8 @@ class MarkovChain:
         self.output_file = 0 # number of graph dumped
         self.log_dir = log_dir # directory to dump graph and swap when asked
         self.debug = debug
+        self.accept_rate = 0
+        self.refusal_rate = 0
 
     def __dump__(self, edge_to_swap, permutation, n_cycle, n_swapped, output_file):
         """Write graph and permutation, useful for debugging"""
@@ -93,9 +95,7 @@ class MarkovChain:
         return k
 
     def find_swap(self, k):
-        """ TODO : 2 strategies, force k to be exact, or allow <=k
-
-            edge_to_swap donne list des liens à changer
+        """ Edge_to_swap donne list des liens à changer
             swap donne avec quel lien changer chaque lien de edge_to_swap
             ex:  
 
@@ -108,7 +108,7 @@ class MarkovChain:
 
             Return:
             edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the
+            permutation  : list of the edges with which we should swap the\
                            edges in edge_to_swap
 
         """
@@ -129,7 +129,7 @@ class MarkovChain:
 
         if self.force_k:
             # if force_k, permutation is cyclic, to force the swap to be of exactly k edges
-            cycle = np.random.randint(1,k) #TODO pas nécessaire : lien tiré aléatoirement
+            cycle = np.random.randint(1,k)
             permutation = [edge_to_swap[idx - cycle] for idx in range(len(edge_to_swap))]
         else:
             # if !force_k, permutation is of k edges or less
@@ -143,7 +143,7 @@ class MarkovChain:
 
             Parameters:
             edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the
+            permutation  : list of the edges with which we should swap the\
                            edges in edge_to_swap
 
             Return :
@@ -190,7 +190,7 @@ class MarkovChain:
 
             Parameters:
             edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the
+            permutation  : list of the edges with which we should swap the\
                            edges in edge_to_swap
             edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)
         """
@@ -241,6 +241,7 @@ class MarkovChain:
             
              Using the notation deg(u) for the degree of u, and Axy for the adjancency matrix value for
              nodes x and y, and Sk = sum_x (deg(x) ^ k), we compute the following values:
+
                 -S1, S2 and S3, 
                 -Sl= sum_xy (Axy * deg(x) * deg(y))
 
@@ -313,13 +314,15 @@ class MarkovChain:
         """ 
             Enumerate and store all triangles found in the graph.
             For undirected graphs:
-                we store each triangle in a set of tuplet ((u,v,w)) where 
-                u, v and w are the node, with u < v < w, and we store each link
-                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)
+
+                we store each triangle in a set of tuplet ((u,v,w)) where \
+                u, v and w are the node, with u < v < w, and we store each link\
+                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\
             For directed graphs:
-                we store each triangle thrice in a set of tuplet, with each node as a starting point,
-                e.g. for triangle (u,v,w) we store {(u,v,w), (v,w,u), (w,u,v)}. We store each link
-                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)
+            
+                we store each triangle thrice in a set of tuplet, with each node as a starting point,\
+                e.g. for triangle (u,v,w) we store {(u,v,w), (v,w,u), (w,u,v)}. We store each link\
+                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\
         """
 
         nb_triangles = 0
@@ -395,7 +398,7 @@ class MarkovChain:
                     del self.triangles2edges[current_triangle]
 
 
-            if (not self.graph.directed) and (v, u) in self.edges2triangles: # replace by not directed TODO 
+            if (not self.graph.directed) and (v, u) in self.edges2triangles:
                 destroyed_triangles = self.edges2triangles[(v,u)].copy() 
 
                 for current_triangle in destroyed_triangles:
@@ -440,7 +443,6 @@ class MarkovChain:
             Initialise the joint degree matrix by looping over each node n, 
             then each neighbor nn of n, and incrementing joint_degree[deg(n), deg(nn)] by 1/2.
             (increment by 1/2 to take into account that each edge is added twice)
-            # TODO : maybe increment by 1 and skip already passed edges ?
         """
         max_degree = 0
         for node in self.graph.neighbors:
@@ -469,11 +471,11 @@ class MarkovChain:
 
             Parameters:
             edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the
+            permutation  : list of the edges with which we should swap the\
                            edges in edge_to_swap
 
             Return :
-            updated_joint_degree : np.array, the updated version of the joint degree matrix
+            updated_joint_degree : np.array, the updated version of the joint degree matrix\
                                    if the permutation given in input is performed.
 
         """
@@ -648,6 +650,10 @@ class MarkovChain:
 
         if self.verbose:
             print(f'accepted : {accept_rate} , refused : {refusal_rate}')
+
+        # store accept rate and refusal rate
+        self.accept_rate = accept_rate
+        self.refusal_rate = refusal_rate
 
         return window
 

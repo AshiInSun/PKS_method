@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmark &mdash; kedge_swap 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Python API Documentation" href="python/index.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> kedge_swap
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Benchmark</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#datasets">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#protocol">Protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#results">Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">kedge_swap</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Benchmark</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/benchmark.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="benchmark">
+<span id="id1"></span><h1>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p>On this page you’ll find a benchmark of <em>kedgeswap</em> on different datasets and with different constraints,
+to give you an idea of what to expect in term of execution time, and to give a better grasp of how to
+choose the sampling gap.</p></li>
+</ul>
+<section id="datasets">
+<h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>For this benchmark we used the following datasets (we note n the number of nodes and m the number of edges) #TODO choose with Lionel ?:</p>
+<ul>
+<li><p>powergrid: undirected simple graph, n=4 941,  m=6 594, <a class="reference external" href="http://konect.cc/networks/opsahl-powergrid/">available here</a></p></li>
+<li><p>karateclub: undirected simple graph: n=34, m=78, <a class="reference external" href="http://konect.cc/networks/ucidata-zachary/">available here</a></p></li>
+<li><p>health: directed simple graph, n=2539, m=12969, <a class="reference external" href="http://konect.cc/networks/moreno_health/">available here</a></p></li>
+<li><p>wordnet: undirected simple graph: n=146005, m=656999, <a class="reference external" href="http://konect.cc/networks/wordnet-words/">available here</a></p></li>
+<li><p>maayan: directed simple graph: n=1226, m=2615, <a class="reference external" href="http://konect.cc/networks/maayan-faa/">available here</a></p></li>
+<li><p>…?</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="protocol">
+<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>The datasets are tested in differents setups:</p>
+<ul>
+<li><p>With or without sampling gap estimation: The sampling gap is the number of steps of the Markov chain required to produce uncorrelated samples.
+An algorithm adapted from [1] estimates the sampling gap, but is very slow, especially for large networks, as the first step (the “burn in” step)
+runs 1000*m steps of the Markov Chain to ensure its convergence. #TODO ? When not possible to run the estimation, it is possible to (over)estimate it
+empirically by … ? (taking coeff inversely proportional to acceptation rate ?)</p></li>
+<li><p>Fixed degree sequence : the first constraint we can put on the swap is to accept swap only if they conserve the degree sequence. We can follow the convergence
+either by following the degree assortativity of the graph, or the number of triangles of the graph.</p></li>
+<li><p>Fixed joint degree matrix : another more constraining condition is to accept an edge swap only if the conserve the joint degree matrix. We can follow the convergence
+using the number of triangles of the graph (when the joint degree matrix is fixed, the degree assortativity is also constant).</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h2>
+<table class="colwidths-given docutils align-default" id="id6">
+<caption><span class="caption-text">Title</span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>dataset</p></th>
+<th class="head"><p>directed</p></th>
+<th class="head"><p>constraint</p></th>
+<th class="head"><p>using eta estimation</p></th>
+<th class="head"><p>eta value</p></th>
+<th class="head"><p>acceptation rate</p></th>
+<th class="head"><p>eta estimation runtime (in seconds)</p></th>
+<th class="head"><p>convergence runtime (in seconds)</p></th>
+<th class="head"><p>total runtime (hh:mm:ss)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>powergrid</p></td>
+<td><p>no</p></td>
+<td><p>fixed degree sequence</p></td>
+<td><p>yes</p></td>
+<td><p>8064</p></td>
+<td><p>40.88%</p></td>
+<td><p>65 285s</p></td>
+<td><p>73.86s</p></td>
+<td><p>22:16:45</p></td>
+</tr>
+<tr class="row-odd"><td><p>karateclub</p></td>
+<td><p>no</p></td>
+<td><p>fixed degree sequence</p></td>
+<td><p>yes</p></td>
+<td><p>751</p></td>
+<td><p>10.38%</p></td>
+<td><p>392.90s</p></td>
+<td><p>6.71s</p></td>
+<td><p>00:10:47</p></td>
+</tr>
+<tr class="row-even"><td><p>health</p></td>
+<td><p>yes</p></td>
+<td><p>fixed degree sequence</p></td>
+<td><p>yes</p></td>
+<td><p>32 457</p></td>
+<td><p>39.48%</p></td>
+<td><p>174 238s</p></td>
+<td><p>1 754s</p></td>
+<td><p>72:02:44</p></td>
+</tr>
+<tr class="row-odd"><td><p>maayan</p></td>
+<td><p>yes</p></td>
+<td><p>fixed degree sequence</p></td>
+<td><p>yes</p></td>
+<td><p>6730</p></td>
+<td><p>38.82%</p></td>
+<td><p>8804.56s</p></td>
+<td><p>57.13s</p></td>
+<td><p>3:39:25</p></td>
+</tr>
+<tr class="row-even"><td><p>karateclub</p></td>
+<td><p>no</p></td>
+<td><p>fixed joint degree matrix</p></td>
+<td><p>yes</p></td>
+<td><p>5053</p></td>
+<td><p>1.54%</p></td>
+<td><p>2 567s</p></td>
+<td><p>8.32s</p></td>
+<td><p>1:09:44</p></td>
+</tr>
+<tr class="row-odd"><td><p>powergrid</p></td>
+<td><p>no</p></td>
+<td><p>fixed joint degree matrix</p></td>
+<td><p>yes</p></td>
+<td><p>197 180</p></td>
+<td><p>1.54%</p></td>
+<td><p>1 644 229s</p></td>
+<td><p>1 399.76s</p></td>
+<td><p>?</p></td>
+</tr>
+<tr class="row-even"><td><p>maayan</p></td>
+<td><p>yes</p></td>
+<td><p>fixed joint degree matrix</p></td>
+<td><p>yes</p></td>
+<td><p>163494</p></td>
+<td><p>3.2%</p></td>
+<td><p>516 290s</p></td>
+<td><p>427.52s</p></td>
+<td><p>?</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
+<p>[1] Dutta, U., &amp; Clauset, A. (2021). Convergence criteria for sampling random graphs with specified degree sequences. arXiv preprint arXiv:2105.12120.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="python/index.html" class="btn btn-neutral float-right" title="Python API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, lionel tabourier, julien karadayi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

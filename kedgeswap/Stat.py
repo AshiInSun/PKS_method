@@ -22,8 +22,7 @@ from kedgeswap.MarkovChain import MarkovChain
 # bouger triangle + assortativité dans stats ? 
 class Stat():
 
-    def __init__(self, mc, use_dfgls=True, eta=None, verbose=False):
-        #self.use_dfgls = use_dfgls
+    def __init__(self, mc, eta=None, verbose=False):
         #self.use_ks = use_ks
         self.mc = mc # markov chain
         self.eta = eta
@@ -46,7 +45,7 @@ class Stat():
         mu = -1/T
         sigma_2 = (T**4 - 4 * T**3 + 4 * T - 4) / ((T+1)* T**2 * (T-1)**2)
         A = (a - mu)/np.sqrt(sigma_2)
-        z = scipy.stats.norm.ppf(1-alpha) #TODO Check if alpha or 1-alpha # (1-alpha) th quantile of N(O,1)
+        z = scipy.stats.norm.ppf(1-alpha)
         if A > z:
             return 1
         else:
@@ -69,7 +68,7 @@ class Stat():
             return S_T
 
         N_swap = 1000 * self.mc.graph.M # burn in 
-        C = 10 # TODO CHECK NUMBER OF CHAINS
+        C = 10
         T = 500
         #S_T = [] # list of degree assortativity of size T
         u = 1 # lower bound on number of mcmc chains that have significant lag-1 autocorrelation
@@ -86,12 +85,16 @@ class Stat():
         #    mc[c].run()
         burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
         burn_in.run()
+        burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
 
         # Measure sampling gap
         if self.verbose:
             print(f'measuring sampling gap...')
-        # Start with eta = 10 * M, then dichotomic search if successful, otherwise * 2
-        eta = 10 * self.mc.graph.M
+
+        # first eta is estimated from the accept/refuse rate of the burn in
+        # then dichotomic search to get better eta
+        #eta = 10 * self.mc.graph.M
+        eta = 1/burn_in_rate * self.mc.graph.M
         d_eta = C
         prev_d_eta = C
         prev_eta = eta
@@ -123,13 +126,15 @@ class Stat():
                     print(f'for eta={eta}: d_eta={d_eta}, u={u}')
             if d_eta <= u:
                 prev_eta = eta
-                #eta = eta/2
-                tuned = True
+                prev_d_eta = d_eta
+                eta = eta/2
+                #tuned = True
             elif d_eta > u and prev_d_eta <= u:
-
+                prev_d_eta = d_eta
                 tuned = True
                 eta = prev_eta
             elif d_eta > u and prev_d_eta > u:
+                prev_d_eta = d_eta
                 prev_eta = eta
                 eta = 2 * eta
 
@@ -169,19 +174,4 @@ class Stat():
 
         t1 = time.time()
         print(f'convergence {t1 - t0} seconds')
-
-    #def run_kolmogorov_smirnov(self, other):
-    #    eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
-    #    has_converged = False
-    #    print('testing convergence')
-    #    C = 200 # TODO CHECK NUMBER OF CHAINS
-    #    KS_samples = []
-    #    for c in range(C):
-    #        mc.append(MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose))
-    #        mc[c].run()
-    #        KS_samples.append(mc.assortativity)
-
-    #    
-    #    test_stat, p_value = kstest(KS_samples, other)
-    #    pass
 

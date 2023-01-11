@@ -19,7 +19,7 @@ from kedgeswap.MarkovChain import MarkovChain
 
 
 def run(dataset, directed, gamma, use_jd, 
-        use_triangles, use_assortativity, use_dfgls, 
+        use_triangles, use_assortativity, 
         eta, output, verbose, keep_record, log_dir, 
         output_number, debug):
 
@@ -35,7 +35,7 @@ def run(dataset, directed, gamma, use_jd,
             keep_record=keep_record, log_dir=log_dir, debug=debug)
 
     # initialize metrics
-    stat = Stat(mc, use_dfgls, eta, verbose)
+    stat = Stat(mc, eta, verbose)
 
     # start run
     print('Starting Markov Chain convergence...')
@@ -78,7 +78,6 @@ def main():
             help='set the number of graph to generate after Markov Chain convergence.'
             ' Default to 10000')
 
-    #TODO triangles and assortativity are mutually exclusive
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-a', '--assortativity', action='store_true', default=False,
             help='enable to estimate the convergence using the assortativity. -a and -t are mutually exclusive.'
@@ -88,21 +87,6 @@ def main():
             help='enable to count the triangles in the graph at each step of the markov chain.'
             'Use this count to estimate the convergence of the Markov Chain.'
             '-a and -t are mutually excluseive. If --jd is chosen, use -t.')
-
-    #parser.add_argument('-t', '--triangles', action='store_true', default=False,
-    #        help='enable to count the triangles in the graph at each step of the markov chain.' 
-    #             'Use this count to estimate the convergence of the Markov Chain')
-
-    #parser.add_argument('-a', '--assortativity', action='store_true', default=False,
-    #        help='enable to estimate the convergence using the assortativity.')
-
-    parser.add_argument('-dfgls', '--dfgls', action='store_true', default=True,
-            help='estimate convergence of the markov chain using the Dickey-Fuller'
-            'Generalised Least Square method on the degree assortativity')
-
-    #parser.add_argument('-ks', '--kolmogorovsmirnov', action='store_true', default=False,
-    #        help='compare degree assortativity distribution to '
-    #        'another generation method.') # TODO to define...
 
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
             help='increase verbosity')
@@ -120,6 +104,11 @@ def main():
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit()
+
+    if (args.assortativity and args.jointdegree):
+        print("warning: assortivity is constant when using fixed joint degree constraint. Use -t to follow convergence. Exiting...")
+        sys.exit()
+
     run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, 
             args.assortativity, args.dfgls,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,

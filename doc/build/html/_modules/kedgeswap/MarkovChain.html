@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kedgeswap.MarkovChain &mdash; kedge_swap 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> kedge_swap
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">kedge_swap</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">kedgeswap.MarkovChain</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for kedgeswap.MarkovChain</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of K-edge-swap.</span>
+<span class="c1">#</span>
+<span class="c1">#    K-edge-swap is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#    K-edge-swap is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#    You should have received a copy of the GNU General Public License along with Foobar. If not, see &lt;https://www.gnu.org/licenses/&gt;. </span>
+
+<span class="sd">&quot;&quot;&quot; MarkovChain class, used to perform k-edge on a graph</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">kedgeswap.Graph</span> <span class="kn">import</span> <span class="n">Graph</span>
+<span class="kn">from</span> <span class="nn">progressbar</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<div class="viewcode-block" id="MarkovChain"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain">[docs]</a><span class="k">class</span> <span class="nc">MarkovChain</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; make swaps &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">N_swap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">use_jd</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_triangles</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_assortativity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">keep_record</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_dir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Class to handle k-edge random swap</span>
+
+<span class="sd">            Attributes:</span>
+<span class="sd">            graph (Graph object) : graph stored as an adjacency list, can be directed or not.</span>
+<span class="sd">            N_swap (int) : the number of swaps to perform on the graph</span>
+<span class="sd">            gamma (int) : parameter used for zipf distribution to pick k value at each round</span>
+<span class="sd">            force_k (bool) : if true, force edge swap to be exactly of k edges (cyclic </span>
+<span class="sd">                             permutation)</span>
+<span class="sd">            assortativity (float) : store assortativity value</span>
+<span class="sd">            D (float) : constant denominator used to compute assortativity (compute once)</span>
+<span class="sd">            triangles (set) : set used to store all the triangles in the graph</span>
+<span class="sd">            edges_in_triangles (dict) : set used to store all the edges involved in a triangle,</span>
+<span class="sd">                                        pointing to the triangle they are involved in </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_swap</span> <span class="o">=</span> <span class="n">N_swap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">possible_ks</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_distrib</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">possible_ks</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_k</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assortativity</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># assortativity denominator - does not depend on links</span>
+        <span class="c1">#self.triangles = set() # set of all triangles in graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_jd</span> <span class="o">=</span> <span class="n">use_jd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_triangles</span> <span class="o">=</span> <span class="n">use_triangles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_assortativity</span> <span class="o">=</span> <span class="n">use_assortativity</span> <span class="c1"># use_assortativity and use_triangles are mutually exclusive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_degree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_record</span> <span class="o">=</span> <span class="n">keep_record</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># number of graph dumped</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="o">=</span> <span class="n">log_dir</span> <span class="c1"># directory to dump graph and swap when asked</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accept_rate</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refusal_rate</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__dump__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">n_cycle</span><span class="p">,</span> <span class="n">n_swapped</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write graph and permutation, useful for debugging&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;neighbors</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;edges</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">edge</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;edges2triangles</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">edge</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;triangles2edges</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">triangle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">triangle</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">triangle</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;edge_to_swap and permutation</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="k">for</span> <span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;number of cycle </span><span class="si">{</span><span class="n">n_cycle</span><span class="si">}</span><span class="s1">, number of edges swapped </span><span class="si">{</span><span class="n">n_swapped</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+
+<div class="viewcode-block" id="MarkovChain.pick_k"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.pick_k">[docs]</a>    <span class="k">def</span> <span class="nf">pick_k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Pick k value using zipf distribution.</span>
+<span class="sd">            Use modulo to force k to be equal to the number of edges in the graph at max.</span>
+
+<span class="sd">            Return:</span>
+<span class="sd">            k (int) : number of edges to swap</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># minimum k is 2</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_ks</span> <span class="p">,</span><span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_distrib</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_distrib</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">k</span></div>
+
+<div class="viewcode-block" id="MarkovChain.find_swap"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.find_swap">[docs]</a>    <span class="k">def</span> <span class="nf">find_swap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Edge_to_swap donne list des liens à changer</span>
+<span class="sd">            swap donne avec quel lien changer chaque lien de edge_to_swap</span>
+<span class="sd">            ex:  </span>
+
+<span class="sd">            Randomly pick k edges to swap, and randomly pick a permutation</span>
+<span class="sd">            When self.force_k == True, permutation is a cyclic permutation,</span>
+<span class="sd">            else it is a random permutation, with possible identity for some edges.</span>
+
+<span class="sd">            Parameters:</span>
+<span class="sd">            k (int) : number of edges to swap</span>
+
+<span class="sd">            Return:</span>
+<span class="sd">            edge_to_swap : list of the edges to swap</span>
+<span class="sd">            permutation  : list of the edges with which we should swap the\</span>
+<span class="sd">                           edges in edge_to_swap</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if no self loop</span>
+        <span class="n">permut_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">valid_permutation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">_edge_to_swap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">),</span> <span class="n">k</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+            <span class="n">edge_to_swap</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">[</span><span class="n">e_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">e_idx</span> <span class="ow">in</span> <span class="n">_edge_to_swap</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># for undirected graphs, pick if edges are reversed or not</span>
+            <span class="n">edge_to_swap</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">[</span><span class="n">e_idx</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">[</span><span class="n">e_idx</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> 
+                                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span> 
+                       <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">[</span><span class="n">e_idx</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">[</span><span class="n">e_idx</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">e_idx</span> <span class="ow">in</span> <span class="n">_edge_to_swap</span><span class="p">]</span>
+
+        <span class="n">permutation</span> <span class="o">=</span> <span class="n">edge_to_swap</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># find permutation by shuffling list of edges to swap</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_k</span><span class="p">:</span>
+            <span class="c1"># if force_k, permutation is cyclic, to force the swap to be of exactly k edges</span>
+            <span class="n">cycle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">permutation</span> <span class="o">=</span> <span class="p">[</span><span class="n">edge_to_swap</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="n">cycle</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">))]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if !force_k, permutation is of k edges or less</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">permutation</span><span class="p">)</span> 
+
+        <span class="k">return</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">_edge_to_swap</span></div>
+
+<div class="viewcode-block" id="MarkovChain.check_swap"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.check_swap">[docs]</a>    <span class="k">def</span> <span class="nf">check_swap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Verify constraints to see if swap can be accepted or not</span>
+
+<span class="sd">            Parameters:</span>
+<span class="sd">            edge_to_swap : list of the edges to swap</span>
+<span class="sd">            permutation  : list of the edges with which we should swap the\</span>
+<span class="sd">                           edges in edge_to_swap</span>
+
+<span class="sd">            Return :</span>
+<span class="sd">            bool, true if swap can be accepted</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">goal_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">y</span> <span class="k">else</span> <span class="p">(</span><span class="n">y</span> <span class="p">,</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">goal_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">goal_edge</span><span class="p">)</span>
+
+            <span class="c1"># avoid loops</span>
+            <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="n">y</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+            <span class="c1"># avoid multiple edges</span>
+            <span class="k">if</span> <span class="n">goal_edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+            <span class="c1"># check joint degree matrix</span>
+            <span class="c1">#updated_joint_degree = self.update_joint_degree(edge_to_swap, permutation)</span>
+            <span class="c1">#if not (updated_joint_degree == self.joint_degree).all():</span>
+            <span class="c1">#    return False</span>
+             
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">goal_edges</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">goal_edges</span><span class="p">):</span> <span class="c1"># check that we don&#39;t create multi-edges</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_jd</span><span class="p">:</span>
+            <span class="c1"># check if joint degree matrix changed</span>
+            <span class="n">updated_jd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_joint_degree</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">updated_jd</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_degree</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">updated_jd</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">updated_jd</span></div>
+
+<div class="viewcode-block" id="MarkovChain.perform_swap"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.perform_swap">[docs]</a>    <span class="k">def</span> <span class="nf">perform_swap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            When permutation is accepted, swap the edges in the graph data structure.</span>
+
+<span class="sd">            Parameters:</span>
+<span class="sd">            edge_to_swap : list of the edges to swap</span>
+<span class="sd">            permutation  : list of the edges with which we should swap the\</span>
+<span class="sd">                           edges in edge_to_swap</span>
+<span class="sd">            edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="n">e_idx</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span><span class="p">):</span>
+
+            <span class="c1"># naming departure edge = (u,v) and arrival edge = (x,y) , goal edge = (u, y)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">y</span> <span class="k">else</span> <span class="p">(</span><span class="n">y</span> <span class="p">,</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">old_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">[</span><span class="n">e_idx</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">unique_edges</span><span class="p">[</span><span class="n">e_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">goal_edge</span>
+
+            <span class="n">old_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">v</span> <span class="k">else</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">v_idx</span><span class="p">,</span> <span class="n">u_idx</span><span class="p">,</span> <span class="n">v_out_idx</span><span class="p">,</span> <span class="n">u_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
+                <span class="n">y_idx</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_out_idx</span><span class="p">,</span> <span class="n">x_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v_out_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x_in_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_idx</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">v_out_idx</span><span class="p">,</span> <span class="n">x_in_idx</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
+                <span class="n">u_idx</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">)]</span>
+                <span class="n">y_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span>
+                <span class="n">x_idx</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">)]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span> <span class="o">=</span> <span class="n">v_idx</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">y</span><span class="p">,</span><span class="n">u</span><span class="p">)]</span> <span class="o">=</span> <span class="n">x_idx</span>
+
+            <span class="c1"># perform swap</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span> <span class="c1"># on change v dans neighbors (u)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+
+        <span class="c1"># remove old edges from graph.edges</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="MarkovChain.init_assortativity"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.init_assortativity">[docs]</a>    <span class="k">def</span> <span class="nf">init_assortativity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Compute Assortativity initial value, using the formula found in </span>
+<span class="sd">            &quot;Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences&quot;.</span>
+<span class="sd">            </span>
+<span class="sd">             Using the notation deg(u) for the degree of u, and Axy for the adjancency matrix value for</span>
+<span class="sd">             nodes x and y, and Sk = sum_x (deg(x) ^ k), we compute the following values:</span>
+
+<span class="sd">                -S1, S2 and S3, </span>
+<span class="sd">                -Sl= sum_xy (Axy * deg(x) * deg(y))</span>
+
+<span class="sd">            Using these values, the assortativity is computed as :</span>
+
+<span class="sd">            r = ( S1 * Sl - S2 * S2 ) / ( S1 * S3 - S2 * S2 )</span>
+
+<span class="sd">            Since Sl is the only value to depend on the presence of each link, we store the denominator</span>
+<span class="sd">            to update the assortativity value in O(1) after each swap.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">S1</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">M</span>
+
+        <span class="c1"># loop to comput S2 and S3</span>
+        <span class="n">S2</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">S3</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">Sl</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">deg_u</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">deg_u</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">])</span>
+
+            <span class="n">S2</span> <span class="o">+=</span> <span class="n">deg_u</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">S3</span> <span class="o">+=</span> <span class="n">deg_u</span> <span class="o">**</span> <span class="mi">3</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                <span class="n">deg_v</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                    <span class="n">deg_v</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+
+                <span class="n">Sl</span> <span class="o">+=</span> <span class="n">deg_u</span> <span class="o">*</span> <span class="n">deg_v</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">S1</span> <span class="o">*</span> <span class="n">Sl</span> <span class="o">-</span> <span class="n">S2</span><span class="o">*</span><span class="n">S2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">S1</span> <span class="o">*</span> <span class="n">S3</span> <span class="o">-</span> <span class="n">S2</span> <span class="o">*</span> <span class="n">S2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assortativity</span> <span class="o">=</span> <span class="n">N</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span></div>
+
+
+<div class="viewcode-block" id="MarkovChain.update_assortativity"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.update_assortativity">[docs]</a>    <span class="k">def</span> <span class="nf">update_assortativity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">            Given a K-edge swap, update assortativy value using generalised formual from</span>
+<span class="sd">            &quot;Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+
+            <span class="c1"># new edge is (u,y), disappearing edge is (u,v)</span>
+            <span class="n">deg_u</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">])</span>
+            <span class="n">deg_v</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+            <span class="n">deg_x</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+            <span class="n">deg_y</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">deg_u</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">])</span>
+                <span class="n">deg_v</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+                <span class="n">deg_x</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+                <span class="n">deg_y</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">])</span>
+
+            <span class="n">N</span> <span class="o">+=</span> <span class="n">deg_u</span> <span class="o">*</span> <span class="n">deg_y</span> <span class="o">-</span> <span class="n">deg_u</span> <span class="o">*</span> <span class="n">deg_v</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">N</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">M</span>
+        <span class="n">delta_r</span> <span class="o">=</span> <span class="n">N</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="c1"># difference in assortativity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assortativity</span> <span class="o">+=</span> <span class="n">delta_r</span></div>
+
+    <span class="k">def</span> <span class="nf">_add_directed_triangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">triangle</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">triangle</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">triangle</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">triangle</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">triangle</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="MarkovChain.count_triangles"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.count_triangles">[docs]</a>    <span class="k">def</span> <span class="nf">count_triangles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">            Enumerate and store all triangles found in the graph.</span>
+<span class="sd">            For undirected graphs:</span>
+
+<span class="sd">                we store each triangle in a set of tuplet ((u,v,w)) where \</span>
+<span class="sd">                u, v and w are the node, with u &lt; v &lt; w, and we store each link\</span>
+<span class="sd">                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\</span>
+<span class="sd">            For directed graphs:</span>
+<span class="sd">            </span>
+<span class="sd">                we store each triangle thrice in a set of tuplet, with each node as a starting point,\</span>
+<span class="sd">                e.g. for triangle (u,v,w) we store {(u,v,w), (v,w,u), (w,u,v)}. We store each link\</span>
+<span class="sd">                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nb_triangles</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">node_1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            
+            <span class="c1"># skip nodes of degree &lt; 2</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node_1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># check neighborhood or neighbors of node_1</span>
+            <span class="k">for</span> <span class="n">node_2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node_1</span><span class="p">]:</span>
+
+                <span class="c1"># skip nodes of degree &lt; 2</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node_2</span><span class="p">])</span> <span class="o">&lt;</span><span class="mi">2</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">for</span> <span class="n">node_3</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node_2</span><span class="p">]:</span>
+
+                    <span class="c1"># skip nodes of degree &lt; 2</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node_3</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    
+                    <span class="c1"># count triangle if not already counted</span>
+                    <span class="k">if</span> <span class="p">((</span><span class="n">node_3</span><span class="p">,</span> <span class="n">node_1</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span> <span class="ow">or</span> <span class="p">((</span><span class="n">node_1</span><span class="p">,</span> <span class="n">node_3</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">):</span>
+                        <span class="c1"># store sorted version of triangle</span>
+                        <span class="n">current_triangle</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">)))</span>
+
+                        <span class="c1"># skip triangles when already counted</span>
+                        <span class="k">if</span> <span class="n">current_triangle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">:</span>
+                            <span class="k">continue</span>
+
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                            <span class="c1"># add each directed edge</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_add_directed_triangle</span><span class="p">(</span><span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">,</span> <span class="n">current_triangle</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_add_directed_triangle</span><span class="p">(</span><span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">,</span> <span class="n">current_triangle</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_add_directed_triangle</span><span class="p">(</span><span class="n">node_1</span><span class="p">,</span> <span class="n">node_3</span><span class="p">,</span> <span class="n">current_triangle</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># update edges2triangles -- add all possible pairs of nodes,</span>
+                            <span class="c1"># in both directions</span>
+                            <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="p">((</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">current_triangle</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]):</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">))</span>
+                                
+                                <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MarkovChain.update_triangles"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.update_triangles">[docs]</a>    <span class="k">def</span> <span class="nf">update_triangles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Update the sets of triangles by looking at each edge swap:</span>
+
+<span class="sd">            - if the initial edge was involved in a triangle, remove triangle from sets</span>
+<span class="sd">            - if the goal edge creates a triangle, add it to the sets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">y</span> <span class="k">else</span> <span class="p">(</span><span class="n">y</span> <span class="p">,</span><span class="n">u</span><span class="p">)</span>
+
+            <span class="c1"># destroyed triangles</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">:</span>
+
+                <span class="c1"># get all destroyed triangles</span>
+                <span class="n">destroyed_triangles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> 
+                <span class="c1"># for each triangle, remove them and remove edges </span>
+                <span class="k">for</span> <span class="n">current_triangle</span> <span class="ow">in</span> <span class="n">destroyed_triangles</span><span class="p">:</span>
+
+                    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[</span><span class="n">edge</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]</span>
+
+
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">:</span>
+                <span class="n">destroyed_triangles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> 
+
+                <span class="k">for</span> <span class="n">current_triangle</span> <span class="ow">in</span> <span class="n">destroyed_triangles</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]:</span>
+                        <span class="c1">#try:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[</span><span class="n">edge</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]</span>
+
+            <span class="c1"># created triangles</span>
+            <span class="n">created</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span> <span class="c1"># neighbors has already been updated</span>
+                <span class="k">if</span> <span class="n">neigh</span> <span class="o">==</span> <span class="n">y</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">neigh</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span> <span class="ow">or</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">neigh</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+
+                    <span class="n">current_triangle</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">neigh</span><span class="p">)))</span>
+                    <span class="n">created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span>
+                    <span class="c1">#if (current_triangle not in self.triangles2edges):</span>
+                    <span class="c1">#    # triangle has already been acounted for </span>
+                    <span class="c1">#    continue</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_add_directed_triangle</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_triangle</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_add_directed_triangle</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">neigh</span><span class="p">,</span> <span class="n">current_triangle</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_add_directed_triangle</span><span class="p">(</span><span class="n">neigh</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">current_triangle</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="p">(</span><span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">)</span> <span class="ow">in</span> <span class="p">((</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">current_triangle</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_1</span><span class="p">,</span> <span class="n">node_2</span><span class="p">))</span>
+                            
+                            <span class="bp">self</span><span class="o">.</span><span class="n">edges2triangles</span><span class="p">[(</span><span class="n">node_2</span><span class="p">,</span> <span class="n">node_1</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_triangle</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">[</span><span class="n">current_triangle</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_2</span><span class="p">,</span> <span class="n">node_1</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="MarkovChain.init_joint_degree"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.init_joint_degree">[docs]</a>    <span class="k">def</span> <span class="nf">init_joint_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize the joint degree matrix.</span>
+
+<span class="sd">            joint_degree[i - 1, j - 1] gives the number of links from nodes of</span>
+<span class="sd">            degree i to nodes of the degree j.</span>
+<span class="sd">            Initialise the joint degree matrix by looping over each node n, </span>
+<span class="sd">            then each neighbor nn of n, and incrementing joint_degree[deg(n), deg(nn)] by 1/2.</span>
+<span class="sd">            (increment by 1/2 to take into account that each edge is added twice)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">max_degree</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">max_degree</span><span class="p">:</span>
+                <span class="n">max_degree</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node</span><span class="p">])</span>
+
+        <span class="c1"># initialize matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_degree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_degree</span><span class="p">,</span> <span class="n">max_degree</span><span class="p">))</span>
+
+        <span class="c1"># compute matrix // WARNING : index for degree i is (i-1) </span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node</span><span class="p">]:</span>
+                <span class="n">deg_1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">deg_2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">neighbor</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+
+                <span class="c1"># each edge is added twice</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_degree</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">deg_1</span><span class="p">,</span> <span class="n">deg_2</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">deg_1</span><span class="p">,</span> <span class="n">deg_2</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joint_degree</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">deg_1</span><span class="p">,</span> <span class="n">deg_2</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">deg_1</span><span class="p">,</span> <span class="n">deg_2</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span></div>
+
+<div class="viewcode-block" id="MarkovChain.update_joint_degree"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.update_joint_degree">[docs]</a>    <span class="k">def</span> <span class="nf">update_joint_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Given a permutation, compute the changed in the joint degree matrix.</span>
+<span class="sd">            Compute the update by copying the joint degree matrix, looping over</span>
+<span class="sd">            each edge swap, decrementing the joint degree value for the &#39;old&#39; edges</span>
+<span class="sd">            and incrementing the joint degree value for the &#39;new&#39; edges.</span>
+
+
+<span class="sd">            Parameters:</span>
+<span class="sd">            edge_to_swap : list of the edges to swap</span>
+<span class="sd">            permutation  : list of the edges with which we should swap the\</span>
+<span class="sd">                           edges in edge_to_swap</span>
+
+<span class="sd">            Return :</span>
+<span class="sd">            updated_joint_degree : np.array, the updated version of the joint degree matrix\</span>
+<span class="sd">                                   if the permutation given in input is performed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get copy of joint degree matrix</span>
+        <span class="n">updated_joint_degree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_degree</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># loop over each edge swap</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">y</span> <span class="k">else</span> <span class="p">(</span><span class="n">y</span> <span class="p">,</span><span class="n">u</span><span class="p">)</span>
+
+            <span class="c1"># copy the neighborhood of u and y and alter them as if the swap was performed</span>
+            <span class="n">_neighbors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">_neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">v_idx</span><span class="p">,</span> <span class="n">u_idx</span><span class="p">,</span> <span class="n">v_out_idx</span><span class="p">,</span> <span class="n">u_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
+                <span class="n">y_idx</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_out_idx</span><span class="p">,</span> <span class="n">x_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
+                <span class="n">u_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">)]</span>
+                <span class="n">y_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span>
+                <span class="n">x_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">)]</span>
+            
+            <span class="n">_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="n">_neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+
+
+            <span class="c1"># get degree of each node involved</span>
+            <span class="n">deg_u</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">deg_v</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">deg_x</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">deg_y</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">])</span> <span class="o">-</span><span class="mi">1</span>
+
+
+            <span class="c1"># update the joint degree values for the previous degrees</span>
+            <span class="n">updated_joint_degree</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_v</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_v</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">updated_joint_degree</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_v</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_v</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+
+            <span class="n">updated_joint_degree</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">deg_x</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">deg_x</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">updated_joint_degree</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">deg_x</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">deg_x</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+
+            <span class="n">updated_joint_degree</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span><span class="c1">#/2</span>
+            <span class="n">updated_joint_degree</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">deg_u</span><span class="p">,</span> <span class="n">deg_y</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span><span class="c1">#/2</span>
+
+        <span class="k">return</span> <span class="n">updated_joint_degree</span></div>
+
+<div class="viewcode-block" id="MarkovChain.run"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N_swap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            K-edge swap algorithm.</span>
+<span class="sd">            Start by computing assortativity initial value, then </span>
+<span class="sd">            perform N_swap, each time checking the constraints and computing</span>
+<span class="sd">            metrics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">write_swap</span><span class="p">(</span><span class="n">ets</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+            <span class="k">with</span>  <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;swap&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ets</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ets</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+                    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">e1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">e1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> : </span><span class="si">{</span><span class="n">e2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">e2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">detect_cycles</span><span class="p">(</span><span class="n">ets</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+            <span class="n">all_tagged</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">flat_all_tagged</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ets</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">e1</span><span class="o">==</span><span class="n">e2</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">e1</span> <span class="ow">in</span> <span class="n">flat_all_tagged</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">tagged</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">tagged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
+                <span class="n">flat_all_tagged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e2</span><span class="p">)</span>
+                <span class="n">__e2</span> <span class="o">=</span> <span class="n">e2</span>
+                <span class="k">while</span> <span class="n">__e2</span> <span class="o">!=</span> <span class="n">e1</span><span class="p">:</span>
+                    <span class="n">e2_idx</span> <span class="o">=</span> <span class="n">ets</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">__e2</span><span class="p">)</span>
+                    <span class="n">__e2</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">e2_idx</span><span class="p">]</span>
+                    <span class="n">tagged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">__e2</span><span class="p">)</span>
+                    <span class="n">flat_all_tagged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">__e2</span><span class="p">)</span>
+                <span class="n">all_tagged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tagged</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_tagged</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">flat_all_tagged</span><span class="p">)</span>
+
+        <span class="c1"># populate assortativity values</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">N_swap</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">N_swap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_swap</span>
+
+        <span class="n">accept_rate</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">refusal_rate</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1">#acc_rate_byk = defaultdict(int)</span>
+        <span class="c1">#ref_rate_byk = defaultdict(int)</span>
+
+        <span class="c1"># initialize values</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_jd</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_joint_degree</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_triangles</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count_triangles</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_assortativity</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_assortativity</span><span class="p">()</span>
+
+        <span class="c1"># run N_swap swap</span>
+        <span class="k">for</span> <span class="n">swap_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_swap</span><span class="p">):</span>
+
+            <span class="c1"># print a dot every 1000 swap to show progress</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">and</span> <span class="p">(</span><span class="n">swap_idx</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="c1">#print(f&#39;swap {swap_idx}/{N_swap}&#39;)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+            <span class="c1"># pick k, permutation, and check if swap can be accepted</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pick_k</span><span class="p">()</span>
+            <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_swap</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">accept_permutation</span><span class="p">,</span> <span class="n">updated_jd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_swap</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span>
+
+            <span class="c1">#updated_jd = self.update_joint_degree(edge_to_swap, permutation)</span>
+
+            <span class="c1"># if swap is accepted, perform swap and update graph metrics values</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">accept_permutation</span><span class="p">):</span>
+
+                <span class="c1"># if debug is enabled, check that degree sequence is constant</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                    <span class="n">debug_deg_seq</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">previous_debug_deg_seq</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                        <span class="n">previous_debug_deg_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node</span><span class="p">]))</span>
+
+                <span class="n">accept_rate</span> <span class="o">+=</span> <span class="mi">1</span> 
+                <span class="c1">#acc_rate_byk[k] += 1</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">perform_swap</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                        <span class="n">debug_deg_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node</span><span class="p">]))</span>
+                     <span class="k">assert</span> <span class="n">debug_deg_seq</span> <span class="o">==</span> <span class="n">previous_debug_deg_seq</span><span class="p">,</span> <span class="s1">&#39;ERROR : degree sequence changed!&#39;</span> 
+
+                <span class="c1"># compute value of interest to follow convergence</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_assortativity</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update_assortativity</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_triangles</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update_triangles</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span>
+
+                
+                <span class="c1">#if self.use_jd:</span>
+                <span class="c1">#    self.joint_degree = updated_jd</span>
+                <span class="n">write_swap</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span> 
+
+                <span class="c1"># if keep_record is enabled, write graph and swap (as gzip)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_record</span><span class="p">:</span>
+
+                    <span class="n">n_cycle</span><span class="p">,</span> <span class="n">n_edge_swap</span> <span class="o">=</span> <span class="n">detect_cycles</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="si">}</span><span class="s1">.log.gz&#39;</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__dump__</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">n_cycle</span><span class="p">,</span> <span class="n">n_edge_swap</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">refusal_rate</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1">#ref_rate_byk[k] += 1</span>
+
+            <span class="c1"># populate assortativity values</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_assortativity</span><span class="p">:</span>
+                <span class="n">window</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assortativity</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_triangles</span><span class="p">:</span>
+                <span class="n">window</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triangles2edges</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;accepted : </span><span class="si">{</span><span class="n">accept_rate</span><span class="si">}</span><span class="s1"> , refused : </span><span class="si">{</span><span class="n">refusal_rate</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># store accept rate and refusal rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accept_rate</span> <span class="o">=</span> <span class="n">accept_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refusal_rate</span> <span class="o">=</span> <span class="n">refusal_rate</span>
+
+        <span class="k">return</span> <span class="n">window</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, lionel tabourier, julien karadayi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
