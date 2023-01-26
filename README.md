@@ -80,7 +80,7 @@ Code python pour les expériences de génération de graphes aléatoires
 ## Benchmark
 
    | dataset | directed | constraint | using eta estimation | eta value | acceptation rate | eta estimation runtime (in seconds) | convergence runtime (in seconds) | total runtime (hh:mm:ss) |
-   ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   | ------- | -------- | ---------- | -------------------- | --------- | ---------------- | ----------------------------------- | -------------------------------- | ------------------------ |
 | powergrid | no | fixed degree sequence | yes | 8064 | 40.88% | 65 285s | 73.86s |  22:16:45 |
 | karateclub |  no | fixed degree sequence | yes | 751 | 10.38% | 392.90s | 6.71s | 00:10:47 |
 | celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19 414 s | 91.89s | ? | 
