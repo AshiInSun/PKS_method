@@ -19,7 +19,7 @@ from kedgeswap.MarkovChain import MarkovChain
 
 
 def run(dataset, directed, gamma, use_jd, 
-        use_triangles, use_assortativity, 
+        use_triangles, use_assortativity, mutualdiades, turbo, 
         eta, output, verbose, keep_record, log_dir, 
         output_number, debug):
 
@@ -31,11 +31,12 @@ def run(dataset, directed, gamma, use_jd,
     # initialize MCMC
     print('Initializing markov chain')
     mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, 
-            use_triangles=use_triangles, use_assortativity=use_assortativity, verbose=verbose, 
+            use_triangles=use_triangles, use_assortativity=use_assortativity, use_mutualdiades=mutualdiades,
+            verbose=verbose, 
             keep_record=keep_record, log_dir=log_dir, debug=debug)
 
     # initialize metrics
-    stat = Stat(mc, eta, verbose)
+    stat = Stat(mc, eta, turbo, verbose)
 
     # start run
     print('Starting Markov Chain convergence...')
@@ -74,9 +75,15 @@ def main():
     parser.add_argument('-jd', '--jointdegree', action='store_true', default=False,
             help='enable to use the joint degree matrix as a measure to accept or refuse a swap')
 
+    parser.add_argument('-md', '--mutualdiades', action='store_true', default=False,
+            help='enable to check if number of mutual diades (aka reciprocal links) stays constant to accept or refuse a swap. Only use with directed graphs.')
+
     parser.add_argument('--output_number', type=int, default=1000,
             help='set the number of graph to generate after Markov Chain convergence.'
             ' Default to 10000')
+    parser.add_argument('--turbo', action='store_true', default=False,
+            help='Optionnal, relevant only when running eta estimation.'
+            'This method (over)estimates empirically a sampling ')
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-a', '--assortativity', action='store_true', default=False,
@@ -87,6 +94,7 @@ def main():
             help='enable to count the triangles in the graph at each step of the markov chain.'
             'Use this count to estimate the convergence of the Markov Chain.'
             '-a and -t are mutually excluseive. If --jd is chosen, use -t.')
+
 
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
             help='increase verbosity')
@@ -109,8 +117,12 @@ def main():
         print("warning: assortivity is constant when using fixed joint degree constraint. Use -t to follow convergence. Exiting...")
         sys.exit()
 
+    if (args.mutualdiades and not args.directed):
+        print("warning: can't follow number of mutual diades when graph is not directed (reciprocal links can only exist in directed graphs)")
+        sys.exit()
+
     run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, 
-            args.assortativity, args.dfgls,
+            args.assortativity, args.mutualdiades, args.turbo, 
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
             args.output_number, args.debug)
 

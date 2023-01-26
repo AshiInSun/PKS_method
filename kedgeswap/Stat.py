@@ -22,10 +22,11 @@ from kedgeswap.MarkovChain import MarkovChain
 # bouger triangle + assortativité dans stats ? 
 class Stat():
 
-    def __init__(self, mc, eta=None, verbose=False):
+    def __init__(self, mc, eta=None, turbo=False, verbose=False):
         #self.use_ks = use_ks
         self.mc = mc # markov chain
         self.eta = eta
+        self.turbo = turbo
         self.verbose = verbose
 
     @staticmethod
@@ -50,6 +51,23 @@ class Stat():
             return 1
         else:
             return 0
+
+    def guesstimate_sampling_gap(self, graph, gamma):
+        """
+            Sampling gap estimation is long, this function gives an empirical estimation of the sampling gap.
+            Measure the acceptation rate A of the Markov Chain, and fix the sampling gap as 10*(1/A) * M, 
+            where M is the number of edges of the network. This estimation was fixed empirically to overestimate
+            the sampling gap we measure using the estimation from Dutta, U. (2022).
+        """
+        N_swap = 5 * self.mc.graph.M # burn in 
+        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, 
+                              use_assortativity=self.mc.use_assortativity, 
+                              verbose=self.mc.verbose, keep_record=False, log_dir=None)
+        burn_in.run()
+        burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
+        eta = 10/burn_in_rate * graph.M
+        print(f'guesstimation: burn in rate {burn_in_rate}, using eta {eta}')
+        return eta
 
     def estimate_sampling_gap(self, graph, gamma):
         """ Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of 
@@ -83,7 +101,9 @@ class Stat():
         #        print(f'MCMC {c}/{C}')
         #    mc.append(MarkovChain(graph, N_swap, gamma))
         #    mc[c].run()
-        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
+        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles,
+                              use_assortativity=self.mc.use_assortativity,
+                              verbose=self.mc.verbose, keep_record=False, log_dir=None)
         burn_in.run()
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
 
@@ -145,7 +165,10 @@ class Stat():
 
         if self.eta is None:
             t0 = time.time()
-            eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+            if self.turbo:
+                eta = self.guesstimate_sampling_gap(self.mc.graph, self.mc.gamma)
+            else:
+                eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
             print(f'eta estimation {t1 - t0} seconds')

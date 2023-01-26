@@ -21,7 +21,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, verbose=False, keep_record=False, log_dir = None, debug=False):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False):
         """
             Class to handle k-edge random swap
 
@@ -52,6 +52,7 @@ class MarkovChain:
         self.use_jd = use_jd
         self.use_triangles = use_triangles
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
+        self.use_mutualdiades = use_mutualdiades
         self.joint_degree = np.zeros(0)
         self.verbose = verbose
         self.keep_record = keep_record
@@ -151,12 +152,25 @@ class MarkovChain:
 
         """
         goal_edges = []
+        broken_diades = set()
+        created_diades = set()
+
         for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
             if self.graph.directed:
                 goal_edge = (u, y)
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
             goal_edges.append(goal_edge)
+
+            # check mutual diade
+            ## if no input diade involved return true, else check if broken diade is changed into new diade
+            if self.graph.directed and self.use_mutualdiades:
+                # check broken diades
+                if u in self.graph.out_neighbors[v]:
+                    broken_diades.add((min(u,v), max(u,v)))
+                # check created diades
+                if u in self.graph.out_neighbors[y]:
+                    created_diades.add((min(u,y), max(u,y)))
 
             # avoid loops
             if u == y:
@@ -174,6 +188,7 @@ class MarkovChain:
         if not len(set(goal_edges)) == len(goal_edges): # check that we don't create multi-edges
             return False, None
 
+        # check if joint degree matrix changes
         if self.use_jd:
             # check if joint degree matrix changed
             updated_jd = self.update_joint_degree(edge_to_swap, permutation)
@@ -181,6 +196,11 @@ class MarkovChain:
                 return False, None
         else:
             updated_jd = None
+
+        # check if total number of mutual diades changes
+        if self.graph.directed and self.use_mutualdiades:
+            if len(broken_diades) != len(created_diades):
+                return False, None
 
         return True, updated_jd
 
@@ -637,7 +657,6 @@ class MarkovChain:
                     if self.log_dir is not None:
                         output_file = os.path.join(self.log_dir, output_file)
                     self.__dump__(edge_to_swap, permutation, n_cycle, n_edge_swap, output_file)
-
             else:
                 refusal_rate += 1
                 #ref_rate_byk[k] += 1
@@ -654,6 +673,5 @@ class MarkovChain:
         # store accept rate and refusal rate
         self.accept_rate = accept_rate
         self.refusal_rate = refusal_rate
-
         return window
 

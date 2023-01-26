@@ -397,3 +397,20 @@ def test_update_joint_degree_directed(japanese_macaques):
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
     mc.init_joint_degree()
     assert (mc.joint_degree == updated_joint_degree).all()
+
+def test_mutualdiades(japanese_macaques):
+    # TODO find more examples, maybe on health dataset ?
+    # directed
+    mygraph = japanese_macaques
+    mc = MarkovChain(mygraph, 10, 2, False, use_mutualdiades=True) # TODO : debug ? 
+
+    edge_to_swap =[(59, 35), (21, 20)]
+    permutation = [(21, 20), (59, 35)]
+    accept_permutation, _ = mc.check_swap(edge_to_swap, permutation)
+    assert accept_permutation == True # same number of mutual diades
+
+    edge_to_swap = [(28, 46), (41, 24)]
+    permutation = [(41, 24), (28, 46)]
+    accept_permutation, _ = mc.check_swap(edge_to_swap, permutation)
+    assert accept_permutation == False # create one mutual diades
+
