@@ -90,4 +90,4 @@ Code python pour les expériences de génération de graphes aléatoires
 | powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1 644 229s | 1 399.76s | ? |
 | maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516 290s | 427.52s | ? |
 | celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | ? | 
-
+| maayan | yes  | fixed number of diades | yes | 6727 | 38.84% | 8564.87s | 8.98s | 3:37:21 |  
