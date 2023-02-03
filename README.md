@@ -79,15 +79,17 @@ Code python pour les expériences de génération de graphes aléatoires
 
 ## Benchmark
 
-   | dataset | directed | constraint | using eta estimation | eta value | acceptation rate | eta estimation runtime (in seconds) | convergence runtime (in seconds) | total runtime (hh:mm:ss) |
+   | dataset | directed | constraint | using eta estimation | eta value | acceptation rate | eta estimation runtime (in seconds) | convergence runtime (in seconds) | total runtime (in seconds) |
    | ------- | -------- | ---------- | -------------------- | --------- | ---------------- | ----------------------------------- | -------------------------------- | ------------------------ |
-| powergrid | no | fixed degree sequence | yes | 8064 | 40.88% | 65 285s | 73.86s |  22:16:45 |
-| karateclub |  no | fixed degree sequence | yes | 751 | 10.38% | 392.90s | 6.71s | 00:10:47 |
-| celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19 414 s | 91.89s | ? | 
-| health |  yes |   fixed degree sequence |  yes |  32 457 |  39.48% |   174 238s |  1 754s |  72:02:44 |
-| maayan | yes | fixed degree sequence | yes |  6730 | 38.82% | 8804.56s | 57.13s | 3:39:25 |
-| karateclub | no | fixed joint degree matrix | yes | 5053 |  1.54% | 2 567s | 8.32s | 1:09:44 |
-| powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1 644 229s | 1 399.76s | ? |
-| maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516 290s | 427.52s | ? |
-| celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | ? | 
-| maayan | yes  | fixed number of diades | yes | 6727 | 38.84% | 8564.87s | 8.98s | 3:37:21 |  
+   | powergrid | no | fixed degree sequence | yes | 8064 | 40.88% | 65 285s | 73.86s |  79261s |
+   | karateclub |  no | fixed degree sequence | yes | 751 | 10.38% | 392.90s | 6.71s | 647s |
+   | celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19 414 s | 91.89s | ? | 
+   | health |  yes |   fixed degree sequence |  yes |  32 457 |  39.48% |   174 238s |  1 754s | 259364s |
+   | maayan | yes | fixed degree sequence | yes |  6730 | 38.82% | 8804.56s | 57.13s | 13175s |
+   | gotelli finches | no |  fixed degree sequence | yes | 1141 | 4.1% | 510.14s | 4.30s | 937.94s 
+   | karateclub | no | fixed joint degree matrix | yes | 5053 |  1.54% | 2 567s | 8.32s | 4184s |
+   | powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1 644 229s | 1 399.76s | ? |
+   | maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516 290s | 427.52s | ? |
+   | celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | ? | 
+   | maayan | yes  | fixed number of diades | yes | 6727 | 38.84% | 8564.87s | 8.98s | 13041s |  
+   | health | yes | fixed number of diades | yes | 32468 | 39.94% | 172813.34s | 431.45s | 255743s |
