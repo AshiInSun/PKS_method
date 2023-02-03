@@ -33,6 +33,12 @@ def handcrafted(request):
     mygraph.read_ssv(os.path.join(request.fspath.dirname,'handcrafted.tsv'))
     return mygraph 
 
+@pytest.fixture
+def handcrafted_directed(request):
+    mygraph = Graph(True)
+    mygraph.read_ssv(os.path.join(request.fspath.dirname,'handcrafted_directed.tsv'))
+    return mygraph 
+
 def test_directed_graph(japanese_macaques):
     #mygraph = Graph(True)
     #mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
@@ -398,11 +404,11 @@ def test_update_joint_degree_directed(japanese_macaques):
     mc.init_joint_degree()
     assert (mc.joint_degree == updated_joint_degree).all()
 
-def test_mutualdiades(japanese_macaques):
+def test_mutualdiades(japanese_macaques, handcrafted_directed):
     # TODO find more examples, maybe on health dataset ?
     # directed
     mygraph = japanese_macaques
-    mc = MarkovChain(mygraph, 10, 2, False, use_mutualdiades=True) # TODO : debug ? 
+    mc = MarkovChain(mygraph, 10, 2, False, use_mutualdiades=True)
 
     edge_to_swap =[(59, 35), (21, 20)]
     permutation = [(21, 20), (59, 35)]
@@ -411,6 +417,22 @@ def test_mutualdiades(japanese_macaques):
 
     edge_to_swap = [(28, 46), (41, 24)]
     permutation = [(41, 24), (28, 46)]
+    accept_permutation, _ = mc.check_swap(edge_to_swap, permutation)
+    assert accept_permutation == False # create one mutual diades
+
+    # TODO find more examples, maybe on health dataset ?
+    # directed
+    mygraph = handcrafted_directed
+    mc = MarkovChain(mygraph, 10, 2, False , use_mutualdiades=True) 
+
+    edge_to_swap =[(0,1), (2,6)]
+    permutation = [(2,6), (0,1)]
+    accept_permutation, _ = mc.check_swap(edge_to_swap, permutation)
+    assert accept_permutation == True # same number of mutual diades
+
+    edge_to_swap = [(4,1), (2,6)]
+    permutation = [(2,6), (4,1)] # break two diades, create one
+    
     accept_permutation, _ = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == False # create one mutual diades
 
