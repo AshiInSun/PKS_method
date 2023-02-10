@@ -109,6 +109,7 @@ class Graph:
                     self.unique_edges.append((node_in, node_out))
                 else:
                     if (node_in, node_out) in self.edges:
+                        # edge already exists
                         continue
                     else:
                         if node_in < node_out:
@@ -124,7 +125,7 @@ class Graph:
 
         assert len(self.unique_edges) == len(set(self.unique_edges))
         self.M = len(self.unique_edges) #TODO for directed graph
-        self.N = node_in
+        self.N = len(self.neighbors) #node_in
 
 
     def read_ael(self, in_file):
