@@ -77,6 +77,20 @@ Code python pour les expériences de génération de graphes aléatoires
 
     * --log_dir : optionnel: à utiliser si --keep_record est activé. Spécifie un dossier dans lequel les graphes et swaps sont sauvegardés.
 
+## Datasets
+
+   | name | directed | number of nodes | number of edges | density | assortativity | number of triangles | number of mutual dyads |
+   | ---- | -------- | --------------- | --------------- | ------- | ------------- | ------------------- | ---------------------- |
+   | powergrid | no | 4939 | 6594 | 0.00054 | 0.00346| 651 | - |
+   | karateclub | no | 33 | 78 | 0.148 | -0.476| 45 | - |
+   | celegans | no | 57 | 2025 | 0.0000278 | -0.226 | 3284 | - |
+   | maayan | yes | 628 | 2613 | 0.0000993 | 0.0447 | 326 | 205 |
+   | health | yes | 2539 | 12969 | 0.0020 | 0.288 | 4694 | 2514 |
+   | macaques | yes | 57 | 1187 | 0.372 | -0.0645 | 9781 | 20 |
+  
+
+    
+
 ## Benchmark
 
    | dataset | directed | constraint | using eta estimation | eta value | acceptation rate | eta estimation runtime (in seconds) | convergence runtime (in seconds) | total runtime (in seconds) |
@@ -93,3 +107,6 @@ Code python pour les expériences de génération de graphes aléatoires
    | celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | ? | 
    | maayan | yes  | fixed number of diades | yes | 6727 | 38.84% | 8564.87s | 8.98s | 13041s |  
    | health | yes | fixed number of diades | yes | 32468 | 39.94% | 172813.34s | 431.45s | 255743s |
+
+
+

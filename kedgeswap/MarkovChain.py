@@ -222,7 +222,7 @@ class MarkovChain:
                 goal_edge = (u, y)
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
-            old_edge = self.graph.unique_edges[e_idx]
+            old_edge = self.graph.unique_edges[e_idx] # TODO comment - not used
             self.graph.unique_edges[e_idx] = goal_edge
 
             old_edge = (u, v) if u < v else (v, u)
@@ -280,15 +280,15 @@ class MarkovChain:
         Sl = 0
         for u in self.graph.neighbors.keys():
             deg_u = len(self.graph.neighbors[u])
-            if self.graph.directed:
-                deg_u += len(self.graph.in_neighbors[u])
+            #if self.graph.directed:
+            #    deg_u += len(self.graph.in_neighbors[u])
 
             S2 += deg_u ** 2
             S3 += deg_u ** 3
             for v in self.graph.neighbors[u]:
                 deg_v = len(self.graph.neighbors[v])
-                if self.graph.directed:
-                    deg_v += len(self.graph.in_neighbors[v])
+                #if self.graph.directed:
+                #    deg_v += len(self.graph.in_neighbors[v])
 
                 Sl += deg_u * deg_v
         N = S1 * Sl - S2*S2

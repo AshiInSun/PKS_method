@@ -6,8 +6,8 @@ build-backend = "hatchling.build"
 name = "kedgeswap"
 version = "1.0"
 authors = [
-  "Lionel Tabourier",
-  "Julien Karadayi"
+    {name ="Lionel Tabourier", email= "email@hisemail.com"},
+    {name="Julien Karadayi", email="email@hisemail.com"}
 ]
 description = "Perform K-edge swaps on graph to generate randomly uniform graph given conditions."
 readme = "README.md"
