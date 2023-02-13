@@ -80,7 +80,7 @@ Code python pour les expériences de génération de graphes aléatoires
 ## Datasets
 
    | name | directed | bipartite | number of nodes | number of edges | density | assortativity | number of triangles | number of mutual dyads |
-   | ---- | -------- | --------------- | --------------- | ------- | ------------- | ------------------- | ---------------------- |
+   | ---- | -------- | --------- | --------------- | --------------- | ------- | ------------- | ------------------- | ---------------------- |
    | powergrid | no | no | 4939 | 6594 | 0.00054 | 0.00346| 651 | - |
    | karateclub | no | no | 33 | 78 | 0.148 | -0.476| 45 | - |
    | celegans | no | no | 57 | 2025 | 0.0000278 | -0.226 | 3284 | - |
