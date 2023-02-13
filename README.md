@@ -84,13 +84,13 @@ Code python pour les expériences de génération de graphes aléatoires
 
    | name | directed | bipartite | number of nodes | number of edges | density | assortativity | number of triangles | number of mutual dyads |
    | ---- | -------- | --------- | --------------- | --------------- | ------- | ------------- | ------------------- | ---------------------- |
-   | powergrid | no | no | 4939 | 6594 | 0.00054 | 0.00346| 651 | - |
-   | karateclub | no | no | 33 | 78 | 0.148 | -0.476| 45 | - |
-   | celegans | no | no | 57 | 2025 | 0.0000278 | -0.226 | 3284 | - |
-   | maayan | yes | no | 628 | 2613 | 0.0000993 | 0.0447 | 326 | 205 |
-   | health | yes | no | 2539 | 12969 | 0.0020 | 0.288 | 4694 | 2514 |
-   | macaques | yes | no | 57 | 1187 | 0.372 | -0.0645 | 9781 | 20 |
-   | gotelli finches | no | yes | 36 | 55 | 0.17 | -0.44 | - | - |
+   | powergrid | no | no | 4941 | 6594 | 0.00054 | 0.00346| 651 | - |
+   | karateclub | no | no | 34 | 78 | 0.13904 | -0.476| 45 | - |
+   | celegans | no | no | 453 | 2025 |  0.01978 | -0.226 | 3284 | - |
+   | maayan | yes | no | 1226 | 2613 | 0.00174 | 0.0447 | 326 | 205 |
+   | health | yes | no | 2539 | 12969 | 0.00201 | 0.288 | 4694 | 2514 |
+   | macaques | yes | no | 62 | 1187 | 0.31386 | -0.0645 | 9781 | 20 |
+   | gotelli finches | no | yes | 36 | 55 | 0.17027 | -0.44 | - | - |
  
 ## Comparaison temps execution des méthodes d'estimation de eta
 
