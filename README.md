@@ -100,8 +100,8 @@ Code python pour les expériences de génération de graphes aléatoires
 
     * turbo eta estimation: burn in de 10M, estimation du taux d'acceptation A de la chaîne de Markov, eta = 10M/A
 
-   | dataset | linear | dichotomic | turbo | linear eta value | dichotomic eta value | turbo eta value |
-   | ------- | ------ | ---------- | ----- | ---------------- | -------------------- | --------------- |
+   | dataset | linear (time in s) | dichotomic (time in s) | turbo (time in s) | linear eta value | dichotomic eta value | turbo eta value |
+   | ------- | ------------------ | ---------------------- | ----------------- | ---------------- | -------------------- | --------------- |
    | karateclub | 9145 | 407 | 0.14 | 452 | 741 | 8222 |
    | gotelli finches | 24214 | 541 | 0.07 | 611 | 1146 | 15778 |
    | lesmis | 40629 | 1267 | 0.51 | 1562 | 1788 | 18021|
