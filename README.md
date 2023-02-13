@@ -25,8 +25,11 @@ Code python pour les expériences de génération de graphes aléatoires
 * Le paquet prend en entrée des graphes au format "edge-list" séparés par des espaces: 
 
   1 2
+
   1 3
+
   4 5
+
   5 6
 
 * Si un lien apparait plusieurs fois, un seul exemplaire du lien sera conservé dans la structure stockée. Si le graphe est dirigé, le lecteur fera une différence entre un lien "u v" et le lien réciproque "v u", sinon il sera stocké sous la forme "u v" avec u < v.
@@ -89,8 +92,20 @@ Code python pour les expériences de génération de graphes aléatoires
    | macaques | yes | no | 57 | 1187 | 0.372 | -0.0645 | 9781 | 20 |
    | gotelli finches | no | yes | 36 | 55 | 0.17 | -0.44 | - | - |
  
+## Comparaison temps execution des méthodes d'estimation de eta
 
-    
+    * linear eta estimation: burn-in de 1000M pas, initialisation de eta à 0, puis incrément de eta += 0.05M jusqu'à atteindre une valeur validant 9/10 des tests d'autocorrelation avec un lag1
+
+    * dichotomic eta estimation: burn-in de 1000M pas, estimation du taux d'acceptation A de la chaîne de Markov, initialisation de eta = M/A, puis eta = 2eta si les tests ne sont pas validés, eta = eta/2 sinon, et on stop lorsqu'il y a changement de comportement du test. (#TODO mal décrit)
+
+    * turbo eta estimation: burn in de 10M, estimation du taux d'acceptation A de la chaîne de Markov, eta = 10M/A
+
+   | dataset | linear | dichotomic | turbo | linear eta value | dichotomic eta value | turbo eta value |
+   | ------- | ------ | ---------- | ----- | ---------------- | -------------------- | --------------- |
+   | karateclub | 9145 | 407 | 0.14 | 452 | 741 | 8222 |
+   | gotelli finches | 24214 | 541 | 0.07 | 611 | 1146 | 15778 |
+   | lesmis | 40629 | 1267 | 0.51 | 1562 | 1788 | 18021|
+
 
 ## Benchmark
 
