@@ -91,8 +91,10 @@ Code python pour les expériences de génération de graphes aléatoires
    | maayan | yes | no | 1226 | 2613 | 0.00174 | 0.0447 | 326 | 205 |
    | health | yes | no | 2539 | 12969 | 0.00201 | 0.288 | 4694 | 2514 |
    | macaques | yes | no | 62 | 1187 | 0.31386 | -0.0645 | 9781 | 20 |
-   | gotelli finches | no | yes | 36 | 55 | 0.17027 | -0.44 | - | - |
- 
+   | gotelli finches | no | yes | 36 (17 + 19) | 55 | 0.17027 | -0.44 | - | - |
+   | krackhardt | yes | no | 21 | 100 | 0.23810 | -0.184 | 100 | 44 |
+   | chiloe_polinators | no | yes | 155 (129 + 26) | 312 | 0.09302 | -0.57958 | - | - |
+
 ## Comparaison temps execution des méthodes d'estimation de eta
 
     * linear eta estimation: burn-in de 1000M pas, initialisation de eta à 0, puis incrément de eta += 0.05M jusqu'à atteindre une valeur validant 9/10 des tests d'autocorrelation avec un lag1
@@ -112,20 +114,22 @@ Code python pour les expériences de génération de graphes aléatoires
 
    | dataset | directed | constraint | using eta estimation | eta value | acceptation rate | eta estimation runtime (in seconds) | convergence runtime (in seconds) | total runtime (in seconds) |
    | ------- | -------- | ---------- | -------------------- | --------- | ---------------- | ----------------------------------- | -------------------------------- | ------------------------ |
-   | powergrid | no | fixed degree sequence | yes | 8064 | 40.88% | 65 285s | 73.86s |  79261s |
-   | karateclub |  no | fixed degree sequence | yes | 751 | 10.38% | 392.90s | 6.71s | 647s |
-   | celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19 414 s | 91.89s | ? | 
+   | powergrid | no | fixed degree sequence | yes | 8064 | 40.88% | 65285s | 73.86s |  79261s |
+   | karateclub |  no | fixed degree sequence | yes | 751 | 10.38% | 392s | 6.71s | 647s |
+   | celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19414 s | 91.89s | ? | 
    | lesmiserables | no | fixed degree sequence | yes | 3576 | 14.20% | 3043s | 64s | 4573s |
-   | health |  yes |   fixed degree sequence |  yes |  32 457 |  39.48% |   174 238s |  1 754s | 259364s |
-   | maayan | yes | fixed degree sequence | yes |  6730 | 38.82% | 8804.56s | 57.13s | 13175s |
-   | gotelli finches | no |  fixed degree sequence | yes | 1141 | 4.1% | 510.14s | 4.30s | 937.94s |
-   | lesmiserables | no | fixed joint degree matrix | yes | 24643 |  1.03% | 15987s | 43.17s | 26398s |
-   | karateclub | no | fixed joint degree matrix | yes | 5053 |  1.54% | 2 567s | 8.32s | 4184s |
-   | powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1 644 229s | 1 399.76s | ? |
-   | maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516 290s | 427.52s | ? |
+   | health |  yes |   fixed degree sequence |  yes |  32 457 |  39.48% |   174238s |  1 754s | 259364s |
+   | maayan | yes | fixed degree sequence | yes |  6730 | 38.82% | 8804s | 57s | 13175s |
+   | krackhardt | yes | fixed degree sequence | yes |  430 | 5.80% | 484s | 12s | 563s |
+   | gotelli finches | bip |  fixed degree sequence | yes | 116 | 5.92% | 260s | 5s | 284s |
+   | lesmiserables | no | fixed joint degree matrix | yes | 24643 |  1.03% | 15987s | 43s | 26398s |
+   | karateclub | no | fixed joint degree matrix | yes | 5053 |  1.54% | 2567s | 8s | 4184s |
+   | powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1644229s | 1399s | 1996927s |
+   | maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516290s | 427s | 668577s |
    | celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | ? | 
-   | maayan | yes  | fixed number of diades | yes | 6727 | 38.84% | 8564.87s | 8.98s | 13041s |  
-   | health | yes | fixed number of diades | yes | 32468 | 39.94% | 172813.34s | 431.45s | 255743s |
+   | maayan | yes  | fixed number of dyads | yes | 6727 | 38.84% | 8564s | 8s | 13041s |  
+   | health | yes | fixed number of dyads | yes | 32468 | 39.94% | 172813s | 431s | 255743s |
+   | krackhardt | yes | fixed number of dyads | yes |  444 | 5.62% | 508s | 0.15s | 575s |
 
 ## Comparaison Gamma
 
@@ -144,5 +148,8 @@ Code python pour les expériences de génération de graphes aléatoires
    | celegans | no | 8 | 6780 | 29.86% | 7867s | 29s | 12021s | 
    | maayan | yes | 4 |  |  |  | | en cours |
    | maayan | yes | 8 | 9988 | 48.21% | 15678s | 34s | en cours |
+   | krackhardt | yes | 2 | 444 | 5.602% | 508s | 0.15s | 575s |
+   | krackhardt | yes | 4 | 251 | 9.945% | 302s | 5s | 547s |
+   | krackhardt | yes | 8 | 209 | 11.95% | 295s | 3s | 333s |
 
 
