@@ -116,7 +116,7 @@ Code python pour les expériences de génération de graphes aléatoires
    | ------- | -------- | ---------- | -------------------- | --------- | ---------------- | ----------------------------------- | -------------------------------- | ------------------------ |
    | powergrid | no | fixed degree sequence | yes | 8064 | 40.88% | 65285s | 73.86s |  79261s |
    | karateclub |  no | fixed degree sequence | yes | 751 | 10.38% | 392s | 6.71s | 647s |
-   | celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19414 s | 91.89s | ? | 
+   | celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19414 s | 20s | 24670s | 
    | lesmiserables | no | fixed degree sequence | yes | 3576 | 14.20% | 3043s | 64s | 4573s |
    | health |  yes |   fixed degree sequence |  yes |  32 457 |  39.48% |   174238s |  1 754s | 259364s |
    | maayan | yes | fixed degree sequence | yes |  6730 | 38.82% | 8804s | 57s | 13175s |
@@ -124,9 +124,9 @@ Code python pour les expériences de génération de graphes aléatoires
    | gotelli finches | bip |  fixed degree sequence | yes | 116 | 5.92% | 260s | 5s | 284s |
    | lesmiserables | no | fixed joint degree matrix | yes | 24643 |  1.03% | 15987s | 43s | 26398s |
    | karateclub | no | fixed joint degree matrix | yes | 5053 |  1.54% | 2567s | 8s | 4184s |
-   | powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1644229s | 1399s | 1996927s |
-   | maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516290s | 427s | 668577s |
-   | celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | ? | 
+   | powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1644229s | 6023s | 2001551s |
+   | maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516290s | 330s | 668480s |
+   | celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | en cours | 
    | maayan | yes  | fixed number of dyads | yes | 6727 | 38.84% | 8564s | 8s | 13041s |  
    | health | yes | fixed number of dyads | yes | 32468 | 39.94% | 172813s | 431s | 255743s |
    | krackhardt | yes | fixed number of dyads | yes |  444 | 5.62% | 508s | 0.15s | 575s |
@@ -137,16 +137,16 @@ Code python pour les expériences de génération de graphes aléatoires
    | ---- | -------- | --------- | --------------- | --------------- | ------- | ------------- | ------------------- |
    | lesmiserables | no | 2 | 3576 | 14.20% | 3043s | 64s | 4573s |
    | lesmiserables | no | 4 | 2268 | 22.39% | 1342s | 0.66s | 1966s |
-   | lesmiserables | no | 8 | - | 48.21% | - | - | en cours |
+   | lesmiserables | no | 8 | 1972 | 48.21% | 1086s | 3s | 1578 |
    | powergrid | no | 2 |  8064 | 40.88% | 65285s | 73s |  79261s |
    | powergrid | no | 3 | 14914 | 44.21% | 125539s | 302s| 148479s |
    | powergrid | no | 4 | 28541 | 46.20% | 102955s | 1466s| 221700s |
    | powergrid | no | 8 | - | 49.23% | - | | en cours |
-   | celegans | no | 2 | 5847 | 17.31% | 19414s | 91s | ? | 
+   | celegans | no | 2 | 5847 | 17.31% | 19414s | 20s | 24670 | 
    | celegans | no | 3 | 8608 | 23.52% | 9844s | 10s | 15253s | 
    | celegans | no | 4 | 7664 | 26.41% | 8470s | 18s | 13187s | 
    | celegans | no | 8 | 6780 | 29.86% | 7867s | 29s | 12021s | 
-   | maayan | yes | 4 |  |  |  | | en cours |
+   | maayan | yes | 4 |  | 38.30% |  | | en cours |
    | maayan | yes | 8 | 9988 | 48.21% | 15678s | 34s | en cours |
    | krackhardt | yes | 2 | 444 | 5.602% | 508s | 0.15s | 575s |
    | krackhardt | yes | 4 | 251 | 9.945% | 302s | 5s | 547s |
