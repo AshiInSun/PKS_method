@@ -115,6 +115,7 @@ Code python pour les expériences de génération de graphes aléatoires
    | powergrid | no | fixed degree sequence | yes | 8064 | 40.88% | 65 285s | 73.86s |  79261s |
    | karateclub |  no | fixed degree sequence | yes | 751 | 10.38% | 392.90s | 6.71s | 647s |
    | celegans | no | fixed degree sequence | yes | 5847 | 17.31% | 19 414 s | 91.89s | ? | 
+   | lesmiserables | no | fixed degree sequence | yes | 3576 | 14.20% | 3043s | 64s | 4573s |
    | health |  yes |   fixed degree sequence |  yes |  32 457 |  39.48% |   174 238s |  1 754s | 259364s |
    | maayan | yes | fixed degree sequence | yes |  6730 | 38.82% | 8804.56s | 57.13s | 13175s |
    | gotelli finches | no |  fixed degree sequence | yes | 1141 | 4.1% | 510.14s | 4.30s | 937.94s |
@@ -130,13 +131,18 @@ Code python pour les expériences de génération de graphes aléatoires
 
    | dataset | directed | gamma | eta value | acceptation rate | eta estimation runtime | convergence runtime | total runtime |
    | ---- | -------- | --------- | --------------- | --------------- | ------- | ------------- | ------------------- |
+   | lesmiserables | no | 2 | 3576 | 14.20% | 3043s | 64s | 4573s |
    | lesmiserables | no | 4 | 2268 | 22.39% | 1342s | 0.66s | 1966s |
-   | lesmiserables | no | 8 | - | 48.21% | - | - | - |
+   | lesmiserables | no | 8 | - | 48.21% | - | - | en cours |
+   | powergrid | no | 2 |  8064 | 40.88% | 65285s | 73s |  79261s |
    | powergrid | no | 3 | 14914 | 44.21% | 125539s | 302s| 148479s |
    | powergrid | no | 4 | 28541 | 46.20% | 102955s | 1466s| 221700s |
+   | powergrid | no | 8 | - | 49.23% | - | | en cours |
+   | celegans | no | 2 | 5847 | 17.31% | 19414s | 91s | ? | 
    | celegans | no | 3 | 8608 | 23.52% | 9844s | 10s | 15253s | 
    | celegans | no | 4 | 7664 | 26.41% | 8470s | 18s | 13187s | 
    | celegans | no | 8 | 6780 | 29.86% | 7867s | 29s | 12021s | 
-
+   | maayan | yes | 4 |  |  |  | | en cours |
+   | maayan | yes | 8 | 9988 | 48.21% | 15678s | 34s | en cours |
 
 
