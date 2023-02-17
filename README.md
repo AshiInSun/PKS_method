@@ -147,8 +147,8 @@ Code python pour les expériences de génération de graphes aléatoires
    | celegans | no | 4 | 7664 | 26.41% | 8470s | 18s | 13187s | 
    | celegans | no | 8 | 6780 | 29.86% | 7867s | 29s | 12021s | 
    | maayan | yes | 2 |  6730 | 38.82% | 8804s | 57s | 13175s |
-   | maayan | yes | 4 |  | 38.30% |  | | en cours |
-   | maayan | yes | 8 | 9988 | 48.21% | 15678s | 34s | en cours |
+   | maayan | yes | 4 | 6286 | 38.30% | 12023s | 212s | 18319s |
+   | maayan | yes | 8 | 9988 | 48.21% | 15678s | 34s | 14489s |
    | krackhardt | yes | 2 | 444 | 5.602% | 508s | 0.15s | 575s |
    | krackhardt | yes | 4 | 251 | 9.945% | 302s | 5s | 547s |
    | krackhardt | yes | 8 | 209 | 11.95% | 295s | 3s | 333s |
