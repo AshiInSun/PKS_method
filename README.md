@@ -133,6 +133,8 @@ Code python pour les expériences de génération de graphes aléatoires
 
 ## Comparaison Gamma
 
+   - Séquence de degré fixé
+
    | dataset | directed | gamma | eta value | acceptation rate | eta estimation runtime | convergence runtime | total runtime |
    | ---- | -------- | --------- | --------------- | --------------- | ------- | ------------- | ------------------- |
    | lesmiserables | no | 2 | 3576 | 14.20% | 3043s | 64s | 4573s |
@@ -141,7 +143,7 @@ Code python pour les expériences de génération de graphes aléatoires
    | powergrid | no | 2 |  8064 | 40.88% | 65285s | 73s |  79261s |
    | powergrid | no | 3 | 14914 | 44.21% | 125539s | 302s| 148479s |
    | powergrid | no | 4 | 28541 | 46.20% | 102955s | 1466s| 221700s |
-   | powergrid | no | 8 | - | 49.23% | - | | en cours |
+   | powergrid | no | 8 | 53576 | 49.23% | - | | en cours |
    | celegans | no | 2 | 5847 | 17.31% | 19414s | 20s | 24670 | 
    | celegans | no | 3 | 8608 | 23.52% | 9844s | 10s | 15253s | 
    | celegans | no | 4 | 7664 | 26.41% | 8470s | 18s | 13187s | 
@@ -153,4 +155,10 @@ Code python pour les expériences de génération de graphes aléatoires
    | krackhardt | yes | 4 | 251 | 9.945% | 302s | 5s | 547s |
    | krackhardt | yes | 8 | 209 | 11.95% | 295s | 3s | 333s |
 
+   - Séquence de degré fixé
+
+   | dataset | directed | gamma | eta value | acceptation rate | eta estimation runtime | convergence runtime | total runtime |
+   | ---- | -------- | --------- | --------------- | --------------- | ------- | ------------- | ------------------- |
+   | lesmiserables | no | 2 | 24643 | 1.03% | 15987s | 43s | 26398s |
+   | lesmiserables | no | 2 | 13223 | 1.92% | 5552s | 36s | 5597s (pas de generation après convergence) |
 

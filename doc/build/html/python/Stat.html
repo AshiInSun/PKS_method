@@ -42,6 +42,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark.html">Benchmark</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Python API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Graph.html">Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MarkovChain.html">MarkovChain</a></li>
@@ -93,12 +94,55 @@
 <span id="id1"></span><h2><a class="toc-backref" href="#id2">Stat Class</a><a class="headerlink" href="#module-kedgeswap.Stat" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="kedgeswap.Stat.Stat">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kedgeswap.Stat.</span></span><span class="sig-name descname"><span class="pre">Stat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kedgeswap.Stat.</span></span><span class="sig-name descname"><span class="pre">Stat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turbo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to compute statistics on a Markov Chain object. This class implements
+methods to estimate the Markov Chain’s sampling gap, and to follow its convergence
+using the DFGLS test.</p>
+<section id="attributes">
+<h3>Attributes:<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mc: MarkovChain object</dt><dd><p>The MarkovChain object on which we follow the convergence.</p>
+</dd>
+<dt>eta: float</dt><dd><p>The sampling gap used for the Markov Chain. The sampling gap
+gives a number of steps to make on the Markov Chain to obtain
+two uncorrelated graphs.</p>
+</dd>
+<dt>turbo: bool</dt><dd><p>Enable to make a fast but unverified estimation of the sampling gap.</p>
+</dd>
+<dt>verbose: bool</dt><dd><p>Enable to add information to the logs</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="kedgeswap.Stat.Stat.CheckAutocorrLag1">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CheckAutocorrLag1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.CheckAutocorrLag1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.CheckAutocorrLag1" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Check the autocorrelation with lag 1 of a time serie.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S_T</strong> (<em>list</em><em>(</em><em>float</em><em>)</em>) – List of assortativity(/number of triangles) values
+to test autocorrelation</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Significance level of the test (usually fixed to 0.04).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kedgeswap.Stat.Stat.guesstimate_sampling_gap">
+<span class="sig-name descname"><span class="pre">guesstimate_sampling_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.guesstimate_sampling_gap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.guesstimate_sampling_gap" title="Permalink to this definition"></a></dt>
+<dd><p>Sampling gap estimation is long, this function gives an empirical estimation of the sampling gap.
+Measure the acceptation rate A of the Markov Chain, and fix the sampling gap as 10*(1/A) * M,
+where M is the number of edges of the network. This estimation was fixed empirically to overestimate
+the sampling gap we measure using the estimation from Dutta, U. (2022).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kedgeswap.Stat.Stat.linear_estimate_sampling_gap">
+<span class="sig-name descname"><span class="pre">linear_estimate_sampling_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.linear_estimate_sampling_gap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.linear_estimate_sampling_gap" title="Permalink to this definition"></a></dt>
+<dd><p>Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of
+Dutta, U. (2022). Sampling random graphs with specified degree sequences</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="kedgeswap.Stat.Stat.estimate_sampling_gap">
@@ -110,8 +154,13 @@ Dutta, U. (2022). Sampling random graphs with specified degree sequences</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="kedgeswap.Stat.Stat.run_dfgls">
 <span class="sig-name descname"><span class="pre">run_dfgls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.run_dfgls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.run_dfgls" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>If no sampling gap eta specified, run estimation of eta.
+Run Markov Chain for eta steps, retrieve list of assortativity values (or number of triangles)
+and estimate the convergence of this time serie, to decide if the Markov Chain is
+converged.</p>
+</dd></dl>
 
+</section>
 </dd></dl>
 
 </section>

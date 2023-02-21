@@ -43,6 +43,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark.html">Benchmark</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Python API Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Graph</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-kedgeswap.Graph">Graph Class</a><ul>
@@ -87,25 +88,99 @@
 <div class="contents local topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#module-kedgeswap.Graph" id="id2">Graph Class</a></p></li>
+<li><p><a class="reference internal" href="#module-kedgeswap.Graph" id="id4">Graph Class</a></p></li>
 </ul>
 </div>
 <section id="module-kedgeswap.Graph">
-<span id="id1"></span><h2><a class="toc-backref" href="#id2">Graph Class</a><a class="headerlink" href="#module-kedgeswap.Graph" title="Permalink to this heading"></a></h2>
+<span id="id1"></span><h2><a class="toc-backref" href="#id4">Graph Class</a><a class="headerlink" href="#module-kedgeswap.Graph" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="kedgeswap.Graph.Graph">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kedgeswap.Graph.</span></span><span class="sig-name descname"><span class="pre">Graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Read input graph and store graph as
 adjacency list</p>
-<p>Attributes:
-N (int) : number of nodes
-M (int) : number of edges
-neighbors (dict(list)) : store adjacency list for each node
-in_neighbors (dict(list)) : used only in directed graph, for each node                       store their neighbors from “in-edges”
-out_neighbors (dict(list)) : used only in directed graph, for each node                        store their neighbors from “out-edges”
-edges (dict()) : in undirected graph: for each edge (u,v), store the position                        of v in the adjacency list of u                        in directed graph: for each edge (u,v), store a quartuplet                        (v_idx, u_idx, v_out_idx, u_in_idx), where:                          v_idx is the position of v in u’s adjacency list                          u_idx is the position of u in v’s adjacency list                          v_out_idx is the position of v in out_neighbors[u]_                          u_in_idx is the position of u in in_neighbors[v]        unique_edges (list()): used mostly for undirected graph, to store one version                               of each edge
-directed (bool) : enable if graph is directed</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.N">
+<span class="sig-name descname"><span class="pre">N</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.N" title="Permalink to this definition"></a></dt>
+<dd><p>number of nodes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.M">
+<span class="sig-name descname"><span class="pre">M</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.M" title="Permalink to this definition"></a></dt>
+<dd><p>number of edges</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.neighbors">
+<span class="sig-name descname"><span class="pre">neighbors</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.neighbors" title="Permalink to this definition"></a></dt>
+<dd><p>store adjacency list for each node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.in_neighbors">
+<span class="sig-name descname"><span class="pre">in_neighbors</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.in_neighbors" title="Permalink to this definition"></a></dt>
+<dd><p>used only in directed graph, for each node
+store their neighbors from “in-edges”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.out_neighbors">
+<span class="sig-name descname"><span class="pre">out_neighbors</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.out_neighbors" title="Permalink to this definition"></a></dt>
+<dd><p>used only in directed graph, for each node
+store their neighbors from “out-edges”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.edges">
+<span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.edges" title="Permalink to this definition"></a></dt>
+<dd><div class="line-block">
+<div class="line">in undirected graph: for each edge (u,v), store the position            | of v in the adjacency list of u            | in directed graph: for each edge (u,v), store a quartuplet            | (v_idx, u_idx, v_out_idx, u_in_idx), where:            | v_idx is the position of v in u’s adjacency list            | u_idx is the position of u in v’s adjacency list            | v_out_idx is the position of v in out_neighbors[u]_            | u_in_idx is the position of u in in_neighbors[v]        unique_edges: list()</div>
+</div>
+<p>used mostly for undirected graph, to store one version            of each edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.directed">
+<span class="sig-name descname"><span class="pre">directed</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.directed" title="Permalink to this definition"></a></dt>
+<dd><p>enable if graph is directed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="kedgeswap.Graph.Graph.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.copy" title="Permalink to this definition"></a></dt>
@@ -115,19 +190,26 @@ directed (bool) : enable if graph is directed</p>
 <dt class="sig sig-object py" id="kedgeswap.Graph.Graph.read_ssv">
 <span class="sig-name descname"><span class="pre">read_ssv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.read_ssv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.read_ssv" title="Permalink to this definition"></a></dt>
 <dd><p>Read space separated values
-Input format is separated with spaces, e.g.:</p>
-<p>&gt;&gt;  0 1
-&gt;&gt;  3 2
-&gt;&gt;  2 4
-&gt;&gt;  .
-&gt;&gt;  .
-&gt;&gt;  .</p>
+Input format is separated with spaces or tabulations, e.g.:</p>
+<div class="line-block">
+<div class="line">0 1</div>
+<div class="line">3 2</div>
+<div class="line">2 4</div>
+<div class="line">.</div>
+<div class="line">.</div>
+<div class="line">.</div>
+</div>
 <p>where the first columns is the source node and the second column is
 the destination node.
-When self.directed == True, the graph is considered directed and
+<a href="#id2"><span class="problematic" id="id3">|</span></a>When self.directed == True, the graph is considered directed and
 edges are stored as written in the file,
 else they are stored as (src, dest) with src &lt; dest.
 Self Loop and multi-graphs are not accepted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>in_file</strong> (<em>str</em>) – path to the input file</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
