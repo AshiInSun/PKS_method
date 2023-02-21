@@ -4,7 +4,7 @@
 #
 #    K-edge-swap is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
+#    You should have received a copy of the GNU General Public License along with K-edge-swap. If not, see <https://www.gnu.org/licenses/>. 
 
 import os
 import sys
@@ -54,20 +54,20 @@ def run(dataset, directed, gamma, use_jd,
 def main():
     #  parse arguments
     parser = argparse.ArgumentParser(description='k edge swap')
+
+    # input output arguments
     parser.add_argument('-f', '--dataset', type=str, 
             help='path to the dataset')
 
     parser.add_argument('-o', '--output', type=str, default=None, 
             help='path to the file output, will write sampled graph using this name.')
 
-    parser.add_argument('-n', '--N_swap', type=int, default=1000000,
-            help='number of swap')
-
+    # Markov Chain parameters
     parser.add_argument('-g', '--gamma', type=int, default=2,
 	    help='exponent of zipf law, for pick K value')
 
     parser.add_argument('-d', '--directed', action='store_true', default=False,
-            help='enable if input graph is directed')
+            help='enable if input graph is directed or bipartite')
 
     parser.add_argument('-e', '--eta', type=float, default=None,
             help='value of eta. If not specified, will run estimation.')
@@ -80,13 +80,15 @@ def main():
 
     parser.add_argument('--output_number', type=int, default=1000,
             help='set the number of graph to generate after Markov Chain convergence.'
-            ' Default to 10000')
+            ' Default to 1000')
+
     parser.add_argument('--turbo', action='store_true', default=False,
             help='Optionnal, relevant only when running eta estimation.'
             'This method (over)estimates empirically a sampling ')
 
+   
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-a', '--assortativity', action='store_true', default=False,
+    group.add_argument('-a', '--assortativity', action='store_true', default=True,
             help='enable to estimate the convergence using the assortativity. -a and -t are mutually exclusive.'
             'When no method is selected, this one is chosen by default. Warning: does not work with --jd')
 
@@ -95,7 +97,7 @@ def main():
             'Use this count to estimate the convergence of the Markov Chain.'
             '-a and -t are mutually excluseive. If --jd is chosen, use -t.')
 
-
+    # logging parameters
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
             help='increase verbosity')
 

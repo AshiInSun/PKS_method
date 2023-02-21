@@ -4,9 +4,9 @@
 #
 #    K-edge-swap is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
+#    You should have received a copy of the GNU General Public License along with K-edge-swap. If not, see <https://www.gnu.org/licenses/>. 
 
-""" MarkovChain class, used to perform k-edge on a graph
+""" MarkovChain class, used to perform k-edge on a Graph object.
 """
 
 import os
@@ -26,41 +26,91 @@ class MarkovChain:
             Class to handle k-edge random swap
 
             Attributes:
-            graph (Graph object) : graph stored as an adjacency list, can be directed or not.
-            N_swap (int) : the number of swaps to perform on the graph
-            gamma (int) : parameter used for zipf distribution to pick k value at each round
-            force_k (bool) : if true, force edge swap to be exactly of k edges (cyclic 
-                             permutation)
-            assortativity (float) : store assortativity value
-            D (float) : constant denominator used to compute assortativity (compute once)
-            triangles (set) : set used to store all the triangles in the graph
-            edges_in_triangles (dict) : set used to store all the edges involved in a triangle,
-                                        pointing to the triangle they are involved in 
-
+            -----------
+            graph: Graph object
+                graph stored as an adjacency list, can be directed or not.
+            N_swap: int
+                the number of swaps to perform on the graph
+            gamma: int
+                parameter used for zipf distribution to pick k value at each round
+            force_k: bool
+                if true, force edge swap to be exactly of k edges (cyclic 
+                permutation)
+            assortativity: float
+                store assortativity value
+            D: float
+                constant denominator used to compute assortativity (compute once)
+            edges2triangles: dict(list)
+                map an edge to its triangles
+            triangles2edges: dict(list)
+                map a triangle to its edges
+            possible_ks: list(int)
+                list of possible values of k
+            k_distrib: list(float)
+                probabilities of picking each k (not normalized yet)
+            use_jd: bool
+                if True, edge swaps will keep the joint degree matrix fixed
+            use_triangles: bool
+                if True, follow convergence by following the number of triangles
+            use_assortativity: bool
+                if True, follow convergence by following the assortativity
+            use_mutualdiades: bool
+                if True, the swap keep the number of mutual dyads constant
+            joint_degree: np.array
+                the joint degree matrix
+            accept_rate: int
+                number of accepted swaps in current batch of swaps
+            refusal_rate: int
+                number of refused swaps in current batch of swaps
+            accept_rate_byk: dict(int)
+                number of accepted swaps per k value
+            refusal_rate_byk: dict(int)
+                number of refused swaps per k value
+            verbose: bool
+                if enabled, output logs are more detailed
+            keep_record: bool
+                if enabled, write graphs at each step of the markov chain, and the edge swap
+            log_dir: str
+                if keep_record is enabled, log_dir specifies a folder in which to write the graphs
+            debug: bool
+                if enabled, adds check and log output. Used for debugging purposes only.
         """
         self.graph = graph
         self.N_swap = N_swap
+
+        # parameters to choose number of edges to swap
         self.gamma = gamma
         self.possible_ks = range(2, graph.M)
         self.k_distrib = np.array([1/(k**self.gamma) for k in self.possible_ks])
         self.force_k = False
+
+        # assortativity
         self.assortativity = 0
         self.D = 0 # assortativity denominator - does not depend on links
-        #self.triangles = set() # set of all triangles in graph
+        
+        # triangles
         self.edges2triangles = defaultdict(list)
         self.triangles2edges = defaultdict(list)
+
+        # constraints
         self.use_jd = use_jd
         self.use_triangles = use_triangles
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
         self.use_mutualdiades = use_mutualdiades
         self.joint_degree = np.zeros(0)
+
+        # debug
         self.verbose = verbose
         self.keep_record = keep_record
         self.output_file = 0 # number of graph dumped
         self.log_dir = log_dir # directory to dump graph and swap when asked
         self.debug = debug
+
+        # acceptation rate 
         self.accept_rate = 0
         self.refusal_rate = 0
+        self.accept_rate_byk = defaultdict(int)
+        self.refusal_rate_byk = defaultdict(int)
 
     def __dump__(self, edge_to_swap, permutation, n_cycle, n_swapped, output_file):
         """Write graph and permutation, useful for debugging"""
@@ -87,8 +137,10 @@ class MarkovChain:
             Pick k value using zipf distribution.
             Use modulo to force k to be equal to the number of edges in the graph at max.
 
-            Return:
-            k (int) : number of edges to swap
+            Return
+            ------
+            k: int
+                number of edges to swap
         """
         # minimum k is 2
         k = np.random.choice(a=self.possible_ks ,p=1/sum(self.k_distrib) * self.k_distrib)
@@ -104,13 +156,18 @@ class MarkovChain:
             When self.force_k == True, permutation is a cyclic permutation,
             else it is a random permutation, with possible identity for some edges.
 
-            Parameters:
-            k (int) : number of edges to swap
+            Parameters
+            ----------
+            k: int
+                number of edges to swap
 
-            Return:
-            edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the\
-                           edges in edge_to_swap
+            Return
+            ------
+            edge_to_swap: list(tuples)
+                list of the edges to swap
+            permutation: list(tuples)
+                list of the edges with which we should swap the\
+                edges in edge_to_swap
 
         """
         # check if no self loop
@@ -142,13 +199,18 @@ class MarkovChain:
         """
             Verify constraints to see if swap can be accepted or not
 
-            Parameters:
-            edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the\
-                           edges in edge_to_swap
+            Parameters
+            ----------
+            edge_to_swap: list(tuples)
+                list of the edges to swap
+            permutation: list(tuples)
+                list of the edges with which we should swap the\
+                edges in edge_to_swap
 
-            Return :
-            bool, true if swap can be accepted
+            Returns
+            -------
+            swap_accepted: bool
+                true if swap can be accepted
 
         """
         goal_edges = []
@@ -208,11 +270,15 @@ class MarkovChain:
         """
             When permutation is accepted, swap the edges in the graph data structure.
 
-            Parameters:
-            edge_to_swap : list of the edges to swap
-            permutation  : list of the edges with which we should swap the\
-                           edges in edge_to_swap
-            edge_to_swap_idx : index of the edges in graph.unique_edges (useful when undirected)
+            Parameters
+            ----------
+            edge_to_swap: list(tuples)
+                list of the edges to swap
+            permutation: list(tuples)
+                list of the edges with which we should swap the\
+                edges in edge_to_swap
+            edge_to_swap_idx: list(int)
+                index of the edges in graph.unique_edges (useful when undirected)
         """
 
         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
@@ -335,14 +401,14 @@ class MarkovChain:
             Enumerate and store all triangles found in the graph.
             For undirected graphs:
 
-                we store each triangle in a set of tuplet ((u,v,w)) where \
-                u, v and w are the node, with u < v < w, and we store each link\
-                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\
+               | we store each triangle in a set of tuplet ((u,v,w)) where \
+               | u, v and w are the node, with u < v < w, and we store each link\
+               | involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\
             For directed graphs:
             
-                we store each triangle thrice in a set of tuplet, with each node as a starting point,\
-                e.g. for triangle (u,v,w) we store {(u,v,w), (v,w,u), (w,u,v)}. We store each link\
-                involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\
+               | we store each triangle thrice in a set of tuplet, with each node as a starting point,\
+               | e.g. for triangle (u,v,w) we store {(u,v,w), (v,w,u), (w,u,v)}. We store each link\
+               | involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\
         """
 
         nb_triangles = 0
@@ -561,6 +627,7 @@ class MarkovChain:
                 fout.write(f'\n\n')
 
         def detect_cycles(ets, p):
+            """ count number of cycles in current swap"""
             all_tagged = []
             flat_all_tagged = []
             for e1, e2 in zip(ets, p):
@@ -628,6 +695,7 @@ class MarkovChain:
                         previous_debug_deg_seq.append(len(self.graph.neighbors[node]))
 
                 accept_rate += 1 
+                self.accept_rate_byk[k] += 1
                 #acc_rate_byk[k] += 1
 
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
@@ -659,6 +727,7 @@ class MarkovChain:
                     self.__dump__(edge_to_swap, permutation, n_cycle, n_edge_swap, output_file)
             else:
                 refusal_rate += 1
+                self.refusal_rate_byk[k] += 1
                 #ref_rate_byk[k] += 1
 
             # populate assortativity values

@@ -19,39 +19,53 @@ class Graph:
     """ Read input graph and store graph as
         adjacency list
 
-        Attributes:
-        N (int) : number of nodes
-        M (int) : number of edges
-        neighbors (dict(list)) : store adjacency list for each node
-        in_neighbors (dict(list)) : used only in directed graph, for each node\
-                       store their neighbors from "in-edges"
-        out_neighbors (dict(list)) : used only in directed graph, for each node\
-                        store their neighbors from "out-edges"
-        edges (dict()) : in undirected graph: for each edge (u,v), store the position\
-                        of v in the adjacency list of u\
-                        in directed graph: for each edge (u,v), store a quartuplet\
-                        (v_idx, u_idx, v_out_idx, u_in_idx), where:\
-                          v_idx is the position of v in u's adjacency list\
-                          u_idx is the position of u in v's adjacency list\
-                          v_out_idx is the position of v in out_neighbors[u]_\
-                          u_in_idx is the position of u in in_neighbors[v]\
-        unique_edges (list()): used mostly for undirected graph, to store one version\
-                               of each edge
-        directed (bool) : enable if graph is directed
+        Attributes
+        ----------
+        N: int
+            number of nodes
+        M: int
+            number of edges
+        neighbors: dict(list)
+            store adjacency list for each node
+        in_neighbors: dict(list)
+            used only in directed graph, for each node
+            store their neighbors from "in-edges"
+        out_neighbors: dict(list) 
+            used only in directed graph, for each node
+            store their neighbors from "out-edges"
+        edges: dict()
+            | in undirected graph: for each edge (u,v), store the position\
+            | of v in the adjacency list of u\
+            | in directed graph: for each edge (u,v), store a quartuplet\
+            | (v_idx, u_idx, v_out_idx, u_in_idx), where:\
+            | v_idx is the position of v in u's adjacency list\
+            | u_idx is the position of u in v's adjacency list\
+            | v_out_idx is the position of v in out_neighbors[u]_\
+            | u_in_idx is the position of u in in_neighbors[v]\
+        unique_edges: list()
+            used mostly for undirected graph, to store one version\
+            of each edge
+        directed: bool 
+            enable if graph is directed
     """
 
     def __init__(self, directed = False):
         self.N = 0 # number of node
         self.M = 0 # number of edges
-        self.neighbors = defaultdict(list) # is used as out_neighbors when directed
+
+        # adjacency lists
+        self.neighbors = defaultdict(list) 
         self.in_neighbors = defaultdict(list)
         self.out_neighbors = defaultdict(list)
+
+        # store edges and the indexes of neighbors in adjacency lists.²
         self.edges = dict()
         self.unique_edges = list()
         self.directed = directed # directed graph flag
         self.dataset_name = None
 
     def copy(self):
+        # Make a copy of all the graphs data structures
         graph_copy = Graph()
         graph_copy.N = self.N
         graph_copy.M = self.M
@@ -65,27 +79,36 @@ class Graph:
 
     def read_ssv(self, in_file):
         """ Read space separated values
-            Input format is separated with spaces, e.g.:
+            Input format is separated with spaces or tabulations, e.g.:
 
-            >>  0 1
-            >>  3 2
-            >>  2 4
-            >>  .
-            >>  .
-            >>  .
+            | 0 1
+            | 3 2
+            | 2 4
+            | .
+            | .
+            | .
 
             where the first columns is the source node and the second column is
             the destination node.
-            When self.directed == True, the graph is considered directed and
+            |When self.directed == True, the graph is considered directed and
             edges are stored as written in the file, 
             else they are stored as (src, dest) with src < dest.
             Self Loop and multi-graphs are not accepted.
+
+            Parameters
+            ----------
+            in_file: str
+                path to the input file
+
+
         """
         self.dataset_name = Path(in_file).stem 
         with open(in_file, 'r') as fin:
             for line in fin:
                 
                 if line == '\n': # skip empty lines
+                    continue
+                if line.startswith('%'): # skip first line of konnect format
                     continue
                 _node_in, _node_out = line.strip().split(' ')
                 node_in, node_out = int(_node_in), int(_node_out)
@@ -99,9 +122,13 @@ class Graph:
 
                     self.neighbors[node_in].append(node_out)
                     self.neighbors[node_out].append(node_in)
+
+                    # in/out adjacency lists are useful for dyads
                     self.out_neighbors[(node_in)].append(node_out)
                     self.in_neighbors[(node_out)].append(node_in)
                     self.M += 1 
+
+                    # for directed graph, keep indexes in all adjacency lists
                     self.edges[(node_in, node_out)] = (len(self.neighbors[node_in]) -1,
                                                        len(self.neighbors[node_out]) -1,
                                                        len(self.out_neighbors[node_in]) - 1,
@@ -124,8 +151,8 @@ class Graph:
 
 
         assert len(self.unique_edges) == len(set(self.unique_edges))
-        self.M = len(self.unique_edges) #TODO for directed graph
-        self.N = len(self.neighbors) #node_in
+        self.M = len(self.unique_edges) 
+        self.N = len(self.neighbors)
 
 
     def read_ael(self, in_file):
