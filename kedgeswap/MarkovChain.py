@@ -134,8 +134,8 @@ class MarkovChain:
 
     def pick_k(self):
         """
-            Pick k value using zipf distribution.
-            Use modulo to force k to be equal to the number of edges in the graph at max.
+            Pick k value using powerlaw distribution. The exponent of the powerlaw can be fixed by the
+            gamma argument.
 
             Return
             ------
@@ -148,13 +148,11 @@ class MarkovChain:
         return k
 
     def find_swap(self, k):
-        """ Edge_to_swap donne list des liens à changer
-            swap donne avec quel lien changer chaque lien de edge_to_swap
-            ex:  
-
+        """ 
             Randomly pick k edges to swap, and randomly pick a permutation
             When self.force_k == True, permutation is a cyclic permutation,
             else it is a random permutation, with possible identity for some edges.
+
 
             Parameters
             ----------
@@ -168,17 +166,18 @@ class MarkovChain:
             permutation: list(tuples)
                 list of the edges with which we should swap the\
                 edges in edge_to_swap
+            _edge_to_swap: list(int)
+                indexes in unique_edges of the edges in edge_to_swap
 
         """
-        # check if no self loop
-        permut_idx = 0
-        valid_permutation = False
+        #valid_permutation = False
+        # pick edge indexes
         _edge_to_swap = np.random.choice(len(self.graph.unique_edges), k, replace=False)
 
         if self.graph.directed:
             edge_to_swap = [self.graph.unique_edges[e_idx] for e_idx in _edge_to_swap]
         else:
-            # for undirected graphs, pick if edges are reversed or not
+            # for undirected graphs, pick edges directions
             edge_to_swap = [(self.graph.unique_edges[e_idx][1], self.graph.unique_edges[e_idx][0]) 
                                 if np.random.choice([True, False]) 
                        else (self.graph.unique_edges[e_idx][0], self.graph.unique_edges[e_idx][1]) for e_idx in _edge_to_swap]
@@ -190,7 +189,7 @@ class MarkovChain:
             cycle = np.random.randint(1,k)
             permutation = [edge_to_swap[idx - cycle] for idx in range(len(edge_to_swap))]
         else:
-            # if !force_k, permutation is of k edges or less
+            # if !force_k, permutation is of k edges or less, can "swap" an edge with itself.
             np.random.shuffle(permutation) 
 
         return edge_to_swap, permutation, _edge_to_swap
@@ -213,19 +212,23 @@ class MarkovChain:
                 true if swap can be accepted
 
         """
+        # list of the edges after permutation
         goal_edges = []
+
+        # sets of broken and created dyads, to check if the
+        # swap keeps the number of dyads fixed. (only if -md option is enabled)
         broken_diades = set()
         created_diades = set()
 
         for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
+            # goal edge is the result of permutation between (u,v) and (x,y)
             if self.graph.directed:
                 goal_edge = (u, y)
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
             goal_edges.append(goal_edge)
 
-            # check mutual diade
-            ## if no input diade involved return true, else check if broken diade is changed into new diade
+            # check mutual dyad
             if self.graph.directed and self.use_mutualdiades:
                 # check broken diades
                 if u in self.graph.out_neighbors[v]:
@@ -242,12 +245,8 @@ class MarkovChain:
             if goal_edge in self.graph.edges:
                 return False, None
 
-            # check joint degree matrix
-            #updated_joint_degree = self.update_joint_degree(edge_to_swap, permutation)
-            #if not (updated_joint_degree == self.joint_degree).all():
-            #    return False
-             
-        if not len(set(goal_edges)) == len(goal_edges): # check that we don't create multi-edges
+        # check that we don't create multi-edges
+        if not len(set(goal_edges)) == len(goal_edges):
             return False, None
 
         # check if joint degree matrix changes
@@ -288,12 +287,13 @@ class MarkovChain:
                 goal_edge = (u, y)
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
-            old_edge = self.graph.unique_edges[e_idx] # TODO comment - not used
+            #old_edge = self.graph.unique_edges[e_idx] # TODO comment - not used
             self.graph.unique_edges[e_idx] = goal_edge
 
-            old_edge = (u, v) if u < v else (v, u)
+            #old_edge = (u, v) if u < v else (v, u)
 
             if self.graph.directed:
+                # directed graphs
                 v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
                 y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
 
@@ -302,10 +302,11 @@ class MarkovChain:
 
                 self.graph.edges[(u,y)] = (v_idx, x_idx, v_out_idx, x_in_idx)
             else:
+                # undirected graphs
                 v_idx = self.graph.edges[(u,v)]
-                u_idx =  self.graph.edges[(v,u)]
+                u_idx = self.graph.edges[(v,u)]
                 y_idx = self.graph.edges[(x,y)]
-                x_idx =  self.graph.edges[(y,x)]
+                x_idx = self.graph.edges[(y,x)]
 
                 self.graph.edges[(u,y)] = v_idx
                 self.graph.edges[(y,u)] = x_idx
@@ -340,25 +341,21 @@ class MarkovChain:
         """
         S1 = 2 * self.graph.M
 
-        # loop to comput S2 and S3
+        # loop to compute S2 and S3
         S2 = 0
         S3 = 0
         Sl = 0
         for u in self.graph.neighbors.keys():
             deg_u = len(self.graph.neighbors[u])
-            #if self.graph.directed:
-            #    deg_u += len(self.graph.in_neighbors[u])
 
             S2 += deg_u ** 2
             S3 += deg_u ** 3
             for v in self.graph.neighbors[u]:
                 deg_v = len(self.graph.neighbors[v])
-                #if self.graph.directed:
-                #    deg_v += len(self.graph.in_neighbors[v])
 
                 Sl += deg_u * deg_v
         N = S1 * Sl - S2*S2
-        self.D = S1 * S3 - S2 * S2
+        self.D = S1 * S3 - S2 * S2 # denominator does not change when edges are swapped
         self.assortativity = N/self.D
 
 
@@ -376,11 +373,11 @@ class MarkovChain:
             deg_x = len(self.graph.neighbors[x])
             deg_y = len(self.graph.neighbors[y])
 
-            if self.graph.directed:
-                deg_u += len(self.graph.in_neighbors[u])
-                deg_v += len(self.graph.in_neighbors[v])
-                deg_x += len(self.graph.in_neighbors[x])
-                deg_y += len(self.graph.in_neighbors[y])
+            #if self.graph.directed:
+            #    deg_u += len(self.graph.in_neighbors[u])
+            #    deg_v += len(self.graph.in_neighbors[v])
+            #    deg_x += len(self.graph.in_neighbors[x])
+            #    deg_y += len(self.graph.in_neighbors[y])
 
             N += deg_u * deg_y - deg_u * deg_v
         N = N * 4 * self.graph.M
@@ -414,11 +411,11 @@ class MarkovChain:
         nb_triangles = 0
         for node_1 in self.graph.neighbors.keys():
             
-            # skip nodes of degree < 2
+            # skip nodes of degree < 2, they can't have triangles...
             if len(self.graph.neighbors[node_1]) < 2:
                 continue
             
-            # check neighborhood or neighbors of node_1
+            # check neighborhoods or neighbors of node_1
             for node_2 in self.graph.neighbors[node_1]:
 
                 # skip nodes of degree < 2
@@ -456,7 +453,6 @@ class MarkovChain:
                                 self.triangles2edges[current_triangle].append((v,u))
 
     def update_triangles(self, edge_to_swap, permutation):
-        
         """
             Update the sets of triangles by looking at each edge swap:
 
@@ -474,16 +470,16 @@ class MarkovChain:
 
                 # get all destroyed triangles
                 destroyed_triangles = self.edges2triangles[(u,v)].copy() 
-                # for each triangle, remove them and remove edges 
-                for current_triangle in destroyed_triangles:
 
+                # for each triangle in destroyed, remove it and remove its edges 
+                for current_triangle in destroyed_triangles:
                     for edge in self.triangles2edges[current_triangle]:
                         self.edges2triangles[edge].remove(current_triangle)
                         if len(self.edges2triangles[edge]) == 0:
                             del self.edges2triangles[edge]
                     del self.triangles2edges[current_triangle]
 
-
+            # destroyed triangles for undirected graphs, check other directions of each edge
             if (not self.graph.directed) and (v, u) in self.edges2triangles:
                 destroyed_triangles = self.edges2triangles[(v,u)].copy() 
 
@@ -497,17 +493,15 @@ class MarkovChain:
 
             # created triangles
             created = []
-            for neigh in self.graph.neighbors[u]: # neighbors has already been updated
+            for neigh in self.graph.neighbors[u]: # graph.neighbors has already been updated
                 if neigh == y:
                     continue
                 if (neigh, y) in self.graph.edges or (y, neigh) in self.graph.edges:
 
                     current_triangle = tuple(sorted((u, y, neigh)))
                     created.append(current_triangle)
-                    #if (current_triangle not in self.triangles2edges):
-                    #    # triangle has already been acounted for 
-                    #    continue
 
+                    # add triangle to edges2triangles and triangles2edges
                     if self.graph.directed:
                             self._add_directed_triangle(u, y, current_triangle)
                             self._add_directed_triangle(y, neigh, current_triangle)
@@ -620,6 +614,7 @@ class MarkovChain:
             metrics.
         """
         def write_swap(ets, p):
+            """ for debug only - write all the swaps """
             with  open('swap', 'a') as fout:
                 fout.write(f'{len(ets)}\n')
                 for e1, e2 in zip(ets, p):
@@ -627,7 +622,7 @@ class MarkovChain:
                 fout.write(f'\n\n')
 
         def detect_cycles(ets, p):
-            """ count number of cycles in current swap"""
+            """ for debug - count number of cycles in current swap"""
             all_tagged = []
             flat_all_tagged = []
             for e1, e2 in zip(ets, p):
@@ -647,7 +642,7 @@ class MarkovChain:
                 all_tagged.append(tagged)
             return len(all_tagged), len(flat_all_tagged)
 
-        # populate assortativity values
+        # populate assortativity values in window
         window = []
 
         if N_swap == None:
@@ -655,11 +650,8 @@ class MarkovChain:
 
         accept_rate = 0
         refusal_rate = 0
-        #acc_rate_byk = defaultdict(int)
-        #ref_rate_byk = defaultdict(int)
 
         # initialize values
-
         if self.use_jd:
             self.init_joint_degree()
 
@@ -668,7 +660,7 @@ class MarkovChain:
         elif self.use_assortativity:
             self.init_assortativity()
 
-        # run N_swap swap
+        # run N_swap swaps
         for swap_idx in range(N_swap):
 
             # print a dot every 1000 swap to show progress
@@ -681,8 +673,6 @@ class MarkovChain:
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
             accept_permutation, updated_jd = self.check_swap(edge_to_swap, permutation)
 
-            #updated_jd = self.update_joint_degree(edge_to_swap, permutation)
-
             # if swap is accepted, perform swap and update graph metrics values
             if (accept_permutation):
 
@@ -694,31 +684,31 @@ class MarkovChain:
                     for node in range(self.graph.N):
                         previous_debug_deg_seq.append(len(self.graph.neighbors[node]))
 
+                # add swap to list of accepted
                 accept_rate += 1 
                 self.accept_rate_byk[k] += 1
-                #acc_rate_byk[k] += 1
 
+                # realise the swap
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
+                # debug - check if degree sequence changed
                 if self.debug:
                      for node in range(self.graph.N):
                         debug_deg_seq.append(len(self.graph.neighbors[node]))
                      assert debug_deg_seq == previous_debug_deg_seq, 'ERROR : degree sequence changed!' 
 
-                # compute value of interest to follow convergence
+                # compute value of interest (assortativity/triangles) to follow convergence
                 if self.use_assortativity:
                     self.update_assortativity(edge_to_swap, permutation)
                 elif self.use_triangles:
                     self.update_triangles(edge_to_swap, permutation)
-
                 
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
                 #write_swap(edge_to_swap, permutation) 
 
-                # if keep_record is enabled, write graph and swap (as gzip)
+                # for debugging mostly - if keep_record is enabled, write graph and swap (as gzip)
                 if self.keep_record:
-
                     n_cycle, n_edge_swap = detect_cycles(edge_to_swap, permutation)
                     self.output_file += 1
                     output_file = self.graph.dataset_name + f'_{self.output_file}.log.gz'
@@ -726,9 +716,9 @@ class MarkovChain:
                         output_file = os.path.join(self.log_dir, output_file)
                     self.__dump__(edge_to_swap, permutation, n_cycle, n_edge_swap, output_file)
             else:
+                # add swap to list of refused
                 refusal_rate += 1
                 self.refusal_rate_byk[k] += 1
-                #ref_rate_byk[k] += 1
 
             # populate assortativity values
             if self.use_assortativity:

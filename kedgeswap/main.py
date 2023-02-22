@@ -88,7 +88,7 @@ def main():
 
    
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-a', '--assortativity', action='store_true', default=True,
+    group.add_argument('-a', '--assortativity', action='store_true', default=False,
             help='enable to estimate the convergence using the assortativity. -a and -t are mutually exclusive.'
             'When no method is selected, this one is chosen by default. Warning: does not work with --jd')
 

@@ -86,107 +86,114 @@ class Stat():
             where M is the number of edges of the network. This estimation was fixed empirically to overestimate
             the sampling gap we measure using the estimation from Dutta, U. (2022).
         """
+        # run a short burn in
         N_swap = 5 * self.mc.graph.M # burn in 
         burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, 
                               use_assortativity=self.mc.use_assortativity, 
                               verbose=self.mc.verbose, keep_record=False, log_dir=None)
         burn_in.run()
+        
+        # estimate the acceptation rate of the Markov Chain
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
+
+        # take a large estimate to overestimate minimum sampling gap value
         eta = 10/burn_in_rate * graph.M
-        print(f'guesstimation: burn in rate {burn_in_rate}, using eta {eta}')
+        #print(f'guesstimation: burn in rate {burn_in_rate}, using eta {eta}')
         return eta
 
-    def linear_estimate_sampling_gap(self, graph, gamma):
-        """ Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of 
-        Dutta, U. (2022). Sampling random graphs with specified degree sequences 
+    #def linear_estimate_sampling_gap(self, graph, gamma):
+    #    """ Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of 
+    #    Dutta, U. (2022). Sampling random graphs with specified degree sequences 
 
-        """
-        def run_chain(c):
-            S_T = []
-            n_swap = int(np.round(eta))
-            for t in range(T):
-                mc[c].run(n_swap)
-                if mc[c].use_assortativity:
-                    S_T.append(mc[c].assortativity)
-                else:
-                    S_T.append(len(mc[c].triangles2edges))
-            return S_T
+    #    """
 
-        N_swap = 1000 * self.mc.graph.M # burn in 
-        C = 10
-        T = 500
-        #S_T = [] # list of degree assortativity of size T
-        u = 1 # lower bound on number of mcmc chains that have significant lag-1 autocorrelation
-        mc = [] # list of C MCMC
-        alpha = 0.04 # significance level for each test
+    #    # run 1 Markov chain to get the S_T timeserie - used to parallelize.
+    #    def run_chain(c):
+    #        S_T = []
+    #        n_swap = int(np.round(eta))
+    #        for t in range(T):
+    #            mc[c].run(n_swap)
+    #            if mc[c].use_assortativity:
+    #                S_T.append(mc[c].assortativity)
+    #            else:
+    #                S_T.append(len(mc[c].triangles2edges))
+    #        return S_T
 
-        if self.verbose:
-            print(f'estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
-            print(f'burn in...')
-        #for c in range(C):
-        #    if self.verbose:
-        #        print(f'MCMC {c}/{C}')
-        #    mc.append(MarkovChain(graph, N_swap, gamma))
-        #    mc[c].run()
-        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles,
-                              use_assortativity=self.mc.use_assortativity,
-                              verbose=self.mc.verbose, keep_record=False, log_dir=None)
-        burn_in.run()
-        #burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
+    #    N_swap = 1000 * self.mc.graph.M # burn in 
+    #    C = 10
+    #    T = 500
+    #    #S_T = [] # list of degree assortativity of size T
+    #    u = 1 # lower bound on number of mcmc chains that have significant lag-1 autocorrelation
+    #    mc = [] # list of C MCMC
+    #    alpha = 0.04 # significance level for each test
 
-        # Measure sampling gap
-        if self.verbose:
-            print(f'measuring sampling gap...')
+    #    if self.verbose:
+    #        print(f'estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
+    #        print(f'burn in...')
+    #    #for c in range(C):
+    #    #    if self.verbose:
+    #    #        print(f'MCMC {c}/{C}')
+    #    #    mc.append(MarkovChain(graph, N_swap, gamma))
+    #    #    mc[c].run()
+    #    burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles,
+    #                          use_assortativity=self.mc.use_assortativity,
+    #                          verbose=self.mc.verbose, keep_record=False, log_dir=None)
+    #    burn_in.run()
+    #    #burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
 
-        # first eta is estimated from the accept/refuse rate of the burn in
-        # then dichotomic search to get better eta
-        #eta = 10 * self.mc.graph.M
-        #eta = 1/burn_in_rate * self.mc.graph.M
-        eta=0
-        d_eta = C
-        #prev_d_eta = C
-        #prev_eta = eta
-        #tuned = False
-        while (d_eta > u): 
-            eta += 0.05 * graph.M
-            if self.verbose:
-                print(f'considering eta {eta}...')
+    #    # Measure sampling gap
+    #    if self.verbose:
+    #        print(f'measuring sampling gap...')
 
-            d_eta = 0
-            for c in range(C):
-                S_T = []
-                if d_eta > u:
-                    continue
+    #    # first eta is estimated from the accept/refuse rate of the burn in
+    #    # then dichotomic search to get better eta
+    #    #eta = 10 * self.mc.graph.M
+    #    #eta = 1/burn_in_rate * self.mc.graph.M
+    #    eta=0
+    #    d_eta = C
+    #    #prev_d_eta = C
+    #    #prev_eta = eta
+    #    #tuned = False
+    #    while (d_eta > u): 
+    #        eta += 0.05 * graph.M
+    #        if self.verbose:
+    #            print(f'considering eta {eta}...')
 
-                if len(mc) <= c:
-                    mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None))
-                else:
-                    mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
+    #        d_eta = 0
+    #        for c in range(C):
+    #            S_T = []
+    #            if d_eta > u:
+    #                continue
+
+    #            if len(mc) <= c:
+    #                mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None))
+    #            else:
+    #                mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
 
 
-                #mc[c].run()
+    #            #mc[c].run()
 
-            S_Ts = Parallel(n_jobs=5)(delayed(run_chain)(c) for c in range(C))
-            for c in range(C):
-                d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
-                d_eta += d_c
-                if self.verbose:
-                    print(f'for eta={eta}: d_eta={d_eta}, u={u}')
-            #if d_eta <= u:
-            #    prev_eta = eta
-            #    prev_d_eta = d_eta
-            #    eta = eta/2
-            #    #tuned = True
-            #elif d_eta > u and prev_d_eta <= u:
-            #    prev_d_eta = d_eta
-            #    tuned = True
-            #    eta = prev_eta
-            #elif d_eta > u and prev_d_eta > u:
-            #    prev_d_eta = d_eta
-            #    prev_eta = eta
-            #    eta = 2 * eta
+    #        S_Ts = Parallel(n_jobs=5)(delayed(run_chain)(c) for c in range(C))
+    #        for c in range(C):
+    #            d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
+    #            d_eta += d_c
+    #            if self.verbose:
+    #                print(f'for eta={eta}: d_eta={d_eta}, u={u}')
+    #        #if d_eta <= u:
+    #        #    prev_eta = eta
+    #        #    prev_d_eta = d_eta
+    #        #    eta = eta/2
+    #        #    #tuned = True
+    #        #elif d_eta > u and prev_d_eta <= u:
+    #        #    prev_d_eta = d_eta
+    #        #    tuned = True
+    #        #    eta = prev_eta
+    #        #elif d_eta > u and prev_d_eta > u:
+    #        #    prev_d_eta = d_eta
+    #        #    prev_eta = eta
+    #        #    eta = 2 * eta
 
-        return eta
+    #    return eta
 
 
 
@@ -195,6 +202,7 @@ class Stat():
         Dutta, U. (2022). Sampling random graphs with specified degree sequences 
 
         """
+        # run 1 Markov chain to get the S_T timeserie - used to parallelize.
         def run_chain(c):
             S_T = []
             n_swap = int(np.round(eta))
@@ -222,10 +230,14 @@ class Stat():
         #        print(f'MCMC {c}/{C}')
         #    mc.append(MarkovChain(graph, N_swap, gamma))
         #    mc[c].run()
+
+        # run long burn in to reach convergence of the markov chain
         burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles,
                               use_assortativity=self.mc.use_assortativity,
                               verbose=self.mc.verbose, keep_record=False, log_dir=None)
         burn_in.run()
+
+        # estimate the acceptation rate of the markov chain
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
 
         if self.verbose:
@@ -257,9 +269,13 @@ class Stat():
                     continue
 
                 if len(mc) <= c:
-                    mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None))
+                    mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd,
+                            use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity,
+                            verbose=self.mc.verbose, keep_record=False, log_dir=None))
                 else:
-                    mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity, verbose=self.mc.verbose, keep_record=False, log_dir=None)
+                    mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd,
+                                use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity,
+                                verbose=self.mc.verbose, keep_record=False, log_dir=None)
 
 
                 #mc[c].run()
@@ -270,10 +286,17 @@ class Stat():
                 d_eta += d_c
                 if self.verbose:
                     print(f'for eta={eta}: d_eta={d_eta}, u={u}')
+
+            # check if eta value is accepted - if a most u chains show no correlation 
+            # on the S_T timeserie with lag 1, the value of eta is considered valid.
             if d_eta <= u:
                 prev_eta = eta
                 prev_d_eta = d_eta
-                eta = eta/2
+                if prev_eta == eta/2:
+                    # don't check eta/2 again
+                    tuned = True
+                else:
+                    eta = eta/2
                 #tuned = True
             elif d_eta > u and prev_d_eta <= u:
                 prev_d_eta = d_eta
@@ -294,27 +317,37 @@ class Stat():
             and estimate the convergence of this time serie, to decide if the Markov Chain is
             converged.
         """
+
+        # Get sampling gap value
         if self.eta is None:
             t0 = time.time()
             if self.turbo:
+                # turbo estimation
                 eta = self.guesstimate_sampling_gap(self.mc.graph, self.mc.gamma)
             else:
+                # dichotomic estimation
                 eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
             print(f'eta estimation {t1 - t0} seconds')
         else:
+            # use eta given in input
             eta = self.eta
 
+        # Run the markov chain, and check its convergence using the DFGLS test
         has_converged = False
         if self.verbose:
             print('running markov chain and checking convergence...')
         t0 = time.time()
+
         while (not has_converged):
             window = self.mc.run(int(np.round(eta)))
             test = DFGLS(window)
 
-            try:
+            try: 
+                # in some very rare cases, usually when very few swaps are accepted, the DFGLS
+                # doesn't have enough different values to run, so it raises an error. Catch that error and
+                # run the markov chain some more.
                 if self.verbose:
                     print(f'test statistic : {test.stat},\n Markov chain is stationnary if test statistic < {test.critical_values["1%"]}')
                     #print(test.summary)
@@ -326,6 +359,7 @@ class Stat():
                 print("Warning, dfgls doesn't have enough unique observations to compute.")
                 continue
 
+        # some verbose output
         if self.verbose:
             print('acceptation by k')
             for k in self.mc.accept_rate_byk:
