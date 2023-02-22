@@ -80,13 +80,13 @@
   <section id="usage">
 <span id="id1"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
 <ul class="simple">
-<li><p>The <em>kedgeswap</em> package builds tools to generate random graphs picked uniformly given certain
+<li><p>The <strong>kedgeswap</strong> package builds tools to generate random graphs picked uniformly given certain
 constraints (simple graph with fixed degree sequence, directed simple graph with fixed degree sequence, simple graph with fixed joint degree matrix …).</p></li>
 </ul>
 <section id="input-format">
 <h2>Input Format<a class="headerlink" href="#input-format" title="Permalink to this heading"></a></h2>
 <ul>
-<li><p>This package takes as input a simple graph as a space separated edge list:</p>
+<li><p>This package takes as input a simple graph as an edge list (one line corresponds to an edge, two nodes are seperated by a space or tabulation):</p>
 <blockquote>
 <div><div class="line-block">
 <div class="line">1 2</div>
@@ -114,7 +114,7 @@ If the input graph contains either, they will be automatically removed when the 
 <section id="constraints">
 <h2>Constraints<a class="headerlink" href="#constraints" title="Permalink to this heading"></a></h2>
 <ul>
-<li><p>This package generates uniformly randomly picked <em>simple</em> graphs <em>without loops</em>.</p></li>
+<li><p>This package generates uniformly randomly picked <strong>simple</strong> graphs <strong>without loops</strong>.</p></li>
 <li><p>Several constraints can be used to generate the graphs:</p>
 <blockquote>
 <div><ul class="simple">
@@ -153,10 +153,10 @@ of arguments in the main.py file.</p>
 </li>
 <li><p>Constraint definition:</p>
 <ul>
-<li><p>-jd : enable if you want to generate samples with a fixed joint degree matrix. Warning: only works with “-t” option to follow convergence (assortativity is constant when joint degree matrix is fixed).</p></li>
-<li><p>-md : enable to generate samples with a fixed number of mutual dyads. Warning: only works on directed graphs.</p></li>
-<li><p>-t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with “-a”.</p></li>
-<li><p>-a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with “-t” or “-jd”.</p></li>
+<li><p>-jd : enable if you want to generate samples with a fixed joint degree matrix. Warning: only works with <em>-t</em> option to follow convergence (assortativity is constant when joint degree matrix is fixed).</p></li>
+<li><p>-md : enable to generate samples with a fixed number of mutual dyads. Warning: only works on directed graphs (<em>-d</em>).</p></li>
+<li><p>-t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with <em>-a</em>.</p></li>
+<li><p>-a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with <em>-t</em> or <em>-jd</em>.</p></li>
 </ul>
 </li>
 <li><p>Optional arguments:</p>
