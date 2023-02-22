@@ -714,7 +714,7 @@ class MarkovChain:
                 
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
-                write_swap(edge_to_swap, permutation) 
+                #write_swap(edge_to_swap, permutation) 
 
                 # if keep_record is enabled, write graph and swap (as gzip)
                 if self.keep_record:
