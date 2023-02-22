@@ -43,28 +43,30 @@ Constraints
 .. note::
     Additional constraints can be defined by adding them to the
     MarkovChain class. The constraints should be added in the 
-    *check_swap* method, used to verify if an edge swap is valid or not.
+    **check_swap** method, used to verify if an edge swap is valid or not.
     An argument to select this constraint can then be added to the list 
     of arguments in the main.py file.
 
 Command Line Interface
 ----------------------
 
-- usage example: 
-    python main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out
-    
+- Usage example, in the root folder of the package: 
+    python kedgeswap/main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out
+
 
 - list of main.py parameters:
 
   - Required arguments: 
+
     * -f : path to the edge list input file.
 
-    * -o : path to the output files. Will write N output graphs with this prefix as filename.
+    * -o : path to the output files. Will write *N* output graphs with this prefix as filename, where *N* is fixed by the *--output_number* parameter (see Optional arguments, defaults to 1000).
 
     * -d : enable if the input graph is directed or bipartite.
 
 
   - Constraint definition:
+
     * -jd : enable if you want to generate samples with a fixed joint degree matrix. Warning: only works with "-t" option to follow convergence (assortativity is constant when joint degree matrix is fixed).
 
     * -md : enable to generate samples with a fixed number of mutual dyads. Warning: only works on directed graphs.
@@ -74,13 +76,14 @@ Command Line Interface
     * -a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with "-t" or "-jd".
 
   - Optional arguments:
+
     * -v : optional: enable to be more verbose. Adds the Markov Chains status to the logs, number of accepted/rejected swaps, DFGLS output to follow convergence...
 
     * -g : exponent of the 1/(n^g) law used to pick the number of edges to swap.
 
     * -e : sampling gap between each generated graph. If not specified, will use a (very slow) estimation method.
 
-    * --output_number: number of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.
+    * --output_number: number *N* of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.
 
     * --debug: makes some additional checks, like checking that the degree sequences hasn't changed after each swap. Slows down everything, only used for debuggin purposes.
 

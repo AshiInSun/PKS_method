@@ -12,6 +12,7 @@ Requirements
 - argparse
 - progressbar
 - pytest
+- joblib
 
 Installation
 ------------
