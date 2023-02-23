@@ -29,11 +29,11 @@ Graph
                    respectively store the number of edges and the number of nodes of the graph. Both remain constant during the swapping process.
 
       * neighbors: dict(list)
-                   Stores the adjacency list for each node of the graph. Given that the structure is a dict (hash map), getting the adjacency list of a node is in O(1), amortized time.
-                   *neighbors* is used to store the neighbors of each node, and is updated at each swap.
+                   Stores the adjacency list for each node of the graph. Given that the structure is a dict (hash map), getting the adjacency list of a node is in **O(1)**, amortized time.
+                   **neighbors** is used to store the neighbors of each node, and is updated at each swap.
 
       * unique_edges: list
-                   Stores one exemplar of each edge of the graph. *unique_edges* is used to uniformly pick random edges of the graph, and is updated at each swap.
+                   Stores one exemplar of each edge of the graph. **unique_edges** is used to uniformly pick random edges of the graph, and is updated at each swap.
       
       * directed: bool
                    Indicates if the graph is directed or not.  
@@ -44,12 +44,13 @@ Graph
       * edges: dict(int)
                    For each edge **(u,v)**, it stores the position of **v** in the adjacency list of **u**. 
                    E.g. 
-                   ..code-block:: python
 
-                        v_idx = edges[(u,v)]
-                        u_idx = edges[(v,u)]
-                        neighbors[u][v_idx] == v # True
-                        neighbors[v][u_idx] == u # True
+        .. code-block:: python
+        
+             v_idx = edges[(u,v)]
+             u_idx = edges[(v,u)]
+             neighbors[u][v_idx] == v # True
+             neighbors[v][u_idx] == u # True
 
 
   - for directed graphs:
@@ -65,11 +66,12 @@ MarkovChain
 
 - The main function of the MarkovChain object is the **run** methods, that calls all the others depending on the input constraints. To add new constraints, update the **check_swap** methods, that accepts or rejects a swap depending on the constraints.
 
-    * pick_k : choose a **k** value following a powerlaw distribution with exponent **gamma**
+    * **pick_k** : choose a **k** value following a powerlaw distribution with exponent **gamma**
 
-    * find_swap : uniformly choose **k** edges to swap, and a permutation.
+    * **find_swap** : uniformly choose **k** edges to swap, and a permutation.
 
-    * check_swap : check that the chosen swap respects each constraint. The complexity depends on the constraints.
+    * **check_swap** : 
+               check that the chosen swap respects each constraint. The complexity depends on the constraints.
                For undirected graph, with fixed degree sequence constraint (the basic case), for each swap between **(u,v)** and **(x,y)**: 
 
                * check that it doesn't create a loop (**u != y**) in **O(1)**
@@ -78,7 +80,8 @@ MarkovChain
 
                * if **k>2**, check that several permutations don't result in the same edge in **O(k)** (**len(goal_edges) == len(set(goal_edges))**, where **goal_edges** is the list of all the resulting edge if swap is accepted)
 
-    * perform_swap : update the Graph data structure depending on the swap. 
+    * **perform_swap** : 
+               update the Graph data structure depending on the swap. 
                Each swap between two edges **(u,v)** and **(x,y)** is in amortized **O(1)** time (for undirected graphs - easily generalized to directed graphs): 
 
                * getting the possition **v_idx = edges[(u,v)]** of **v** in **neighbors[u]** is in amortized O(1) (edges is a hash map), and **x_idx = edges[(y,x)]**
