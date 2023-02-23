@@ -34,14 +34,16 @@ class Graph:
             used only in directed graph, for each node
             store their neighbors from "out-edges"
         edges: dict()
-            | in undirected graph: for each edge (u,v), store the position\
-            | of v in the adjacency list of u\
-            | in directed graph: for each edge (u,v), store a quartuplet\
-            | (v_idx, u_idx, v_out_idx, u_in_idx), where:\
-            | v_idx is the position of v in u's adjacency list\
-            | u_idx is the position of u in v's adjacency list\
-            | v_out_idx is the position of v in out_neighbors[u]_\
-            | u_in_idx is the position of u in in_neighbors[v]\
+            | in undirected graph:
+            |   * for each edge (u,v), store the position\
+            |    of v in the adjacency list of u\
+            | in directed graph: 
+            |   * for each edge (u,v), store a quartuplet\
+            |     (v_idx, u_idx, v_out_idx, u_in_idx), where:\
+            |     v_idx is the position of v in u's adjacency list\
+            |     u_idx is the position of u in v's adjacency list\
+            |     v_out_idx is the position of v in out_neighbors[u]_\
+            |     u_in_idx is the position of u in in_neighbors[v]\
         unique_edges: list()
             used mostly for undirected graph, to store one version\
             of each edge

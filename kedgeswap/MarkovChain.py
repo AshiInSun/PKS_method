@@ -11,6 +11,7 @@
 
 import os
 import gzip
+import ipdb
 import argparse
 import numpy as np
 
@@ -239,31 +240,43 @@ class MarkovChain:
 
             # avoid loops
             if u == y:
-                return False, None
+                return False
 
             # avoid multiple edges
             if goal_edge in self.graph.edges:
-                return False, None
+                return False
 
         # check that we don't create multi-edges
         if not len(set(goal_edges)) == len(goal_edges):
-            return False, None
+            return False
 
         # check if joint degree matrix changes
         if self.use_jd:
             # check if joint degree matrix changed
-            updated_jd = self.update_joint_degree(edge_to_swap, permutation)
-            if not (updated_jd == self.joint_degree).all():
-                return False, None
+
+            updated_jd = self.update_joint_degree_bis(edge_to_swap, permutation)
+            jd_changed = False
+            for _, val in updated_jd.items():
+                if val != 0:
+                    jd_changed = True
+                    break
+
+            if jd_changed:
+                return False
+            #if not (updated_jd1 == self.joint_degree).all():
+            #    return False, None
+            #else:
+            #    for key in updated_jd2:
+            #        assert updated_jd2[key] == 0
         else:
-            updated_jd = None
+            updated_jd1 = None
 
         # check if total number of mutual diades changes
         if self.graph.directed and self.use_mutualdiades:
             if len(broken_diades) != len(created_diades):
-                return False, None
+                return False
 
-        return True, updated_jd
+        return True
 
     def perform_swap(self, edge_to_swap, permutation, edge_to_swap_idx):
         """
@@ -571,27 +584,27 @@ class MarkovChain:
                 goal_edge = (u, y) if u < y else (y ,u)
 
             # copy the neighborhood of u and y and alter them as if the swap was performed
-            _neighbors = dict()
-            _neighbors[u] = self.graph.neighbors[u].copy()
-            _neighbors[y] = self.graph.neighbors[y].copy()
-            if self.graph.directed:
-                v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
-                y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
-            else:
-                v_idx = self.graph.edges[(u,v)]
-                u_idx = self.graph.edges[(v,u)]
-                y_idx = self.graph.edges[(x,y)]
-                x_idx = self.graph.edges[(y,x)]
-            
-            _neighbors[u][v_idx] = y
-            _neighbors[y][x_idx] = u
+            #_neighbors = dict()
+            #_neighbors[u] = self.graph.neighbors[u].copy()
+            #_neighbors[y] = self.graph.neighbors[y].copy()
+            #if self.graph.directed:
+            #    v_idx, u_idx, v_out_idx, u_in_idx = self.graph.edges[(u,v)]
+            #    y_idx, x_idx, y_out_idx, x_in_idx = self.graph.edges[(x,y)]
+            #else:
+            #    v_idx = self.graph.edges[(u,v)]
+            #    u_idx = self.graph.edges[(v,u)]
+            #    y_idx = self.graph.edges[(x,y)]
+            #    x_idx = self.graph.edges[(y,x)]
+            #
+            #_neighbors[u][v_idx] = y
+            #_neighbors[y][x_idx] = u
 
 
             # get degree of each node involved
-            deg_u = len(_neighbors[u]) - 1
+            deg_u = len(self.graph.neighbors[u]) - 1
             deg_v = len(self.graph.neighbors[v]) -1
             deg_x = len(self.graph.neighbors[x]) -1
-            deg_y = len(_neighbors[y]) -1
+            deg_y = len(self.graph.neighbors[y]) -1
 
 
             # update the joint degree values for the previous degrees
@@ -605,6 +618,55 @@ class MarkovChain:
             updated_joint_degree[max(deg_u, deg_y), min(deg_u, deg_y)] += 1#/2
 
         return updated_joint_degree
+
+    def update_joint_degree_bis(self, edge_to_swap, permutation):
+        """ Given a permutation, compute the changed in the joint degree matrix.
+            Compute the update by copying the joint degree matrix, looping over
+            each edge swap, decrementing the joint degree value for the 'old' edges
+            and incrementing the joint degree value for the 'new' edges.
+
+
+            Parameters:
+            edge_to_swap : list of the edges to swap
+            permutation  : list of the edges with which we should swap the\
+                           edges in edge_to_swap
+
+            Return :
+            updated_joint_degree : np.array, the updated version of the joint degree matrix\
+                                   if the permutation given in input is performed.
+
+        """
+        # get copy of joint degree matrix
+        #updated_joint_degree = self.joint_degree.copy()
+        updated_joint_degree = defaultdict(int)
+
+        # loop over each edge swap
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
+
+            if self.graph.directed:
+                goal_edge = (u, y)
+            else:
+                goal_edge = (u, y) if u < y else (y ,u)
+
+            # get degree of each node involved
+            deg_u = len(self.graph.neighbors[u]) - 1
+            deg_v = len(self.graph.neighbors[v]) -1
+            deg_x = len(self.graph.neighbors[x]) -1
+            deg_y = len(self.graph.neighbors[y]) -1
+
+
+            # update the joint degree values for the previous degrees
+            updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)] -= 1/2
+            updated_joint_degree[max(deg_u, deg_v), min(deg_u, deg_v)] -= 1/2
+
+            updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)] -= 1/2
+            updated_joint_degree[max(deg_x, deg_y), min(deg_x, deg_y)] -= 1/2
+
+            updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)] += 1#/2
+            updated_joint_degree[max(deg_u, deg_y), min(deg_u, deg_y)] += 1#/2
+
+        return updated_joint_degree
+
 
     def run(self, N_swap=None):
         """
@@ -671,7 +733,7 @@ class MarkovChain:
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
-            accept_permutation, updated_jd = self.check_swap(edge_to_swap, permutation)
+            accept_permutation = self.check_swap(edge_to_swap, permutation)
 
             # if swap is accepted, perform swap and update graph metrics values
             if (accept_permutation):

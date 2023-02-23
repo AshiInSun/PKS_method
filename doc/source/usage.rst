@@ -3,13 +3,13 @@
 Usage
 =====
 
-- The *kedgeswap* package builds tools to generate random graphs picked uniformly given certain 
+- The **kedgeswap** package builds tools to generate random graphs picked uniformly given certain 
   constraints (simple graph with fixed degree sequence, directed simple graph with fixed degree sequence, simple graph with fixed joint degree matrix ...).
 
 Input Format
 ------------
 
-- This package takes as input a simple graph as a space separated edge list: 
+- This package takes as input a simple graph as an edge list (one line corresponds to an edge, two nodes are seperated by a space or tabulation):
 
    | 1 2
    | 3 5
@@ -30,7 +30,7 @@ Output
 Constraints
 -----------
 
-- This package generates uniformly randomly picked *simple* graphs *without loops*.
+- This package generates uniformly randomly picked **simple** graphs **without loops**.
 
 - Several constraints can be used to generate the graphs:
 
@@ -67,13 +67,13 @@ Command Line Interface
 
   - Constraint definition:
 
-    * -jd : enable if you want to generate samples with a fixed joint degree matrix. Warning: only works with "-t" option to follow convergence (assortativity is constant when joint degree matrix is fixed).
+    * -jd : enable if you want to generate samples with a fixed joint degree matrix. Warning: only works with *-t* option to follow convergence (assortativity is constant when joint degree matrix is fixed).
 
-    * -md : enable to generate samples with a fixed number of mutual dyads. Warning: only works on directed graphs.
+    * -md : enable to generate samples with a fixed number of mutual dyads. Warning: only works on directed graphs (*-d*).
 
-    * -t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with "-a".
+    * -t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with *-a*.
 
-    * -a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with "-t" or "-jd".
+    * -a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with *-t* or *-jd*.
 
   - Optional arguments:
 

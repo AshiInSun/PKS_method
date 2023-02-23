@@ -94,6 +94,8 @@ Code python pour les expériences de génération de graphes aléatoires
    | gotelli finches | no | yes | 36 (17 + 19) | 55 | 0.17027 | -0.44 | - | - |
    | krackhardt | yes | no | 21 | 100 | 0.23810 | -0.184 | 100 | 44 |
    | chiloe_polinators | no | yes | 155 (129 + 26) | 312 | 0.09302 | -0.57958 | - | - |
+   | crime | no | yes | 1380 | 1476 | 
+
 
 ## Comparaison temps execution des méthodes d'estimation de eta
 
