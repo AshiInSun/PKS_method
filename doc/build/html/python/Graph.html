@@ -160,7 +160,11 @@ store their neighbors from “out-edges”</p>
 <dt class="sig sig-object py" id="kedgeswap.Graph.Graph.edges">
 <span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.edges" title="Permalink to this definition"></a></dt>
 <dd><div class="line-block">
-<div class="line">in undirected graph: for each edge (u,v), store the position            | of v in the adjacency list of u            | in directed graph: for each edge (u,v), store a quartuplet            | (v_idx, u_idx, v_out_idx, u_in_idx), where:            | v_idx is the position of v in u’s adjacency list            | u_idx is the position of u in v’s adjacency list            | v_out_idx is the position of v in out_neighbors[u]_            | u_in_idx is the position of u in in_neighbors[v]        unique_edges: list()</div>
+<div class="line">in undirected graph:</div>
+<div class="line-block">
+<div class="line">* for each edge (u,v), store the position            |    of v in the adjacency list of u            | in directed graph:</div>
+<div class="line">* for each edge (u,v), store a quartuplet            |     (v_idx, u_idx, v_out_idx, u_in_idx), where:            |     v_idx is the position of v in u’s adjacency list            |     u_idx is the position of u in v’s adjacency list            |     v_out_idx is the position of v in out_neighbors[u]_            |     u_in_idx is the position of u in in_neighbors[v]        unique_edges: list()</div>
+</div>
 </div>
 <p>used mostly for undirected graph, to store one version            of each edge</p>
 <dl class="field-list simple">

@@ -15,5 +15,6 @@ kedge_swap's documentation!
 
    installation
    usage
+   development
    benchmark
    python/index

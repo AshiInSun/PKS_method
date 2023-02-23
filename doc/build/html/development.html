@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development guide &mdash; kedge_swap 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Benchmark" href="benchmark.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> kedge_swap
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#package-structure">Package Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#graph">Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#markovchain">MarkovChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stat">Stat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution">Contribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">kedge_swap</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Development guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/development.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="development-guide">
+<span id="development"></span><h1>Development guide<a class="headerlink" href="#development-guide" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p>The aim of this guide is to give a quick understanding of the package’s structure. If you want to modify or add content to the package, this page should help you !</p></li>
+</ul>
+<section id="package-structure">
+<h2>Package Structure<a class="headerlink" href="#package-structure" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>This package is made of three classes that interact with each other:</p>
+<ul>
+<li><p>Graph: The Graph object reads the input graph and store it in a data structure described below. The graph is <em>simple</em>, <em>without loops</em>, can be <em>undirected</em> or <em>directed</em>, and can be <em>bipartite</em>. To add new input format, or to modify the data structure, this is the class to check.</p></li>
+<li><p>MarkovChain: The MarkovChain object selects the edges to swap, check the constraints, performs the swaps and measures some metrics on the graph (e.g. the assortativity value, the number of triangles etc..). To add new constraints on the MarkovChain (e.g. fixed number of triangles) or to measure other values (number of a certain pattern), this is the class to check.</p></li>
+<li><p>Stat: The Stat object estimates the sampling gap of the Markov Chain, and check if the Markov Chain has converged. To adapt the sampling gap estimation, or to implement other methods to check for the Markov Chain convergence, this is the class to check.</p></li>
+</ul>
+</li>
+<li><p>You will find below some insights on the implementations of each class.</p></li>
+</ul>
+</section>
+<section id="graph">
+<h2>Graph<a class="headerlink" href="#graph" title="Permalink to this heading"></a></h2>
+<ul>
+<li><p>The Graph object stores a <em>simple</em> graph. The data structure used for the graph is,</p>
+<ul>
+<li><p>for undirected, directed and bipartite graphs:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>M and N: int</dt><dd><p>respectively store the number of edges and the number of nodes of the graph. Both remain constant during the swapping process.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>neighbors: dict(list)</dt><dd><p>Stores the adjacency list for each node of the graph. Given that the structure is a dict (hash map), getting the adjacency list of a node is in O(1), amortized time.
+<em>neighbors</em> is used to store the neighbors of each node, and is updated at each swap.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>unique_edges: list</dt><dd><p>Stores one exemplar of each edge of the graph. <em>unique_edges</em> is used to uniformly pick random edges of the graph, and is updated at each swap.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>directed: bool</dt><dd><p>Indicates if the graph is directed or not.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>for undirected graphs:</p>
+<blockquote>
+<div><ul>
+<li><dl>
+<dt>edges: dict(int)</dt><dd><p>For each edge <strong>(u,v)</strong>, it stores the position of <strong>v</strong> in the adjacency list of <strong>u</strong>.
+E.g.
+..code-block:: python</p>
+<blockquote>
+<div><p>v_idx = edges[(u,v)]
+u_idx = edges[(v,u)]
+neighbors[u][v_idx] == v # True
+neighbors[v][u_idx] == u # True</p>
+</div></blockquote>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>for directed graphs:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>in_neighbors and out_neighbors: dict(list)</dt><dd><p>For each node <strong>u</strong> of the graph, respectively store the incoming neighbors and outgoing neighbors of <strong>u</strong>. This structure is used for example to check on mutual dyads and is updated during each swap.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>edges: dict(tuple)</dt><dd><p>For each edge <strong>(u,v)</strong>, it stores the position of <strong>v</strong> in <strong>neighbors[u]</strong>, in <strong>out_neighbors[u]</strong>, and the position of <strong>u</strong> in <strong>neighbors[v]</strong> and in <strong>in_neighbors[v]</strong>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="markovchain">
+<h2>MarkovChain<a class="headerlink" href="#markovchain" title="Permalink to this heading"></a></h2>
+<ul>
+<li><p>The main function of the MarkovChain object is the <strong>run</strong> methods, that calls all the others depending on the input constraints. To add new constraints, update the <strong>check_swap</strong> methods, that accepts or rejects a swap depending on the constraints.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pick_k : choose a <strong>k</strong> value following a powerlaw distribution with exponent <strong>gamma</strong></p></li>
+<li><p>find_swap : uniformly choose <strong>k</strong> edges to swap, and a permutation.</p></li>
+<li><dl class="simple">
+<dt>check_swap<span class="classifier">check that the chosen swap respects each constraint. The complexity depends on the constraints.</span></dt><dd><p>For undirected graph, with fixed degree sequence constraint (the basic case), for each swap between <strong>(u,v)</strong> and <strong>(x,y)</strong>:</p>
+<ul>
+<li><p>check that it doesn’t create a loop (<strong>u != y</strong>) in <strong>O(1)</strong></p></li>
+<li><p>check that swapped edge doesn’t exist (<strong>(u,y) not in graph.edges</strong>) in <strong>O(1)</strong></p></li>
+<li><p>if <strong>k&gt;2</strong>, check that several permutations don’t result in the same edge in <strong>O(k)</strong> (<strong>len(goal_edges) == len(set(goal_edges))</strong>, where <strong>goal_edges</strong> is the list of all the resulting edge if swap is accepted)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>perform_swap<span class="classifier">update the Graph data structure depending on the swap.</span></dt><dd><p>Each swap between two edges <strong>(u,v)</strong> and <strong>(x,y)</strong> is in amortized <strong>O(1)</strong> time (for undirected graphs - easily generalized to directed graphs):</p>
+<ul>
+<li><p>getting the possition <strong>v_idx = edges[(u,v)]</strong> of <strong>v</strong> in <strong>neighbors[u]</strong> is in amortized O(1) (edges is a hash map), and <strong>x_idx = edges[(y,x)]</strong></p></li>
+<li><p>updating the value <strong>neighbors[u][v_idx] = y</strong> is in amortized <strong>O(1)</strong></p></li>
+<li><p>deleting <strong>edges[(u,v)]</strong> and <strong>edges[(v,u)]</strong> is in amortized <strong>O(1)</strong></p></li>
+<li><p>adding <strong>edges[(u,y)] = y</strong> and <strong>edges[(y,u)]=x_idx</strong> is in amortized <strong>O(1)</strong></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Other methods are implemented to measure some metrics on the graph. Each metric has an “init” and an “update” function, the “init” computes the value for the input graph, then the “update” methods updates it after each swap without having to compute it again for edges that haven’t changed.</p></li>
+</ul>
+</section>
+<section id="stat">
+<h2>Stat<a class="headerlink" href="#stat" title="Permalink to this heading"></a></h2>
+<ul>
+<li><p>The Stat class implements methods to estimate the sampling gap of the MarkovChain object, and follows its convergence.</p></li>
+<li><p>The sampling gap is the number of required steps of the <em>converged</em> Markov Chain between two samples to ensure that both samples are uncorrelated.</p></li>
+<li><p>Two methods are implemented to choose a sampling gap:</p>
+<ul>
+<li><p>estimate_sampling_gap:</p>
+<ul>
+<li><p>First run a <em>burn-in</em> step to obtain a fully converged Markov Chain</p></li>
+<li><p>Estimate the acceptation rate <strong>A</strong> of the Markov Chain on the burn-in</p></li>
+<li><p>initialize the sample gap value at <strong>eta = M/A ** where **M</strong> is the number of edges in the graph and <strong>A</strong> the acceptation rate of the chain.</p></li>
+<li><p>Starting from the same final step of the <em>burn-in</em>, run <strong>10</strong> different chains for <strong>500eta</strong> steps, measuring <strong>1</strong> assortativity (or number of triangles) each <strong>eta</strong> step.</p></li>
+<li><p>If the autocorellation with lag 1 of each timeserie of assortativities (or number of triangles) returns that at least <strong>9</strong> out of the <strong>10</strong> chains are not correlated, the sampling gap is considered valid.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If the sampling gap <strong>eta</strong> is valid, try <strong>eta=eta/2</strong></p></li>
+<li><p>If not, try <strong>eta=2eta</strong></p></li>
+<li><p>start as soon as the comportment changes and return the last valid eta value.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+<li><p>run_dfgls:</p>
+<blockquote>
+<div><ul>
+<li><p>if no <strong>eta</strong> value is given in input, estimate an <strong>eta</strong> value</p></li>
+<li><p>while the MarkovChain is not converged:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>run the MarkovChain object for <strong>eta</strong> step and collect the assortativity (or number of triangles) at each step.</p></li>
+<li><p>after <strong>eta</strong> steps, check if the timeserie of assortativity values (or number of triangles) has converged using a DFGLS test.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="contribution">
+<h2>Contribution<a class="headerlink" href="#contribution" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>To contribute to the package, you can put issues on the gitlab repository to either report a bug or a problem, or to ask a question.</p></li>
+<li><p>Any pull request will be reviewed and integrated if the contribution is within the scope of the project.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="benchmark.html" class="btn btn-neutral float-right" title="Benchmark" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, lionel tabourier, julien karadayi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

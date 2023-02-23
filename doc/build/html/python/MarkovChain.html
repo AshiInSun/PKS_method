@@ -102,8 +102,8 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.pick_k">
 <span class="sig-name descname"><span class="pre">pick_k</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.pick_k"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.pick_k" title="Permalink to this definition"></a></dt>
-<dd><p>Pick k value using zipf distribution.
-Use modulo to force k to be equal to the number of edges in the graph at max.</p>
+<dd><p>Pick k value using powerlaw distribution. The exponent of the powerlaw can be fixed by the
+gamma argument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>k</strong> (<em>int</em>) – number of edges to swap</p>
@@ -114,10 +114,7 @@ Use modulo to force k to be equal to the number of edges in the graph at max.</p
 <dl class="py method">
 <dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.find_swap">
 <span class="sig-name descname"><span class="pre">find_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.find_swap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.find_swap" title="Permalink to this definition"></a></dt>
-<dd><p>Edge_to_swap donne list des liens à changer
-swap donne avec quel lien changer chaque lien de edge_to_swap
-ex:</p>
-<p>Randomly pick k edges to swap, and randomly pick a permutation
+<dd><p>Randomly pick k edges to swap, and randomly pick a permutation
 When self.force_k == True, permutation is a cyclic permutation,
 else it is a random permutation, with possible identity for some edges.</p>
 <dl class="field-list simple">
@@ -128,6 +125,7 @@ else it is a random permutation, with possible identity for some edges.</p>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>edge_to_swap</strong> (<em>list(tuples)</em>) – list of the edges to swap</p></li>
 <li><p><strong>permutation</strong> (<em>list(tuples)</em>) – list of the edges with which we should swap the                edges in edge_to_swap</p></li>
+<li><p><strong>_edge_to_swap</strong> (<em>list(int)</em>) – indexes in unique_edges of the edges in edge_to_swap</p></li>
 </ul>
 </p>
 </dd>
