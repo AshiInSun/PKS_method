@@ -382,7 +382,7 @@ def test_update_joint_degree(handcrafted):
     permutation = [(5, 6), (1, 2)]
     edge_to_swap_idx = [1, 8]
 
-    updated_joint_degree = mc.update_joint_degree(edge_to_swap, permutation)
+    updated_joint_degree = mc.update_joint_degree_old(edge_to_swap, permutation)
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
     mc.init_joint_degree()
     assert (mc.joint_degree == updated_joint_degree).all()
@@ -399,7 +399,7 @@ def test_update_joint_degree_directed(japanese_macaques):
     accept_permutation = mc.check_swap(edge_to_swap, permutation)
     mc.init_joint_degree()
 
-    updated_joint_degree = mc.update_joint_degree(edge_to_swap, permutation)
+    updated_joint_degree = mc.update_joint_degree_old(edge_to_swap, permutation)
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
     mc.init_joint_degree()
     assert (mc.joint_degree == updated_joint_degree).all()

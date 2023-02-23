@@ -254,7 +254,7 @@ class MarkovChain:
         if self.use_jd:
             # check if joint degree matrix changed
 
-            updated_jd = self.update_joint_degree_bis(edge_to_swap, permutation)
+            updated_jd = self.update_joint_degree(edge_to_swap, permutation)
             jd_changed = False
             for _, val in updated_jd.items():
                 if val != 0:
@@ -555,8 +555,10 @@ class MarkovChain:
                 self.joint_degree[min(deg_1, deg_2), max(deg_1, deg_2)] += 1/2
                 self.joint_degree[max(deg_1, deg_2), min(deg_1, deg_2)] += 1/2
 
-    def update_joint_degree(self, edge_to_swap, permutation):
-        """ Given a permutation, compute the changed in the joint degree matrix.
+    def update_joint_degree_old(self, edge_to_swap, permutation):
+        """ 
+            DEPRECATED - Only used for unit testing !
+            Given a permutation, compute the changed in the joint degree matrix.
             Compute the update by copying the joint degree matrix, looping over
             each edge swap, decrementing the joint degree value for the 'old' edges
             and incrementing the joint degree value for the 'new' edges.
@@ -619,7 +621,7 @@ class MarkovChain:
 
         return updated_joint_degree
 
-    def update_joint_degree_bis(self, edge_to_swap, permutation):
+    def update_joint_degree(self, edge_to_swap, permutation):
         """ Given a permutation, compute the changed in the joint degree matrix.
             Compute the update by copying the joint degree matrix, looping over
             each edge swap, decrementing the joint degree value for the 'old' edges
