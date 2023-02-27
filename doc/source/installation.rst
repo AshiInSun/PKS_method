@@ -13,6 +13,7 @@ Requirements
 - progressbar
 - pytest
 - joblib
+- ipdb - (should not be needed but can be useful for debugging)
 
 Installation
 ------------
