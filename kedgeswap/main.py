@@ -115,13 +115,20 @@ def main():
         parser.print_help()
         sys.exit()
 
+    # some sanity checks
+    ## check coherence of parameters
     if (args.assortativity and args.jointdegree):
-        print("warning: assortivity is constant when using fixed joint degree constraint. Use -t to follow convergence. Exiting...")
+        print("Error: assortivity is constant when using fixed joint degree constraint. Use -t to follow convergence. Exiting...")
         sys.exit()
 
     if (args.mutualdiades and not args.directed):
-        print("warning: can't follow number of mutual diades when graph is not directed (reciprocal links can only exist in directed graphs)")
+        print("Error: can't follow number of mutual diades when graph is not directed (reciprocal links can only exist in directed graphs)")
         sys.exit()
+
+    if (not args.assortativity) and (not args.triangles):
+        print('Error: no value selected to estimate convergence. Please select -a for assortativity, or -t for the number of triangles.\n We recommend -a for the fixed degree sequence condition, and -t for the fixed joint degree matrix condition')
+        sys.exit()
+
 
     run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, 
             args.assortativity, args.mutualdiades, args.turbo, 
