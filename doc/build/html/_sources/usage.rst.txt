@@ -64,16 +64,15 @@ Command Line Interface
 
     * -d : enable if the input graph is directed or bipartite.
 
+    * -a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with *-t* or *-jd*. We recommend -a for the fixed degree sequence condition and fixed number of mutual dyads condition.
+
+    * -t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with *-a*. We recommend -t for the fixed joint degree matrix condition.
 
   - Constraint definition:
 
     * -jd : enable if you want to generate samples with a fixed joint degree matrix. Warning: only works with *-t* option to follow convergence (assortativity is constant when joint degree matrix is fixed).
 
     * -md : enable to generate samples with a fixed number of mutual dyads. Warning: only works on directed graphs (*-d*).
-
-    * -t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with *-a*.
-
-    * -a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with *-t* or *-jd*.
 
   - Optional arguments:
 
