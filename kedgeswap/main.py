@@ -21,7 +21,7 @@ from kedgeswap.MarkovChain import MarkovChain
 def run(dataset, directed, gamma, use_jd, 
         use_triangles, use_assortativity, mutualdiades, turbo, 
         eta, output, verbose, keep_record, log_dir, 
-        output_number, debug):
+        output_number, debug, njobs):
 
     # read graph
     print('Reading graph...')
@@ -36,7 +36,7 @@ def run(dataset, directed, gamma, use_jd,
             keep_record=keep_record, log_dir=log_dir, debug=debug)
 
     # initialize metrics
-    stat = Stat(mc, eta, turbo, verbose)
+    stat = Stat(mc, eta, turbo, verbose, njobs)
 
     # start run
     print('Starting Markov Chain convergence...')
@@ -87,6 +87,7 @@ def main():
             'This method (over)estimates empirically a sampling ')
 
    
+    # assortativity and triangles cannot be selected together
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-a', '--assortativity', action='store_true', default=False,
             help='enable to estimate the convergence using the assortativity. -a and -t are mutually exclusive.'
@@ -108,6 +109,8 @@ def main():
             help='save all the intermidiate graphs and the swaps')
     parser.add_argument('--log_dir', default=None,
             help='When keep_record enabled, can save all logs in a directory specified by log_dir.')
+    parser.add_argument('--njobs', default=5,
+            help='Parallelisation : Number of CPU to use during eta estimation step. By default <= 5, can be set to 1 if no parallelisation is wanted.')
 
 
     args = parser.parse_args()
@@ -133,7 +136,8 @@ def main():
     run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, 
             args.assortativity, args.mutualdiades, args.turbo, 
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
-            args.output_number, args.debug)
+            args.output_number, args.debug, args.njobs)
+    
 
 if __name__ == "__main__":
     main()

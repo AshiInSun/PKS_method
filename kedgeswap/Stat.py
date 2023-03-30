@@ -39,12 +39,13 @@ class Stat():
             Enable to add information to the logs
         
     """
-    def __init__(self, mc, eta=None, turbo=False, verbose=False):
+    def __init__(self, mc, eta=None, turbo=False, verbose=False, njobs=1):
         #self.use_ks = use_ks
         self.mc = mc # markov chain
         self.eta = eta
         self.turbo = turbo
         self.verbose = verbose
+        self.njobs = njobs
 
     @staticmethod
     def CheckAutocorrLag1(S_T, alpha):
@@ -280,7 +281,7 @@ class Stat():
 
                 #mc[c].run()
 
-            S_Ts = Parallel(n_jobs=5)(delayed(run_chain)(c) for c in range(C))
+            S_Ts = Parallel(n_jobs=self.njobs)(delayed(run_chain)(c) for c in range(C))
             for c in range(C):
                 d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
                 d_eta += d_c
