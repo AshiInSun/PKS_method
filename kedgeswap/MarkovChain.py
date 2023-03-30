@@ -545,7 +545,7 @@ class MarkovChain:
         # initialize matrix
         self.joint_degree = np.zeros((max_degree, max_degree))
 
-        # compute matrix // WARNING : index for degree i is (i-1) 
+        # compute matrix // BEWARE : index for degree i is (i-1) 
         for node in self.graph.neighbors:
             for neighbor in self.graph.neighbors[node]:
                 deg_1 = len(self.graph.neighbors[node]) - 1
@@ -728,7 +728,7 @@ class MarkovChain:
         for swap_idx in range(N_swap):
 
             # print a dot every 1000 swap to show progress
-            if self.verbose and (swap_idx % 1000 == 0):
+            if self.verbose and (swap_idx % 50000 == 0):
                 #print(f'swap {swap_idx}/{N_swap}')
                 print('.', end='')
 
@@ -791,7 +791,7 @@ class MarkovChain:
                 window.append(len(self.triangles2edges))
 
         if self.verbose:
-            print(f'accepted : {accept_rate} , refused : {refusal_rate}')
+            print(f'accepted : {accept_rate} , refused : {refusal_rate}, acceptation rate: {float(accept_rate)/(accept_rate+refusal_rate)}')
 
         # store accept rate and refusal rate
         self.accept_rate = accept_rate
