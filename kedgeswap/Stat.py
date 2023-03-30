@@ -223,7 +223,7 @@ class Stat():
         alpha = 0.04 # significance level for each test
 
         if self.verbose:
-            print(f'estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
+            print(f'eta estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
             print(f'burn in...')
         #for c in range(C):
         #    if self.verbose:
@@ -284,28 +284,36 @@ class Stat():
             for c in range(C):
                 d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
                 d_eta += d_c
-                if self.verbose:
-                    print(f'for eta={eta}: d_eta={d_eta}, u={u}')
+                #if self.verbose:
+                #    print(f'for eta={eta}: d_eta={d_eta}, u={u}')
 
             # check if eta value is accepted - if a most u chains show no correlation 
             # on the S_T timeserie with lag 1, the value of eta is considered valid.
             if d_eta <= u:
+                if self.verbose:
+                    print('eta {eta} accepted (d_eta={d_eta} <= u={u})')
                 prev_eta = eta
                 prev_d_eta = d_eta
                 if prev_eta == eta/2:
                     # don't check eta/2 again
                     tuned = True
                 else:
+                    print('trying eta=eta/2...')
                     eta = eta/2
                 #tuned = True
             elif d_eta > u and prev_d_eta <= u:
                 prev_d_eta = d_eta
                 tuned = True
+                if self.verbose:
+                    print('eta {eta} refused (d_eta={d_eta} <= u={u}), using eta={prev_eta}.')
                 eta = prev_eta
+
             elif d_eta > u and prev_d_eta > u:
                 prev_d_eta = d_eta
                 prev_eta = eta
                 eta = 2 * eta
+                if self.verbose:
+                    print('eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
 
         return eta
 
@@ -329,7 +337,8 @@ class Stat():
                 eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
-            print(f'eta estimation {t1 - t0} seconds')
+            eta_time = t1 - t0
+            #print(f'eta estimation {t1 - t0} seconds')
         else:
             # use eta given in input
             eta = self.eta
@@ -370,5 +379,7 @@ class Stat():
                 print(f'({k}: {self.mc.refusal_rate_byk[k]})', end=', ')
             print('')
         t1 = time.time()
-        print(f'convergence {t1 - t0} seconds')
+        conv_time = t1 - t0
+        print(f'eta estimation took {eta_time} seconds')
+        print(f'convergence took {conv_time} seconds')
 
