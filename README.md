@@ -124,12 +124,14 @@ Code python pour les expériences de génération de graphes aléatoires
    | maayan | yes | fixed degree sequence | yes |  6730 | 38.82% | 8804s | 57s | 13175s |
    | krackhardt | yes | fixed degree sequence | yes |  430 | 5.80% | 484s | 12s | 563s |
    | crime | bip | fixed degree sequence | yes | 957 | 38.53% | 3979s | 17s | 3999s (no sample generation) | 
+   | wikiquotes_jp | bip | fixed degree sequence | yes | 62869 | 16.23% | 264401s | 150s | 412792s | 
    | gotelli finches | bip |  fixed degree sequence | yes | 116 | 5.92% | 260s | 5s | 284s |
    | lesmiserables | no | fixed joint degree matrix | yes | 24643 |  1.03% | 15987s | 43s | 26398s |
    | karateclub | no | fixed joint degree matrix | yes | 5053 |  1.54% | 2567s | 8s | 4184s |
    | powergrid | no | fixed joint degree matrix | yes | 197 180 | 1.54% | 1644229s | 6023s | 2001551s |
    | maayan | yes | fixed joint degree matrix | yes | 163494 | 3.2% | 516290s | 330s | 668480s |
    | celegans | no | fixed joint degree matrix | yes | - | 1.11% | - | - | en cours | 
+   | crime (gamma 8) | bip | fixed joint degree matrix | yes | 45941 | 12.85% | 11485s | 69s | 147480s | 
    | maayan | yes  | fixed number of dyads | yes | 6727 | 38.84% | 8564s | 8s | 13041s |  
    | health | yes | fixed number of dyads | yes | 32468 | 39.94% | 172813s | 431s | 255743s |
    | krackhardt | yes | fixed number of dyads | yes |  444 | 5.62% | 508s | 0.15s | 575s |
