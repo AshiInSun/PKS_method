@@ -23,7 +23,8 @@ dependencies = [
     "pytest",
     "arch",
     "progressbar",
-    "joblib"
+    "joblib",
+    "ipdb"
 ]
 
 [project.urls]

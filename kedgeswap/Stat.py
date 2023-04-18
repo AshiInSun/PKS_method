@@ -39,12 +39,13 @@ class Stat():
             Enable to add information to the logs
         
     """
-    def __init__(self, mc, eta=None, turbo=False, verbose=False):
+    def __init__(self, mc, eta=None, turbo=False, verbose=False, njobs=1):
         #self.use_ks = use_ks
         self.mc = mc # markov chain
         self.eta = eta
         self.turbo = turbo
         self.verbose = verbose
+        self.njobs = njobs
 
     @staticmethod
     def CheckAutocorrLag1(S_T, alpha):
@@ -280,7 +281,7 @@ class Stat():
 
                 #mc[c].run()
 
-            S_Ts = Parallel(n_jobs=5)(delayed(run_chain)(c) for c in range(C))
+            S_Ts = Parallel(n_jobs=self.njobs)(delayed(run_chain)(c) for c in range(C))
             for c in range(C):
                 d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
                 d_eta += d_c
@@ -337,7 +338,8 @@ class Stat():
                 eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
-            print(f'eta estimation {t1 - t0} seconds')
+            eta_time = t1 - t0
+            #print(f'eta estimation {t1 - t0} seconds')
         else:
             # use eta given in input
             eta = self.eta
@@ -378,5 +380,7 @@ class Stat():
                 print(f'({k}: {self.mc.refusal_rate_byk[k]})', end=', ')
             print('')
         t1 = time.time()
-        print(f'convergence {t1 - t0} seconds')
+        conv_time = t1 - t0
+        print(f'eta estimation took {eta_time} seconds')
+        print(f'convergence took {conv_time} seconds')
 
