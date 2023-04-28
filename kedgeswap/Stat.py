@@ -242,7 +242,7 @@ class Stat():
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
 
         if self.verbose:
-            print('acceptation/refusals by k')
+            print('Burn In : acceptation/refusals by k')
             print(burn_in.accept_rate_byk)
             print(burn_in.refusal_rate_byk)
 
@@ -372,11 +372,11 @@ class Stat():
 
         # some verbose output
         if self.verbose:
-            print('acceptation by k')
+            print('Convergence : acceptation by k')
             for k in self.mc.accept_rate_byk:
                 print(f'({k}: {self.mc.accept_rate_byk[k]})', end=', ')
 
-            print('\nrefusal by k')
+            print('\nConvergence : refusal by k')
             for k in self.mc.refusal_rate_byk:
                 print(f'({k}: {self.mc.refusal_rate_byk[k]})', end=', ')
             print('')
