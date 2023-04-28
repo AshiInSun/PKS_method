@@ -343,6 +343,7 @@ class Stat():
         else:
             # use eta given in input
             eta = self.eta
+            eta_time = 0
 
         # Run the markov chain, and check its convergence using the DFGLS test
         has_converged = False

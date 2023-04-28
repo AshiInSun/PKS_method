@@ -728,9 +728,9 @@ class MarkovChain:
         for swap_idx in range(N_swap):
 
             # print a dot every 1000 swap to show progress
-            if self.verbose and (swap_idx % 50000 == 0):
-                #print(f'swap {swap_idx}/{N_swap}')
-                print('.', end='')
+            #if self.verbose and (swap_idx % 50000 == 0):
+            #    #print(f'swap {swap_idx}/{N_swap}')
+            #    print('.', end='')
 
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
@@ -790,8 +790,8 @@ class MarkovChain:
             elif self.use_triangles:
                 window.append(len(self.triangles2edges))
 
-        if self.verbose:
-            print(f'accepted : {accept_rate} , refused : {refusal_rate}, acceptation rate: {float(accept_rate)/(accept_rate+refusal_rate)}')
+        #if self.verbose:
+        #    print(f'accepted : {accept_rate} , refused : {refusal_rate}, acceptation rate: {float(accept_rate)/(accept_rate+refusal_rate)}')
 
         # store accept rate and refusal rate
         self.accept_rate = accept_rate

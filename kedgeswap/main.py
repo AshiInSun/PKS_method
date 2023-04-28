@@ -109,7 +109,7 @@ def main():
             help='save all the intermidiate graphs and the swaps')
     parser.add_argument('--log_dir', default=None,
             help='When keep_record enabled, can save all logs in a directory specified by log_dir.')
-    parser.add_argument('--njobs', default=5,
+    parser.add_argument('--njobs', default=5, type=int,
             help='Parallelisation : Number of CPU to use during eta estimation step. By default <= 5, can be set to 1 if no parallelisation is wanted.')
 
 
