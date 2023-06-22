@@ -1,0 +1,17 @@
+stages:
+  - build
+  - test
+
+build-job:
+    stage: build
+    image: python:3.9
+    script:
+        - pip install ./
+
+test-job:
+    stage: test
+    image: python:3.9
+    before_script:
+        - pip install ./
+    script:
+        - pytest -v tests/
