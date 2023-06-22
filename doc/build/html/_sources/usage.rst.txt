@@ -3,13 +3,22 @@
 Usage
 =====
 
-- The **kedgeswap** package builds tools to generate random graphs picked uniformly given certain 
-  constraints (simple graph with fixed degree sequence, directed simple graph with fixed degree sequence, simple graph with fixed joint degree matrix ...).
+- The **kedgeswap** package provides a program to generate random simple graphs uniformly with a given set of target constraints:
+	
+	* undirected graphs with a fixed degree sequence
+
+	* directed graphs with a fixed degree sequence
+
+	* bipartite graphs with a fixed degree sequence
+
+	* directed graphs with a fixed degree sequence and a fixed number of mutual dyads
+
+	* undirected graphs with a fixed joint degree matrix
 
 Input Format
 ------------
 
-- This package takes as input a simple graph as an edge list (one line corresponds to an edge, two nodes are seperated by a space or tabulation):
+- The program takes as input a simple graph described as an edge list (one line corresponds to an edge, two nodes are seperated by a space or tabulation):
 
    | 1 2
    | 3 5
@@ -25,23 +34,23 @@ Input Format
 Output
 ------
 
-- This package generates graphs picked uniformely randomly from the set of graphs with the same degree sequence as the input graph. You can put additional constraints on the set.
+- The program generates a sample of graphs selected uniformly at random from the set of graphs with the same target constraints as the input graph.
 
-Constraints
------------
+Target Constraints
+------------------
 
-- This package generates uniformly randomly picked **simple** graphs **without loops**.
+- The program generates uniformly at random **simple** graphs (no loops, no multiedges).
 
-- Several constraints can be used to generate the graphs:
+- Several target constraints are available:
 
-    * fixed degree sequence: the first constraint (defined by default). Can be applied on several "flavours" of simple graphs: undirected, directed, biparatite. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).
+    * fixed degree sequence (default): Can be applied on several "flavours" of simple graphs: undirected, directed, bipartite. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).
 
-    * fixed joint degree matrix: a more complex constraint. Can also be aplied to undirected, directed and bipartite graphs. The model convergence can only be evaluated by following the number of triangles (-t), as the assortativity will remain constant.
+    * fixed joint degree matrix: Can be aplied to undirected, directed and bipartite graphs. The model convergence can only be evaluated by following the number of triangles (-t), as the assortativity is constant.
 
-    * fixed number of dyads: can only be applied to directed graphs. A mutual dyad occurs when the graph contain links in two directions between two nodes, this constraint fixes the total number of mutual dyads in the graph.
+    * fixed number of mutual dyads: Can only be applied to directed graphs. A mutual dyad occurs when the graph contain links in two directions between two nodes, this constraint fixes the total number of mutual dyads in the graph. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).
 
 .. note::
-    Additional constraints can be defined by adding them to the
+    A user can add to the code additional constraints by adding them to the
     MarkovChain class. The constraints should be added in the 
     **check_swap** method, used to verify if an edge swap is valid or not.
     An argument to select this constraint can then be added to the list 
@@ -51,6 +60,7 @@ Command Line Interface
 ----------------------
 
 - Usage example, in the root folder of the package: 
+
     python kedgeswap/main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out
 
 
@@ -58,37 +68,35 @@ Command Line Interface
 
   - Required arguments: 
 
-    * -f : path to the edge list input file.
+    * -f <path> : path to the input file.
 
-    * -o : path to the output files. Will write *N* output graphs with this prefix as filename, where *N* is fixed by the *--output_number* parameter (see Optional arguments, defaults to 1000).
+    * -o <path> : path to the output files. Will write *N* output graphs with this prefix as filename, where *N* is fixed by the *\-\-output_number* parameter (see Optional arguments).
 
     * -d : enable if the input graph is directed or bipartite.
 
-    * -a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with *-t* or *-jd*. We recommend -a for the fixed degree sequence condition and fixed number of mutual dyads condition.
+    * -a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with *-t* or *-jd*.
 
-    * -t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with *-a*. We recommend -t for the fixed joint degree matrix condition.
+    * -t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with *-a*. 
 
-  - Constraint definition:
+    * -jd : (target constraint argument) enable to generate sample of graphs with a fixed joint degree matrix. Warning: only works with *-t* option to follow convergence (assortativity is constant when joint degree matrix is fixed).
 
-    * -jd : enable if you want to generate samples with a fixed joint degree matrix. Warning: only works with *-t* option to follow convergence (assortativity is constant when joint degree matrix is fixed).
-
-    * -md : enable to generate samples with a fixed number of mutual dyads. Warning: only works on directed graphs (*-d*).
+    * -md : (target constraint argument) enable to generate sample of graphs with a fixed number of mutual dyads. Warning: only works on directed graphs (*-d* option).
 
   - Optional arguments:
 
-    * -v : optional: enable to be more verbose. Adds the Markov Chains status to the logs, number of accepted/rejected swaps, DFGLS output to follow convergence...
+    * -v : enable to be more verbose. Adds the Markov Chain status to the logs, number of accepted/rejected swaps, DFGLS output to follow convergence.
 
-    * -g : exponent of the 1/(n^g) law used to pick the number of edges to swap.
+    * -g <positive integer>: exponent of the probability law used to pick the number of edges to swap.
 
-    * -e : sampling gap between each generated graph. If not specified, will use a (very slow) estimation method.
+    * -e <positive integer>: sampling gap between each generated graph. If not specified, will use a (slow) estimation method.
 
-    * --output_number: number *N* of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.
+    * \-\-output_number <positive integer>: number *N* of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.
 
-    * --debug: makes some additional checks, like checking that the degree sequences hasn't changed after each swap. Slows down everything, only used for debuggin purposes.
+    * \-\-debug : makes some additional checks, like checking that the degree sequences hasn't changed after each swap. Slows down everything, only used for debuggin purposes.
 
-    * --keep_record : optional: enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a very large number of files, mostly useful for debug purposes) 
+    * \-\-keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a very large number of files, mostly useful for debug purposes) 
 
-    * --log_dir : optional: only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain
+    * \-\-log_dir : only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain
 
 
 
