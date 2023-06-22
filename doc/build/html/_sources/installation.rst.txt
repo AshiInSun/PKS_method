@@ -6,14 +6,14 @@ Installation
 Requirements
 ------------
 
-- pip and setuptools. To upgrade to final version : pip install --upgrade pip setuptools wheel
+- pip and setuptools. To upgrade to final version : pip install \-\-upgrade pip setuptools wheel
 - arch : pip install arch
 - numpy
 - argparse
 - progressbar
 - pytest
 - joblib
-- ipdb - (should not be needed but can be useful for debugging)
+- ipdb - (not needed but useful for debugging)
 
 Installation
 ------------

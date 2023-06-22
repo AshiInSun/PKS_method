@@ -1,21 +1,18 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stat &mdash; kedge_swap 1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Stat &mdash; kedge_swap 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -30,7 +27,7 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
+          <a href="../contents.html" class="icon icon-home">
             kedge_swap
           </a>
 <div role="search">
@@ -41,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
@@ -51,10 +48,7 @@
 <li class="toctree-l2"><a class="reference internal" href="Graph.html">Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MarkovChain.html">MarkovChain</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Stat</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-kedgeswap.Stat">Stat Class</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#kedgeswap.Stat.Stat"><code class="docutils literal notranslate"><span class="pre">Stat</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kedgeswap.Stat">Stat Class</a></li>
 </ul>
 </li>
 </ul>
@@ -67,14 +61,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">kedge_swap</a>
+          <a href="../contents.html">kedge_swap</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../contents.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Python API Documentation</a></li>
       <li class="breadcrumb-item active">Stat</li>
       <li class="wy-breadcrumbs-aside">
@@ -86,82 +80,83 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="stat">
-<span id="stat-class"></span><h1>Stat<a class="headerlink" href="#stat" title="Permalink to this heading"></a></h1>
-<nav class="contents local" id="contents">
+  <div class="section" id="stat">
+<span id="stat-class"></span><h1>Stat<a class="headerlink" href="#stat" title="Permalink to this headline"></a></h1>
+<div class="contents local topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#module-kedgeswap.Stat" id="id2">Stat Class</a></p></li>
+<li><a class="reference internal" href="#module-kedgeswap.Stat" id="id2">Stat Class</a></li>
 </ul>
-</nav>
-<section id="module-kedgeswap.Stat">
-<span id="id1"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Stat Class</a><a class="headerlink" href="#module-kedgeswap.Stat" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="kedgeswap.Stat.Stat">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kedgeswap.Stat.</span></span><span class="sig-name descname"><span class="pre">Stat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turbo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">njobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat" title="Permalink to this definition"></a></dt>
+</div>
+<div class="section" id="module-kedgeswap.Stat">
+<span id="id1"></span><h2><a class="toc-backref" href="#id2">Stat Class</a><a class="headerlink" href="#module-kedgeswap.Stat" title="Permalink to this headline"></a></h2>
+<dl class="class">
+<dt id="kedgeswap.Stat.Stat">
+<em class="property">class </em><code class="descclassname">kedgeswap.Stat.</code><code class="descname">Stat</code><span class="sig-paren">(</span><em>mc</em>, <em>eta=None</em>, <em>turbo=False</em>, <em>verbose=False</em>, <em>njobs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Stat.Stat" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to compute statistics on a Markov Chain object. This class implements
 methods to estimate the Markov Chain’s sampling gap, and to follow its convergence
 using the DFGLS test.</p>
-<section id="attributes">
-<h3>Attributes:<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
-<dl class="simple">
-<dt>mc: MarkovChain object</dt><dd><p>The MarkovChain object on which we follow the convergence.</p>
-</dd>
-<dt>eta: float</dt><dd><p>The sampling gap used for the Markov Chain. The sampling gap
+<dl class="docutils">
+<dt>mc: MarkovChain object</dt>
+<dd>The MarkovChain object on which we follow the convergence.</dd>
+<dt>eta: float</dt>
+<dd>The sampling gap used for the Markov Chain. The sampling gap
 gives a number of steps to make on the Markov Chain to obtain
-two uncorrelated graphs.</p>
-</dd>
-<dt>turbo: bool</dt><dd><p>Enable to make a fast but unverified estimation of the sampling gap.</p>
-</dd>
-<dt>verbose: bool</dt><dd><p>Enable to add information to the logs</p>
-</dd>
+two uncorrelated graphs.</dd>
+<dt>turbo: bool</dt>
+<dd>Enable to make a fast but unverified estimation of the sampling gap.</dd>
+<dt>verbose: bool</dt>
+<dd>Enable to add information to the logs</dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Stat.Stat.CheckAutocorrLag1">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CheckAutocorrLag1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.CheckAutocorrLag1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.CheckAutocorrLag1" title="Permalink to this definition"></a></dt>
+<dl class="staticmethod">
+<dt id="kedgeswap.Stat.Stat.CheckAutocorrLag1">
+<em class="property">static </em><code class="descname">CheckAutocorrLag1</code><span class="sig-paren">(</span><em>S_T</em>, <em>alpha</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.CheckAutocorrLag1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.CheckAutocorrLag1" title="Permalink to this definition"></a></dt>
 <dd><p>Check the autocorrelation with lag 1 of a time serie.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>S_T</strong> (<em>list</em><em>(</em><em>float</em><em>)</em>) – List of assortativity(/number of triangles) values
-to test autocorrelation</p></li>
-<li><p><strong>alpha</strong> (<em>float</em>) – Significance level of the test (usually fixed to 0.04).</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>S_T</strong> (<em>list</em><em>(</em><em>float</em><em>)</em>) – List of assortativity(/number of triangles) values
+to test autocorrelation</li>
+<li><strong>alpha</strong> (<em>float</em>) – Significance level of the test (usually fixed to 0.04).</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Stat.Stat.guesstimate_sampling_gap">
-<span class="sig-name descname"><span class="pre">guesstimate_sampling_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.guesstimate_sampling_gap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.guesstimate_sampling_gap" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.Stat.Stat.estimate_sampling_gap">
+<code class="descname">estimate_sampling_gap</code><span class="sig-paren">(</span><em>graph</em>, <em>gamma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.estimate_sampling_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.estimate_sampling_gap" title="Permalink to this definition"></a></dt>
+<dd><p>Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of
+Dutta, U. (2022). Sampling random graphs with specified degree sequences</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.Stat.Stat.guesstimate_sampling_gap">
+<code class="descname">guesstimate_sampling_gap</code><span class="sig-paren">(</span><em>graph</em>, <em>gamma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.guesstimate_sampling_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.guesstimate_sampling_gap" title="Permalink to this definition"></a></dt>
 <dd><p>Sampling gap estimation is long, this function gives an empirical estimation of the sampling gap.
 Measure the acceptation rate A of the Markov Chain, and fix the sampling gap as 10*(1/A) * M,
 where M is the number of edges of the network. This estimation was fixed empirically to overestimate
 the sampling gap we measure using the estimation from Dutta, U. (2022).</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Stat.Stat.estimate_sampling_gap">
-<span class="sig-name descname"><span class="pre">estimate_sampling_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.estimate_sampling_gap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.estimate_sampling_gap" title="Permalink to this definition"></a></dt>
-<dd><p>Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of
-Dutta, U. (2022). Sampling random graphs with specified degree sequences</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Stat.Stat.run_dfgls">
-<span class="sig-name descname"><span class="pre">run_dfgls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.run_dfgls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.run_dfgls" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.Stat.Stat.run_dfgls">
+<code class="descname">run_dfgls</code><span class="sig-paren">(</span><em>output</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Stat.html#Stat.run_dfgls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Stat.Stat.run_dfgls" title="Permalink to this definition"></a></dt>
 <dd><p>If no sampling gap eta specified, run estimation of eta.
 Run Markov Chain for eta steps, retrieve list of assortativity values (or number of triangles)
 and estimate the convergence of this time serie, to decide if the Markov Chain is
 converged.</p>
 </dd></dl>
 
-</section>
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

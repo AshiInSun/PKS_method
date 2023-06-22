@@ -3,14 +3,14 @@
 Benchmark
 =========
 
-- On this page you'll find a benchmark of *kedgeswap* on different datasets and with different constraints, 
-  to give you an idea of what to expect in term of execution time, and to give a better grasp of how to 
+- On this page you will find a benchmark of *kedgeswap* on different datasets with vraious constraints, 
+  to give an idea of what to expect in term of execution time and a better grasp of how to 
   choose the sampling gap.
 
 Datasets
 --------
 
-- For this benchmark we used the following datasets (we note n the number of nodes and m the number of edges) #TODO choose with Lionel ?:
+- For this benchmark, we used the following datasets (we note n the number of nodes and m the number of edges):
   
   * powergrid: undirected simple graph, n=4 941,  m=6 594, `available here <http://konect.cc/networks/opsahl-powergrid/>`_ 
 
