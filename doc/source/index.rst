@@ -6,7 +6,7 @@
 kedge_swap's documentation!
 ======================================
 
-* kedge_swap is a python package that provides a Markov chain to perform
+* kedge_swap is a python package that provides a MCMC method to perform
   k-swaps on edges to generate a uniform sample under certain constraints.
 
 .. toctree::
