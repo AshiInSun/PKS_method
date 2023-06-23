@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Benchmark &mdash; kedge_swap 1.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <title>Benchmark &mdash; kedge_swap 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,7 +31,7 @@
 
           
           
-          <a href="contents.html" class="icon icon-home">
+          <a href="index.html" class="icon icon-home">
             kedge_swap
           </a>
 <div role="search">
@@ -39,7 +42,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
@@ -60,14 +63,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="contents.html">kedge_swap</a>
+          <a href="index.html">kedge_swap</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="contents.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Benchmark</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/benchmark.rst.txt" rel="nofollow"> View page source</a>
@@ -78,149 +81,163 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="benchmark">
-<span id="id1"></span><h1>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this headline"></a></h1>
+  <section id="benchmark">
+<span id="id1"></span><h1>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this heading"></a></h1>
 <ul class="simple">
-<li>On this page you will find a benchmark of <em>kedgeswap</em> on different datasets with vraious constraints,
-to give an idea of what to expect in term of execution time and a better grasp of how to
-choose the sampling gap.</li>
+<li><p>On this page, you will find a benchmark of <em>kedgeswap</em> on different datasets with various constraints,
+to give an idea of what to expect in terms of execution time and a better grasp of how to choose the sampling gap.</p></li>
 </ul>
-<div class="section" id="datasets">
-<h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline"></a></h2>
+<section id="datasets">
+<h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li>For this benchmark, we used the following datasets (we note n the number of nodes and m the number of edges):<ul>
-<li>powergrid: undirected simple graph, n=4 941,  m=6 594, <a class="reference external" href="http://konect.cc/networks/opsahl-powergrid/">available here</a></li>
-<li>karateclub: undirected simple graph: n=34, m=78, <a class="reference external" href="http://konect.cc/networks/ucidata-zachary/">available here</a></li>
-<li>health: directed simple graph, n=2539, m=12969, <a class="reference external" href="http://konect.cc/networks/moreno_health/">available here</a></li>
-<li>wordnet: undirected simple graph: n=146005, m=656999, <a class="reference external" href="http://konect.cc/networks/wordnet-words/">available here</a></li>
-<li>maayan: directed simple graph: n=1226, m=2615, <a class="reference external" href="http://konect.cc/networks/maayan-faa/">available here</a></li>
-<li>…?</li>
+<li><p>For this benchmark, we used the following datasets (we note n the number of nodes and m the number of edges):</p>
+<ul>
+<li><p>karateclub: undirected simple graph: n=34, m=78, <a class="reference external" href="http://konect.cc/networks/ucidata-zachary/">available here</a></p></li>
+<li><p>lesmiserables:  undirected simple graph: n=77, m=254, <a class="reference external" href="http://konect.cc/networks/moreno_lesmis/">available here</a></p></li>
+<li><p>powergrid: undirected simple graph, n=4941, m=6594, <a class="reference external" href="http://konect.cc/networks/opsahl-powergrid/">available here</a></p></li>
+<li><p>airtraffic: directed simple graph: n=1226, m=2615, <a class="reference external" href="http://konect.cc/networks/maayan-faa/">available here</a></p></li>
+<li><p>adohealth: directed simple graph, n=2539, m=12969, <a class="reference external" href="http://konect.cc/networks/moreno_health/">available here</a></p></li>
+<li><p>crime: bipartite graph, n=829+551, m=1476, <a class="reference external" href="http://konect.cc/networks/moreno_crime/">available here</a></p></li>
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="protocol">
-<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline"></a></h2>
+</section>
+<section id="protocol">
+<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li>The datasets are tested in differents setups:<ul>
-<li>With or without sampling gap estimation: The sampling gap is the number of steps of the Markov chain required to produce uncorrelated samples.
-An algorithm adapted from [1] estimates the sampling gap, but is very slow, especially for large networks, as the first step (the “burn in” step)
-runs 1000*m steps of the Markov Chain to ensure its convergence. #TODO ? When not possible to run the estimation, it is possible to (over)estimate it
-empirically by … ? (taking coeff inversely proportional to acceptation rate ?)</li>
-<li>Fixed degree sequence : the first constraint we can put on the swap is to accept swap only if they conserve the degree sequence. We can follow the convergence
-either by following the degree assortativity of the graph, or the number of triangles of the graph.</li>
-<li>Fixed joint degree matrix : another more constraining condition is to accept an edge swap only if the conserve the joint degree matrix. We can follow the convergence
-using the number of triangles of the graph (when the joint degree matrix is fixed, the degree assortativity is also constant).</li>
+<li><p>We generate samples of 1000 graphs.</p></li>
+<li><p>The parameter g is set to 2.</p></li>
+<li><p>We follow the convergence using the number of triangles of the graph except for the case of bipartite graphs, where we use the assortativity of the graph.</p></li>
+<li><p>An algorithm adapted from [1] estimates the sampling gap.</p></li>
+<li><p>The datasets are tested with different constraints:</p>
+<ul>
+<li><p>Fixed degree sequence : the k-swaps do not affect the degree sequence of the graph.</p></li>
+<li><p>Fixed joint degree matrix : the k-swaps do not affect the joint degree matrix of the graph. Note that it implies that the degree sequence is also fixed.</p></li>
+<li><p>Fixed degree sequence and number of mutual dyads : the k-swaps do not affect the degree sequence of the graph and the number of reciprocal links of the graph (directed graphs only).</p></li>
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="results">
-<h2>Results<a class="headerlink" href="#results" title="Permalink to this headline"></a></h2>
-<table border="1" class="colwidths-given docutils" id="id6">
-<caption><span class="caption-text">Title</span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">Title</span><a class="headerlink" href="#id7" title="Permalink to this table"></a></caption>
 <colgroup>
-<col width="11%" />
-<col width="11%" />
-<col width="11%" />
-<col width="11%" />
-<col width="11%" />
-<col width="11%" />
-<col width="11%" />
-<col width="11%" />
-<col width="11%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">dataset</th>
-<th class="head">directed</th>
-<th class="head">constraint</th>
-<th class="head">using eta estimation</th>
-<th class="head">eta value</th>
-<th class="head">acceptation rate</th>
-<th class="head">eta estimation runtime (in seconds)</th>
-<th class="head">convergence runtime (in seconds)</th>
-<th class="head">total runtime (hh:mm:ss)</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>dataset</p></th>
+<th class="head"><p>constraint</p></th>
+<th class="head"><p>eta value</p></th>
+<th class="head"><p>success rate</p></th>
+<th class="head"><p>eta estimation runtime (in seconds)</p></th>
+<th class="head"><p>convergence runtime (in seconds)</p></th>
+<th class="head"><p>total runtime (in seconds)</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>powergrid</td>
-<td>no</td>
-<td>fixed degree sequence</td>
-<td>yes</td>
-<td>8064</td>
-<td>40.88%</td>
-<td>65 285s</td>
-<td>73.86s</td>
-<td>22:16:45</td>
+<tbody>
+<tr class="row-even"><td><p>karateclub</p></td>
+<td><p>degree sequence</p></td>
+<td><p>751</p></td>
+<td><p>10.39%</p></td>
+<td><p>377</p></td>
+<td><p>2</p></td>
+<td><p>1575</p></td>
 </tr>
-<tr class="row-odd"><td>karateclub</td>
-<td>no</td>
-<td>fixed degree sequence</td>
-<td>yes</td>
-<td>751</td>
-<td>10.38%</td>
-<td>392.90s</td>
-<td>6.71s</td>
-<td>00:10:47</td>
+<tr class="row-odd"><td><p>lesmiserables</p></td>
+<td><p>degree sequence</p></td>
+<td><p>1781</p></td>
+<td><p>14.26%</p></td>
+<td><p>1203</p></td>
+<td><p>5</p></td>
+<td><p>4955</p></td>
 </tr>
-<tr class="row-even"><td>health</td>
-<td>yes</td>
-<td>fixed degree sequence</td>
-<td>yes</td>
-<td>32 457</td>
-<td>39.48%</td>
-<td>174 238s</td>
-<td>1 754s</td>
-<td>72:02:44</td>
+<tr class="row-even"><td><p>powergrid</p></td>
+<td><p>degree sequence</p></td>
+<td><p>16137</p></td>
+<td><p>40.86%</p></td>
+<td><p>50995</p></td>
+<td><p>52</p></td>
+<td><p>233528</p></td>
 </tr>
-<tr class="row-odd"><td>maayan</td>
-<td>yes</td>
-<td>fixed degree sequence</td>
-<td>yes</td>
-<td>6730</td>
-<td>38.82%</td>
-<td>8804.56s</td>
-<td>57.13s</td>
-<td>3:39:25</td>
+<tr class="row-odd"><td><p>airtraffic</p></td>
+<td><p>degree sequence</p></td>
+<td><p>6719</p></td>
+<td><p>38.89%</p></td>
+<td><p>9063</p></td>
+<td><p>19</p></td>
+<td><p>37817</p></td>
 </tr>
-<tr class="row-even"><td>karateclub</td>
-<td>no</td>
-<td>fixed joint degree matrix</td>
-<td>yes</td>
-<td>5053</td>
-<td>1.54%</td>
-<td>2 567s</td>
-<td>8.32s</td>
-<td>1:09:44</td>
+<tr class="row-even"><td><p>adohealth</p></td>
+<td><p>degree sequence</p></td>
+<td><p>32463</p></td>
+<td><p>39.95%</p></td>
+<td><p>179200</p></td>
+<td><p>152</p></td>
+<td><p>762030</p></td>
 </tr>
-<tr class="row-odd"><td>powergrid</td>
-<td>no</td>
-<td>fixed joint degree matrix</td>
-<td>yes</td>
-<td>197 180</td>
-<td>1.54%</td>
-<td>1 644 229s</td>
-<td>1 399.76s</td>
-<td>?</td>
+<tr class="row-odd"><td><p>crime</p></td>
+<td><p>degree sequence</p></td>
+<td><p>3869</p></td>
+<td><p>38.45%</p></td>
+<td><p>3026</p></td>
+<td><p>38</p></td>
+<td><p>13885</p></td>
 </tr>
-<tr class="row-even"><td>maayan</td>
-<td>yes</td>
-<td>fixed joint degree matrix</td>
-<td>yes</td>
-<td>163494</td>
-<td>3.2%</td>
-<td>516 290s</td>
-<td>427.52s</td>
-<td>?</td>
+<tr class="row-even"><td><p>karateclub</p></td>
+<td><p>joint degree matrix</p></td>
+<td><p>5053</p></td>
+<td><p>1.54%</p></td>
+<td><p>2 567</p></td>
+<td><p>8s</p></td>
+<td><p>4184</p></td>
+</tr>
+<tr class="row-odd"><td><p>lesmiserables</p></td>
+<td><p>joint degree matrix</p></td>
+<td><p>24643</p></td>
+<td><p>1.03%</p></td>
+<td><p>15987</p></td>
+<td><p>43</p></td>
+<td><p>26398</p></td>
+</tr>
+<tr class="row-even"><td><p>powergrid</p></td>
+<td><p>joint degree matrix</p></td>
+<td><p>197180</p></td>
+<td><p>1.54%</p></td>
+<td><p>1644229</p></td>
+<td><p>6023</p></td>
+<td><p>2001551</p></td>
+</tr>
+<tr class="row-odd"><td><p>airtraffic</p></td>
+<td><p>degree sequence + dyads</p></td>
+<td><p>6707</p></td>
+<td><p>38.96%</p></td>
+<td><p>8922</p></td>
+<td><p>17</p></td>
+<td><p>37876</p></td>
+</tr>
+<tr class="row-even"><td><p>adohealth</p></td>
+<td><p>degree sequence + dyads</p></td>
+<td><p>32449</p></td>
+<td><p>39.97%</p></td>
+<td><p>191847</p></td>
+<td><p>1006</p></td>
+<td><p>800532</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline"></a></h2>
-<p>[1] Dutta, U., &amp; Clauset, A. (2021). Convergence criteria for sampling random graphs with specified degree sequences. arXiv preprint arXiv:2105.12120.</p>
-</div>
-</div>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
+<p>[1] Dutta, U., Fosdick, B.K., &amp; Clauset, A. (2021). Sampling random graphs with specified degree sequences. arXiv preprint arXiv:2105.12120.</p>
+</section>
+</section>
 
 
            </div>

@@ -3,126 +3,142 @@
 Benchmark
 =========
 
-- On this page you will find a benchmark of *kedgeswap* on different datasets with vraious constraints, 
-  to give an idea of what to expect in term of execution time and a better grasp of how to 
-  choose the sampling gap.
+- On this page, you will find a benchmark of *kedgeswap* on different datasets with various constraints, 
+  to give an idea of what to expect in terms of execution time and a better grasp of how to choose the sampling gap.
 
 Datasets
 --------
 
 - For this benchmark, we used the following datasets (we note n the number of nodes and m the number of edges):
   
-  * powergrid: undirected simple graph, n=4 941,  m=6 594, `available here <http://konect.cc/networks/opsahl-powergrid/>`_ 
-
   * karateclub: undirected simple graph: n=34, m=78, `available here <http://konect.cc/networks/ucidata-zachary/>`_
 
-  * health: directed simple graph, n=2539, m=12969, `available here <http://konect.cc/networks/moreno_health/>`_
+  * lesmiserables:  undirected simple graph: n=77, m=254, `available here <http://konect.cc/networks/moreno_lesmis/>`_
 
-  * wordnet: undirected simple graph: n=146005, m=656999, `available here <http://konect.cc/networks/wordnet-words/>`_
+  * powergrid: undirected simple graph, n=4941, m=6594, `available here <http://konect.cc/networks/opsahl-powergrid/>`_ 
 
-  * maayan: directed simple graph: n=1226, m=2615, `available here <http://konect.cc/networks/maayan-faa/>`_
+  * airtraffic: directed simple graph: n=1226, m=2615, `available here <http://konect.cc/networks/maayan-faa/>`_
 
-  * ...?
+  * adohealth: directed simple graph, n=2539, m=12969, `available here <http://konect.cc/networks/moreno_health/>`_
+
+  * crime: bipartite graph, n=829+551, m=1476, `available here <http://konect.cc/networks/moreno_crime/>`_
 
 Protocol
 --------
 
-- The datasets are tested in differents setups:
+- We generate samples of 1000 graphs.
 
-  * With or without sampling gap estimation: The sampling gap is the number of steps of the Markov chain required to produce uncorrelated samples.
-    An algorithm adapted from [1] estimates the sampling gap, but is very slow, especially for large networks, as the first step (the "burn in" step)
-    runs 1000*m steps of the Markov Chain to ensure its convergence. #TODO ? When not possible to run the estimation, it is possible to (over)estimate it
-    empirically by ... ? (taking coeff inversely proportional to acceptation rate ?)
+- The parameter g is set to 2.
 
-  * Fixed degree sequence : the first constraint we can put on the swap is to accept swap only if they conserve the degree sequence. We can follow the convergence
-    either by following the degree assortativity of the graph, or the number of triangles of the graph.
+- We follow the convergence using the number of triangles of the graph except for the case of bipartite graphs, where we use the assortativity of the graph.
+    
+- An algorithm adapted from [1] estimates the sampling gap.
 
-  * Fixed joint degree matrix : another more constraining condition is to accept an edge swap only if the conserve the joint degree matrix. We can follow the convergence
-    using the number of triangles of the graph (when the joint degree matrix is fixed, the degree assortativity is also constant).
+- The datasets are tested with different constraints:
+
+  * Fixed degree sequence : the k-swaps do not affect the degree sequence of the graph. 
+
+  * Fixed joint degree matrix : the k-swaps do not affect the joint degree matrix of the graph. Note that it implies that the degree sequence is also fixed.
+
+  * Fixed degree sequence and number of mutual dyads : the k-swaps do not affect the degree sequence of the graph and the number of reciprocal links of the graph (directed graphs only).
+
+
 
 Results
 -------
 
 .. list-table:: Title
-   :widths: 30 30 30 30 30 30 30 30 30
+   :widths: 30 30 30 30 30 30 30
    :header-rows: 1
 
    * - dataset
-     - directed
      - constraint
-     - using eta estimation
      - eta value
-     - acceptation rate
+     - success rate
      - eta estimation runtime (in seconds)
      - convergence runtime (in seconds)
-     - total runtime (hh:mm:ss)
-   * - powergrid
-     - no
-     - fixed degree sequence
-     - yes
-     - 8064
-     - 40.88%
-     - 65 285s
-     - 73.86s
-     - 22:16:45
+     - total runtime (in seconds)
    * - karateclub
-     - no
-     - fixed degree sequence
-     - yes
+     - degree sequence
      - 751
-     - 10.38%
-     - 392.90s
-     - 6.71s 
-     - 00:10:47
-   * - health
-     - yes
-     - fixed degree sequence
-     - yes
-     - 32 457
-     - 39.48%
-     - 174 238s
-     - 1 754s
-     - 72:02:44
-   * - maayan
-     - yes
-     - fixed degree sequence
-     - yes
-     - 6730
-     - 38.82%
-     - 8804.56s
-     - 57.13s
-     - 3:39:25
+     - 10.39%
+     - 377
+     - 2 
+     - 1575
+   * - lesmiserables
+     - degree sequence
+     - 1781
+     - 14.26%
+     - 1203
+     - 5
+     - 4955
+   * - powergrid
+     - degree sequence
+     - 16137
+     - 40.86%
+     - 50995
+     - 52
+     - 233528
+   * - airtraffic
+     - degree sequence
+     - 6719
+     - 38.89%
+     - 9063
+     - 19
+     - 37817 
+   * - adohealth
+     - degree sequence
+     - 32463
+     - 39.95%
+     - 179200
+     - 152
+     - 762030
+   * - crime
+     - degree sequence
+     - 3869
+     - 38.45%
+     - 3026
+     - 38
+     - 13885
    * - karateclub
-     - no
-     - fixed joint degree matrix
-     - yes
+     - joint degree matrix
      - 5053
      - 1.54%
-     - 2 567s
-     - 8.32s
-     - 1:09:44
+     - 2 567
+     - 8s
+     - 4184
+   * - lesmiserables
+     - joint degree matrix
+     - 24643
+     - 1.03%
+     - 15987
+     - 43
+     - 26398
    * - powergrid
-     - no
-     - fixed joint degree matrix
-     - yes
-     - 197 180
+     - joint degree matrix
+     - 197180
      - 1.54%
-     - 1 644 229s
-     - 1 399.76s
-     - ?
-   * - maayan
-     - yes
-     - fixed joint degree matrix
-     - yes
-     - 163494
-     - 3.2%
-     - 516 290s
-     - 427.52s
-     - ?
+     - 1644229
+     - 6023
+     - 2001551
+   * - airtraffic
+     - degree sequence + dyads
+     - 6707
+     - 38.96%
+     - 8922
+     - 17
+     - 37876 
+   * - adohealth
+     - degree sequence + dyads
+     - 32449
+     - 39.97%
+     - 191847
+     - 1006
+     - 800532
 
 
 
 References
 ----------
 
-[1] Dutta, U., & Clauset, A. (2021). Convergence criteria for sampling random graphs with specified degree sequences. arXiv preprint arXiv:2105.12120.
+[1] Dutta, U., Fosdick, B.K., & Clauset, A. (2021). Sampling random graphs with specified degree sequences. arXiv preprint arXiv:2105.12120.
