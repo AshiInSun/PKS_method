@@ -57,8 +57,8 @@ class Graph:
 
         # adjacency lists
         self.neighbors = defaultdict(list) 
-        self.in_neighbors = defaultdict(list)
-        self.out_neighbors = defaultdict(list)
+        self.in_neighbors = dict()
+        self.out_neighbors = dict()
 
         # store edges and the indexes of neighbors in adjacency lists.²
         self.edges = dict()
@@ -126,6 +126,16 @@ class Graph:
                     self.neighbors[node_out].append(node_in)
 
                     # in/out adjacency lists are useful for dyads
+                    if node_in not in self.out_neighbors:
+                        self.out_neighbors[(node_in)] = []
+                    if node_out not in self.out_neighbors:
+                        self.out_neighbors[(node_out)] = []
+                    if node_in not in self.in_neighbors:
+                        self.in_neighbors[(node_in)] = []
+                    if node_out not in self.in_neighbors:
+                        self.in_neighbors[(node_out)] = []
+
+
                     self.out_neighbors[(node_in)].append(node_out)
                     self.in_neighbors[(node_out)].append(node_in)
                     self.M += 1 
