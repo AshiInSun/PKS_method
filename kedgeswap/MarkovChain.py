@@ -12,6 +12,7 @@
 import os
 import gzip
 import ipdb
+import copy
 import argparse
 import numpy as np
 
@@ -218,7 +219,6 @@ class MarkovChain:
                 true if swap can be accepted
 
         """
-        self.check_out_neighb()
 
         # list of the edges after permutation
         goal_edges = []
@@ -239,13 +239,12 @@ class MarkovChain:
             # check broken diades
             #ipdb.set_trace()
 
-            if self.graph.directed and self.use_mutualdiades:
-                if v in self.graph.out_neighbors[u] and u in self.graph.out_neighbors[v]:
-                    broken_diades.add((min(u,v), max(u,v)))
-                # check created diades
-                if u in self.graph.out_neighbors[y]:
-
-                    created_diades.add((min(u,y), max(u,y)))
+            #if self.graph.directed and self.use_mutualdiades:
+            #    if v in self.graph.out_neighbors[u] and u in self.graph.out_neighbors[v]:
+            #        broken_diades.add((min(u,v), max(u,v)))
+            #    # check created diades
+            #    if u in self.graph.out_neighbors[y]:
+            #        created_diades.add((min(u,y), max(u,y)))
             
             #ipdb.set_trace()
             #old_dyad, new_dyad = self.check_dyads(edge_to_swap, permutation)
@@ -292,11 +291,17 @@ class MarkovChain:
         # check if total number of mutual diades changes
         if self.graph.directed and self.use_mutualdiades:
             if len(broken_diades) != len(created_diades):
-                #ipdb.set_trace()
                 return False
-        elif len(broken_diades) != 0 :
-            
-            print(f'dyads : {len(broken_diades)} {len(created_diades)}')
+        
+        #if len(broken_diades) != 0 or len(created_diades) != 0 :
+        old, new = self.check_dyads(edge_to_swap, permutation)
+        if len(old) != len(new):
+            return False
+        #print(f'guessing {ol} {ne}')
+        #print('broken') 
+        #print(broken_diades)
+        #print('created')
+        #print(created_diades)
     
 
         return True
@@ -304,7 +309,7 @@ class MarkovChain:
     def check_dyads(self,edge_to_swap, permutation):
         old_dyad = set()
         new_dyad = set()
-        graph_outneigh = self.graph.out_neighbors.copy()
+        graph_outneigh = copy.deepcopy(self.graph.out_neighbors)
         
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
 
@@ -382,7 +387,6 @@ class MarkovChain:
         #            old_dyad.add((min(u,v), max(u,v)))
         #print(f'before: have {len(old_dyad)}')
         #print(old_dyad)
-
         for (u, v), (x,y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
 
             # naming departure edge = (u,v) and arrival edge = (x,y) , goal edge = (u, y)
@@ -422,7 +426,6 @@ class MarkovChain:
             del self.graph.edges[(u,v)]
             if not self.graph.directed:
                 del self.graph.edges[(v,u)]
-        self.check_out_neighb()
        
         #old_dyad = set()
         #for u in self.graph.out_neighbors: 
@@ -829,11 +832,8 @@ class MarkovChain:
         #            dyads.add((min(u,v), max(u,v)))
         #self.prev_ndyad = len(dyads)
         ##print(len(dyads))
-        print('beginning')
-        self.check_out_neighb()
 
         # run N_swap swaps
-        print('swapping')
         for swap_idx in range(N_swap):
 
             # print a dot every 1000 swap to show progress
@@ -844,23 +844,8 @@ class MarkovChain:
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
-            print('before check')
-            self.check_out_neighb()
-            old_dyad = set()
-            for u in self.graph.out_neighbors: 
-                for v in self.graph.out_neighbors[u]:
-                    if u in self.graph.out_neighbors[v] and v in self.graph.out_neighbors[u]:
-                        old_dyad.add((min(u,v), max(u,v)))
-            print(len(old_dyad))
             accept_permutation = self.check_swap(edge_to_swap, permutation)
-            print('afer check')
-            self.check_out_neighb()
-            old_dyad = set()
-            for u in self.graph.out_neighbors: 
-                for v in self.graph.out_neighbors[u]:
-                    if u in self.graph.out_neighbors[v] and v in self.graph.out_neighbors[u]:
-                        old_dyad.add((min(u,v), max(u,v)))
-            print(len(old_dyad))
+
 
 
             # if swap is accepted, perform swap and update graph metrics values
@@ -879,25 +864,7 @@ class MarkovChain:
                 self.accept_rate_byk[k] += 1
 
                 # realise the swap
-                print('before perform')
-                self.check_out_neighb()
-                old_dyad = set()
-                for u in self.graph.out_neighbors: 
-                    for v in self.graph.out_neighbors[u]:
-                        if u in self.graph.out_neighbors[v] and v in self.graph.out_neighbors[u]:
-                            old_dyad.add((min(u,v), max(u,v)))
-                print(len(old_dyad))
-
                 self.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
-                #self.check_dyads()
-                print('before perform')
-                self.check_out_neighb()
-                old_dyad = set()
-                for u in self.graph.out_neighbors: 
-                    for v in self.graph.out_neighbors[u]:
-                        if u in self.graph.out_neighbors[v] and v in self.graph.out_neighbors[u]:
-                            old_dyad.add((min(u,v), max(u,v)))
-                print(len(old_dyad))
 
 
                 # debug - check if degree sequence changed
