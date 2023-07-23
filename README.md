@@ -19,7 +19,7 @@ Python package to generate randomly uniformly picked graph by swapping edges fro
     - pip and setuptools : pip install --upgrade pip setuptools wheel
 	- numpy
 	- argparse
-	- progressbar # TODO pas utile juste joli..
+	- progressbar 
     - python3 
     - arch : pip install arch
 
