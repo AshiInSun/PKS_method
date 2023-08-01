@@ -9,7 +9,7 @@ authors = [
     {name ="Lionel Tabourier", email= "email@hisemail.com"},
     {name="Julien Karadayi", email="email@hisemail.com"}
 ]
-description = "Perform K-edge swaps on graph to generate randomly uniform graph given conditions."
+description = "Python code to generate uniformly at random graphs obeying a given set of constraints."
 readme = "README.md"
 requires-python = ">=3.6"
 classifiers = [
@@ -28,5 +28,5 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://gitlab.lip6.fr/jkaradayi/code-swap-proba-partage"
-"Bug Tracker" = "https://gitlab.lip6.fr/jkaradayi/code-swap-proba-partage/-/issues"
+"Homepage" = "https://gitlab.lip6.fr/tabourier/code-pks-generation/"
+"Bug Tracker" = "https://gitlab.lip6.fr/tabourier/code-pks-generation/-/issues"
