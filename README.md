@@ -3,7 +3,7 @@
 Python code to generate uniformly at random graphs obeying a given set of constraints.
 
 ## Documentation
-* A documentation is available at [readthedocs](https://k-edge-swap.readthedocs.io/en/latest/)
+* A detailed documentation is available at [readthedocs](https://k-edge-swap.readthedocs.io/en/latest/)
 
 ## Installation
 
