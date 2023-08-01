@@ -29,7 +29,7 @@ Graph
                    Respectively store the number of edges and the number of nodes of the graph. Both remain constant during the swapping process.
 
       * neighbors: dict(list)
-                   Stores the adjacency list for each node of the graph. Given that the structure is a dict (hash map), getting the adjacency list of a node is in **O(1)**, amortized time.
+                   Stores the adjacency list for each node of the graph. Given that the structure is a dictionary (hash map), getting the adjacency list of a node is in **O(1)**, amortized time.
                    **neighbors** is used to store the neighbors of each node, and is updated at each swap.
 
       * unique_edges: list
@@ -56,7 +56,7 @@ Graph
   - for directed graphs:
 
       * in_neighbors and out_neighbors: dict(list)
-                   For each node **u** of the graph, respectively store the incoming neighbors and outgoing neighbors of **u**. This structure is used for example to check on mutual dyads and is updated during each swap.
+                   For each node **u** of the graph, respectively store the incoming neighbors and outgoing neighbors of **u**. This structure is used for example to check on mutual dyads and is updated at each swap.
 
       * edges: dict(tuple)
                    For each edge **(u,v)**, it stores the position of **v** in **neighbors[u]**, in **out_neighbors[u]**, and the position of **u** in **neighbors[v]** and in **in_neighbors[v]**.
