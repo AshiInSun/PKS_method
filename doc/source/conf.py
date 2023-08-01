@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import sphinx_rtd_theme
 
-project = 'kedge_swap'
+project = 'pks'
 copyright = '2023, lionel tabourier, julien karadayi'
 author = 'lionel tabourier, julien karadayi'
 release = '1.0'
