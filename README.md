@@ -1,17 +1,17 @@
-# K-Edge-Swap
+# Probabilistic k-swap (pks) generation code
 
-Python package to generate randomly uniformly picked graph by swapping edges from an existing graph.
+Python code to generate uniformly at random graphs obeying a given set of constraints.
 
 ## Documentation
 * A documentation is available at [readthedocs](https://k-edge-swap.readthedocs.io/en/latest/)
 
 ## Installation
 
-* To install package avec requirement: 
+* Install package with requirements: 
 
     pip install ./
 
-* To check if everything works well:
+* Check if everything works well:
 
     pytest tests/test.py
 
@@ -32,11 +32,10 @@ Python package to generate randomly uniformly picked graph by swapping edges fro
   4 5  
   5 6  
 
-* The package only stores simple graphs. If the input contains multiple edges, they will be merged into one single edge. Loops are ignored.
+* The package only manages simple graphs. If the input contains multiple edges, they will be merged into one single edge. Loops are ignored.
 
 
 ## Usage
-* Notation: We call V the node set, E the edge set. 
 
 * Usage example: 
 	python main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out -v
