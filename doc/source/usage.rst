@@ -3,7 +3,7 @@
 Usage
 =====
 
-- The **kedgeswap** package provides a program to generate random simple graphs uniformly with a given set of target constraints:
+- The **pks** package provides a program to generate random simple graphs uniformly with a given set of target constraints:
 	
 	* undirected graphs with a fixed degree sequence
 
@@ -39,13 +39,13 @@ Output
 Target Constraints
 ------------------
 
-- The program generates uniformly at random **simple** graphs (no loops, no multiedges).
+- The program generates uniformly at random **simple** graphs (no loop, no multiedge).
 
 - Several target constraints are available:
 
-    * fixed degree sequence (default): Can be applied on several "flavours" of simple graphs: undirected, directed, bipartite. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).
+    * fixed degree sequence (default): Can be applied on several "flavours" of simple graphs: undirected, directed, bipartite. The convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).
 
-    * fixed joint degree matrix: Can be aplied to undirected, directed and bipartite graphs. The model convergence can only be evaluated by following the number of triangles (-t), as the assortativity is constant.
+    * fixed joint degree matrix: Can be applied to undirected, directed and bipartite graphs. The convergence can only be evaluated by following the number of triangles (-t), as the assortativity is constant.
 
     * fixed number of mutual dyads: Can only be applied to directed graphs. A mutual dyad occurs when the graph contain links in two directions between two nodes, this constraint fixes the total number of mutual dyads in the graph. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).
 
@@ -86,15 +86,15 @@ Command Line Interface
 
     * -v : enable to be more verbose. Adds the Markov Chain status to the logs, number of accepted/rejected swaps, DFGLS output to follow convergence.
 
-    * -g <positive integer>: exponent of the probability law used to pick the number of edges to swap.
+    * -g <positive integer> : exponent of the probability law used to pick the number of edges to swap.
 
-    * -e <positive integer>: sampling gap between each generated graph. If not specified, will use a (slow) estimation method.
+    * -e <positive integer> : sampling gap between each generated graph. If not specified, will use a (slow) estimation method.
 
-    * \-\-output_number <positive integer>: number *N* of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.
+    * \-\-output_number <positive integer> : number *N* of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.
 
-    * \-\-debug : makes some additional checks, like checking that the degree sequences hasn't changed after each swap. Slows down everything, only used for debuggin purposes.
+    * \-\-debug : makes some additional checks, like checking that the degree sequence hasn't changed after a swap (warning: slows down the code, only used for debugging purposes)
 
-    * \-\-keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a very large number of files, mostly useful for debug purposes) 
+    * \-\-keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a large number of files, mostly useful for debugging purposes) 
 
     * \-\-log_dir : only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain
 

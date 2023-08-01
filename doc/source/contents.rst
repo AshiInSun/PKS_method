@@ -3,11 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-kedge_swap's documentation!
+pks documentation!
 ======================================
 
-* kedge_swap is a python package that provides a MCMC method to perform
-  k-swaps on edges to generate a uniform sample under certain constraints.
+*  pks (probabilistic k-swap) is a python package that provides a MCMC method to generate a uniform sample of graphs under certain constraints.
 
 .. toctree::
    :maxdepth: 2
