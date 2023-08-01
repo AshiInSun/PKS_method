@@ -84,7 +84,7 @@
   <section id="benchmark">
 <span id="id1"></span><h1>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this heading"></a></h1>
 <ul class="simple">
-<li><p>On this page, you will find a benchmark of <em>kedgeswap</em> on different datasets with various constraints,
+<li><p>On this page, you will find a benchmark of <em>pks</em> on different datasets with various constraints,
 to give an idea of what to expect in terms of execution time and a better grasp of how to choose the sampling gap.</p></li>
 </ul>
 <section id="datasets">
@@ -95,8 +95,8 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 <li><p>karateclub: undirected simple graph: n=34, m=78, <a class="reference external" href="http://konect.cc/networks/ucidata-zachary/">available here</a></p></li>
 <li><p>lesmiserables:  undirected simple graph: n=77, m=254, <a class="reference external" href="http://konect.cc/networks/moreno_lesmis/">available here</a></p></li>
 <li><p>powergrid: undirected simple graph, n=4941, m=6594, <a class="reference external" href="http://konect.cc/networks/opsahl-powergrid/">available here</a></p></li>
+<li><p>yeast: directed simple graph, n=688, m=1079, <a class="reference external" href="https://www.weizmann.ac.il/mcb/UriAlon/download/collection-complex-networks">available here</a></p></li>
 <li><p>airtraffic: directed simple graph: n=1226, m=2615, <a class="reference external" href="http://konect.cc/networks/maayan-faa/">available here</a></p></li>
-<li><p>adohealth: directed simple graph, n=2539, m=12969, <a class="reference external" href="http://konect.cc/networks/moreno_health/">available here</a></p></li>
 <li><p>crime: bipartite graph, n=829+551, m=1476, <a class="reference external" href="http://konect.cc/networks/moreno_crime/">available here</a></p></li>
 </ul>
 </li>
@@ -120,22 +120,19 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h2>
-<table class="docutils align-default" id="id7">
-<caption><span class="caption-text">Title</span><a class="headerlink" href="#id7" title="Permalink to this table"></a></caption>
+<table class="docutils align-default">
 <colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>dataset</p></th>
 <th class="head"><p>constraint</p></th>
 <th class="head"><p>eta value</p></th>
-<th class="head"><p>success rate</p></th>
 <th class="head"><p>eta estimation runtime (in seconds)</p></th>
 <th class="head"><p>convergence runtime (in seconds)</p></th>
 <th class="head"><p>total runtime (in seconds)</p></th>
@@ -145,7 +142,6 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 <tr class="row-even"><td><p>karateclub</p></td>
 <td><p>degree sequence</p></td>
 <td><p>751</p></td>
-<td><p>10.39%</p></td>
 <td><p>377</p></td>
 <td><p>2</p></td>
 <td><p>1575</p></td>
@@ -153,7 +149,6 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 <tr class="row-odd"><td><p>lesmiserables</p></td>
 <td><p>degree sequence</p></td>
 <td><p>1781</p></td>
-<td><p>14.26%</p></td>
 <td><p>1203</p></td>
 <td><p>5</p></td>
 <td><p>4955</p></td>
@@ -161,31 +156,27 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 <tr class="row-even"><td><p>powergrid</p></td>
 <td><p>degree sequence</p></td>
 <td><p>16137</p></td>
-<td><p>40.86%</p></td>
 <td><p>50995</p></td>
 <td><p>52</p></td>
 <td><p>233528</p></td>
 </tr>
-<tr class="row-odd"><td><p>airtraffic</p></td>
+<tr class="row-odd"><td><p>yeast</p></td>
+<td><p>degree sequence</p></td>
+<td><p>3394</p></td>
+<td><p>5318</p></td>
+<td><p>4</p></td>
+<td><p>25997</p></td>
+</tr>
+<tr class="row-even"><td><p>airtraffic</p></td>
 <td><p>degree sequence</p></td>
 <td><p>6719</p></td>
-<td><p>38.89%</p></td>
 <td><p>9063</p></td>
 <td><p>19</p></td>
 <td><p>37817</p></td>
 </tr>
-<tr class="row-even"><td><p>adohealth</p></td>
-<td><p>degree sequence</p></td>
-<td><p>32463</p></td>
-<td><p>39.95%</p></td>
-<td><p>179200</p></td>
-<td><p>152</p></td>
-<td><p>762030</p></td>
-</tr>
 <tr class="row-odd"><td><p>crime</p></td>
 <td><p>degree sequence</p></td>
 <td><p>3869</p></td>
-<td><p>38.45%</p></td>
 <td><p>3026</p></td>
 <td><p>38</p></td>
 <td><p>13885</p></td>
@@ -193,7 +184,6 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 <tr class="row-even"><td><p>karateclub</p></td>
 <td><p>joint degree matrix</p></td>
 <td><p>5053</p></td>
-<td><p>1.54%</p></td>
 <td><p>2 567</p></td>
 <td><p>8s</p></td>
 <td><p>4184</p></td>
@@ -201,7 +191,6 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 <tr class="row-odd"><td><p>lesmiserables</p></td>
 <td><p>joint degree matrix</p></td>
 <td><p>24643</p></td>
-<td><p>1.03%</p></td>
 <td><p>15987</p></td>
 <td><p>43</p></td>
 <td><p>26398</p></td>
@@ -209,26 +198,23 @@ to give an idea of what to expect in terms of execution time and a better grasp 
 <tr class="row-even"><td><p>powergrid</p></td>
 <td><p>joint degree matrix</p></td>
 <td><p>197180</p></td>
-<td><p>1.54%</p></td>
 <td><p>1644229</p></td>
 <td><p>6023</p></td>
 <td><p>2001551</p></td>
 </tr>
-<tr class="row-odd"><td><p>airtraffic</p></td>
+<tr class="row-odd"><td><p>yeast</p></td>
 <td><p>degree sequence + dyads</p></td>
-<td><p>6707</p></td>
-<td><p>38.96%</p></td>
-<td><p>8922</p></td>
-<td><p>17</p></td>
-<td><p>37876</p></td>
+<td><p>3426</p></td>
+<td><p>5719</p></td>
+<td><p>103</p></td>
+<td><p>27386</p></td>
 </tr>
-<tr class="row-even"><td><p>adohealth</p></td>
+<tr class="row-even"><td><p>airtraffic</p></td>
 <td><p>degree sequence + dyads</p></td>
-<td><p>32449</p></td>
-<td><p>39.97%</p></td>
-<td><p>191847</p></td>
-<td><p>1006</p></td>
-<td><p>800532</p></td>
+<td><p>12332</p></td>
+<td><p>123153</p></td>
+<td><p>26</p></td>
+<td><p>610772</p></td>
 </tr>
 </tbody>
 </table>

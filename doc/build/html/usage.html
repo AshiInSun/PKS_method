@@ -84,7 +84,7 @@
   <section id="usage">
 <span id="id1"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
 <ul>
-<li><p>The <strong>kedgeswap</strong> package provides a program to generate random simple graphs uniformly with a given set of target constraints:</p>
+<li><p>The <strong>pks</strong> package provides a program to generate random simple graphs uniformly with a given set of target constraints:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>undirected graphs with a fixed degree sequence</p></li>
@@ -127,12 +127,12 @@ If the input graph contains either, they will be automatically removed when the 
 <section id="target-constraints">
 <h2>Target Constraints<a class="headerlink" href="#target-constraints" title="Permalink to this heading"></a></h2>
 <ul>
-<li><p>The program generates uniformly at random <strong>simple</strong> graphs (no loops, no multiedges).</p></li>
+<li><p>The program generates uniformly at random <strong>simple</strong> graphs (no loop, no multiedge).</p></li>
 <li><p>Several target constraints are available:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>fixed degree sequence (default): Can be applied on several “flavours” of simple graphs: undirected, directed, bipartite. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).</p></li>
-<li><p>fixed joint degree matrix: Can be aplied to undirected, directed and bipartite graphs. The model convergence can only be evaluated by following the number of triangles (-t), as the assortativity is constant.</p></li>
+<li><p>fixed degree sequence (default): Can be applied on several “flavours” of simple graphs: undirected, directed, bipartite. The convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).</p></li>
+<li><p>fixed joint degree matrix: Can be applied to undirected, directed and bipartite graphs. The convergence can only be evaluated by following the number of triangles (-t), as the assortativity is constant.</p></li>
 <li><p>fixed number of mutual dyads: Can only be applied to directed graphs. A mutual dyad occurs when the graph contain links in two directions between two nodes, this constraint fixes the total number of mutual dyads in the graph. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).</p></li>
 </ul>
 </div></blockquote>
@@ -171,11 +171,11 @@ of arguments in the main.py file.</p>
 <li><p>Optional arguments:</p>
 <ul>
 <li><p>-v : enable to be more verbose. Adds the Markov Chain status to the logs, number of accepted/rejected swaps, DFGLS output to follow convergence.</p></li>
-<li><p>-g &lt;positive integer&gt;: exponent of the probability law used to pick the number of edges to swap.</p></li>
-<li><p>-e &lt;positive integer&gt;: sampling gap between each generated graph. If not specified, will use a (slow) estimation method.</p></li>
-<li><p>--output_number &lt;positive integer&gt;: number <em>N</em> of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.</p></li>
-<li><p>--debug : makes some additional checks, like checking that the degree sequences hasn’t changed after each swap. Slows down everything, only used for debuggin purposes.</p></li>
-<li><p>--keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a very large number of files, mostly useful for debug purposes)</p></li>
+<li><p>-g &lt;positive integer&gt; : exponent of the probability law used to pick the number of edges to swap.</p></li>
+<li><p>-e &lt;positive integer&gt; : sampling gap between each generated graph. If not specified, will use a (slow) estimation method.</p></li>
+<li><p>--output_number &lt;positive integer&gt; : number <em>N</em> of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.</p></li>
+<li><p>--debug : makes some additional checks, like checking that the degree sequence hasn’t changed after a swap (warning: slows down the code, only used for debugging purposes)</p></li>
+<li><p>--keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a large number of files, mostly useful for debugging purposes)</p></li>
 <li><p>--log_dir : only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain</p></li>
 </ul>
 </li>
