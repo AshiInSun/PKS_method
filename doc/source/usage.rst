@@ -61,7 +61,7 @@ Command Line Interface
 
 - Usage example, in the root folder of the package: 
 
-    python kedgeswap/main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out
+    python kedgeswap/main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out -a
 
 
 - list of main.py parameters:
@@ -90,13 +90,15 @@ Command Line Interface
 
     * -e <positive integer> : sampling gap between each generated graph. If not specified, will use a (slow) estimation method.
 
-    * \-\-output_number <positive integer> : number *N* of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default to 1000.
+    * \-\-output_number <positive integer> : number *N* of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default is 1000.
 
-    * \-\-debug : makes some additional checks, like checking that the degree sequence hasn't changed after a swap (warning: slows down the code, only used for debugging purposes)
+    * \-\-njobs <positive integer> : number of threads on which the process is parallelized, if possible. Default is 4. 
 
-    * \-\-keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a large number of files, mostly useful for debugging purposes) 
+    * \-\-debug : makes some additional checks, like checking that the degree sequence hasn't changed after a swap (warning: slows down the code, only used for debugging purposes).
 
-    * \-\-log_dir : only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain
+    * \-\-keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a large number of files, mostly useful for debugging purposes).
+
+    * \-\-log_dir : only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain.
 
 
 
