@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kedgeswap.MarkovChain &mdash; kedge_swap 1.0 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <title>kedgeswap.MarkovChain &mdash; pks 1.0 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
@@ -27,7 +27,7 @@
           
           
           <a href="../../contents.html" class="icon icon-home">
-            kedge_swap
+            pks
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -52,7 +52,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../contents.html">kedge_swap</a>
+          <a href="../../contents.html">pks</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -85,6 +85,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">gzip</span>
 <span class="kn">import</span> <span class="nn">ipdb</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -149,6 +150,7 @@
 <span class="sd">            debug: bool</span>
 <span class="sd">                if enabled, adds check and log output. Used for debugging purposes only.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">use_mutualdiades</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">N_swap</span> <span class="o">=</span> <span class="n">N_swap</span>
 
@@ -179,6 +181,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># number of graph dumped</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="o">=</span> <span class="n">log_dir</span> <span class="c1"># directory to dump graph and swap when asked</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="c1"># debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_ndyad</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_dyad</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
 
         <span class="c1"># acceptation rate </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">accept_rate</span> <span class="o">=</span> <span class="mi">0</span>
@@ -286,6 +292,7 @@
 <span class="sd">                true if swap can be accepted</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="c1"># list of the edges after permutation</span>
         <span class="n">goal_edges</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -293,7 +300,6 @@
         <span class="c1"># swap keeps the number of dyads fixed. (only if -md option is enabled)</span>
         <span class="n">broken_diades</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">created_diades</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
         <span class="k">for</span> <span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
             <span class="c1"># goal edge is the result of permutation between (u,v) and (x,y)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
@@ -303,13 +309,24 @@
             <span class="n">goal_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">goal_edge</span><span class="p">)</span>
 
             <span class="c1"># check mutual dyad</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mutualdiades</span><span class="p">:</span>
-                <span class="c1"># check broken diades</span>
-                <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
-                    <span class="n">broken_diades</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="nb">min</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)))</span>
-                <span class="c1"># check created diades</span>
-                <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">]:</span>
-                    <span class="n">created_diades</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="nb">min</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">y</span><span class="p">)))</span>
+            <span class="c1"># check broken diades</span>
+            <span class="c1">#ipdb.set_trace()</span>
+
+            <span class="c1">#if self.graph.directed and self.use_mutualdiades:</span>
+            <span class="c1">#    if v in self.graph.out_neighbors[u] and u in self.graph.out_neighbors[v]:</span>
+            <span class="c1">#        broken_diades.add((min(u,v), max(u,v)))</span>
+            <span class="c1">#    # check created diades</span>
+            <span class="c1">#    if u in self.graph.out_neighbors[y]:</span>
+            <span class="c1">#        created_diades.add((min(u,y), max(u,y)))</span>
+            
+            <span class="c1">#ipdb.set_trace()</span>
+            <span class="c1">#old_dyad, new_dyad = self.check_dyads(edge_to_swap, permutation)</span>
+            <span class="c1">#if len(old_dyad) != len(new_dyad): </span>
+            <span class="c1">#    #ipdb.set_trace()</span>
+
+            <span class="c1">#else:</span>
+            <span class="c1">#    print(f&#39;dyad check : {len(old_dyad)} {len(new_dyad)}&#39;)</span>
+
 
             <span class="c1"># avoid loops</span>
             <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="n">y</span><span class="p">:</span>
@@ -348,8 +365,75 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mutualdiades</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">broken_diades</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">created_diades</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="c1">#if len(broken_diades) != 0 or len(created_diades) != 0 :</span>
+        <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dyads</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">old</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1">#print(f&#39;guessing {ol} {ne}&#39;)</span>
+        <span class="c1">#print(&#39;broken&#39;) </span>
+        <span class="c1">#print(broken_diades)</span>
+        <span class="c1">#print(&#39;created&#39;)</span>
+        <span class="c1">#print(created_diades)</span>
+    
 
         <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="MarkovChain.check_dyads"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.check_dyads">[docs]</a>    <span class="k">def</span> <span class="nf">check_dyads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+        <span class="n">old_dyad</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">new_dyad</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">graph_outneigh</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">goal_edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">y</span> <span class="k">else</span> <span class="p">(</span><span class="n">y</span> <span class="p">,</span><span class="n">u</span><span class="p">)</span>
+
+            <span class="n">v_idx</span><span class="p">,</span> <span class="n">u_idx</span><span class="p">,</span> <span class="n">v_out_idx</span><span class="p">,</span> <span class="n">u_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
+            <span class="n">y_idx</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_out_idx</span><span class="p">,</span> <span class="n">x_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span>
+
+            <span class="n">graph_outneigh</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v_out_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="c1">#self.graph.in_neighbors[y][x_in_idx] = u</span>
+
+            <span class="c1">#self.graph.edges[(u,y)] = (v_idx, x_idx, v_out_idx, x_in_idx)</span>
+
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">graph_outneigh</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">graph_outneigh</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">graph_outneigh</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">graph_outneigh</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                    <span class="n">new_dyad</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="nb">min</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)))</span>
+        
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+                    <span class="n">old_dyad</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="nb">min</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)))</span>
+        
+        <span class="k">return</span> <span class="n">old_dyad</span><span class="p">,</span> <span class="n">new_dyad</span>
+            <span class="c1">## get degree of each node involved</span>
+            <span class="c1">#deg_u = len(self.graph.neighbors[u]) - 1</span>
+            <span class="c1">#deg_v = len(self.graph.neighbors[v]) -1</span>
+            <span class="c1">#deg_x = len(self.graph.neighbors[x]) -1</span>
+            <span class="c1">#deg_y = len(self.graph.neighbors[y]) -1</span>
+
+
+            <span class="c1">## update the joint degree values for the previous degrees</span>
+            <span class="c1">#updated_joint_degree[min(deg_u, deg_v), max(deg_u, deg_v)] -= 1/2</span>
+            <span class="c1">#updated_joint_degree[max(deg_u, deg_v), min(deg_u, deg_v)] -= 1/2</span>
+
+            <span class="c1">#updated_joint_degree[min(deg_x, deg_y), max(deg_x, deg_y)] -= 1/2</span>
+            <span class="c1">#updated_joint_degree[max(deg_x, deg_y), min(deg_x, deg_y)] -= 1/2</span>
+
+            <span class="c1">#updated_joint_degree[min(deg_u, deg_y), max(deg_u, deg_y)] += 1#/2</span>
+            <span class="c1">#updated_joint_degree[max(deg_u, deg_y), min(deg_u, deg_y)] += 1#/2</span>
+
+        <span class="k">return</span> <span class="n">updated_joint_degree</span></div>
+
+<div class="viewcode-block" id="MarkovChain.check_out_neighb"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.check_out_neighb">[docs]</a>    <span class="k">def</span> <span class="nf">check_out_neighb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span> <span class="n">v_pos_in_u</span><span class="p">,</span> <span class="n">u_pos_in_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v_pos_in_u</span><span class="p">]</span> <span class="o">==</span> <span class="n">v</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">u_pos_in_v</span><span class="p">]</span> <span class="o">==</span> <span class="n">u</span></div>
 
 <div class="viewcode-block" id="MarkovChain.perform_swap"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.perform_swap">[docs]</a>    <span class="k">def</span> <span class="nf">perform_swap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -365,7 +449,17 @@
 <span class="sd">            edge_to_swap_idx: list(int)</span>
 <span class="sd">                index of the edges in graph.unique_edges (useful when undirected)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">old_dyad</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_out_neighb</span><span class="p">()</span>
+        <span class="c1">#for u in self.graph.out_neighbors: </span>
+        <span class="c1">#    for v in self.graph.out_neighbors[u]:</span>
+        <span class="c1">#        if u == v: </span>
+        <span class="c1">#            ipdb.set_trace()</span>
 
+        <span class="c1">#        if u in self.graph.out_neighbors[v] and v in self.graph.out_neighbors[u]:</span>
+        <span class="c1">#            old_dyad.add((min(u,v), max(u,v)))</span>
+        <span class="c1">#print(f&#39;before: have {len(old_dyad)}&#39;)</span>
+        <span class="c1">#print(old_dyad)</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="n">e_idx</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span><span class="p">):</span>
 
             <span class="c1"># naming departure edge = (u,v) and arrival edge = (x,y) , goal edge = (u, y)</span>
@@ -382,7 +476,6 @@
                 <span class="c1"># directed graphs</span>
                 <span class="n">v_idx</span><span class="p">,</span> <span class="n">u_idx</span><span class="p">,</span> <span class="n">v_out_idx</span><span class="p">,</span> <span class="n">u_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
                 <span class="n">y_idx</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">,</span> <span class="n">y_out_idx</span><span class="p">,</span> <span class="n">x_in_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)]</span>
-
                 <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v_out_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x_in_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
 
@@ -406,7 +499,16 @@
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">)]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
                 <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">)]</span></div>
-
+       
+        <span class="c1">#old_dyad = set()</span>
+        <span class="c1">#for u in self.graph.out_neighbors: </span>
+        <span class="c1">#    for v in self.graph.out_neighbors[u]:</span>
+        <span class="c1">#        if u == v: </span>
+        <span class="c1">#            ipdb.set_trace()</span>
+        <span class="c1">#        if u in self.graph.out_neighbors[v]:</span>
+        <span class="c1">#            old_dyad.add((min(u,v), max(u,v)))</span>
+        <span class="c1">#print(f&#39;perform: have {len(old_dyad)}&#39;)</span>
+        <span class="c1">#print(old_dyad)</span>
 <div class="viewcode-block" id="MarkovChain.init_assortativity"><a class="viewcode-back" href="../../python/MarkovChain.html#kedgeswap.MarkovChain.MarkovChain.init_assortativity">[docs]</a>    <span class="k">def</span> <span class="nf">init_assortativity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Compute Assortativity initial value, using the formula found in </span>
@@ -796,6 +898,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">count_triangles</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_assortativity</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">init_assortativity</span><span class="p">()</span>
+        <span class="c1">#dyads = set()</span>
+        <span class="c1">#for u in self.graph.neighbors:</span>
+        <span class="c1">#    for v in self.graph.out_neighbors[u]:</span>
+        <span class="c1">#        if u in self.graph.out_neighbors[v]:</span>
+        <span class="c1">#            dyads.add((min(u,v), max(u,v)))</span>
+        <span class="c1">#self.prev_ndyad = len(dyads)</span>
+        <span class="c1">##print(len(dyads))</span>
 
         <span class="c1"># run N_swap swaps</span>
         <span class="k">for</span> <span class="n">swap_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_swap</span><span class="p">):</span>
@@ -809,6 +918,8 @@
             <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pick_k</span><span class="p">()</span>
             <span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_swap</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
             <span class="n">accept_permutation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_swap</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">)</span>
+
+
 
             <span class="c1"># if swap is accepted, perform swap and update graph metrics values</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">accept_permutation</span><span class="p">):</span>
@@ -827,6 +938,7 @@
 
                 <span class="c1"># realise the swap</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">perform_swap</span><span class="p">(</span><span class="n">edge_to_swap</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">edge_to_swap_idx</span><span class="p">)</span>
+
 
                 <span class="c1"># debug - check if degree sequence changed</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>

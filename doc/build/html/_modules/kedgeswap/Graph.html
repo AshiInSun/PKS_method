@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kedgeswap.Graph &mdash; kedge_swap 1.0 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <title>kedgeswap.Graph &mdash; pks 1.0 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
@@ -27,7 +27,7 @@
           
           
           <a href="../../contents.html" class="icon icon-home">
-            kedge_swap
+            pks
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -52,7 +52,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../contents.html">kedge_swap</a>
+          <a href="../../contents.html">pks</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -130,8 +130,8 @@
 
         <span class="c1"># adjacency lists</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">neighbors</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> 
-        <span class="bp">self</span><span class="o">.</span><span class="n">in_neighbors</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">out_neighbors</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_neighbors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_neighbors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
         <span class="c1"># store edges and the indexes of neighbors in adjacency lists.²</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -199,6 +199,16 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[</span><span class="n">node_out</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_in</span><span class="p">)</span>
 
                     <span class="c1"># in/out adjacency lists are useful for dyads</span>
+                    <span class="k">if</span> <span class="n">node_in</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[(</span><span class="n">node_in</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">node_out</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[(</span><span class="n">node_out</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">node_in</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[(</span><span class="n">node_in</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">node_out</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[(</span><span class="n">node_out</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+
+
                     <span class="bp">self</span><span class="o">.</span><span class="n">out_neighbors</span><span class="p">[(</span><span class="n">node_in</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_out</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">in_neighbors</span><span class="p">[(</span><span class="n">node_out</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_in</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+=</span> <span class="mi">1</span> 

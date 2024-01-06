@@ -1,21 +1,18 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MarkovChain &mdash; pks 1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>MarkovChain &mdash; pks 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -31,7 +28,7 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
+          <a href="../contents.html" class="icon icon-home">
             pks
           </a>
 <div role="search">
@@ -42,7 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
@@ -51,10 +48,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Python API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Graph.html">Graph</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">MarkovChain</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-kedgeswap.MarkovChain">MarkovChain Class</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#kedgeswap.MarkovChain.MarkovChain"><code class="docutils literal notranslate"><span class="pre">MarkovChain</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kedgeswap.MarkovChain">MarkovChain Class</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Stat.html">Stat</a></li>
@@ -68,14 +62,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">pks</a>
+          <a href="../contents.html">pks</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../contents.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Python API Documentation</a></li>
       <li class="breadcrumb-item active">MarkovChain</li>
       <li class="wy-breadcrumbs-aside">
@@ -87,121 +81,56 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="markovchain">
-<span id="markovchain-class"></span><h1>MarkovChain<a class="headerlink" href="#markovchain" title="Permalink to this heading"></a></h1>
-<nav class="contents local" id="contents">
+  <div class="section" id="markovchain">
+<span id="markovchain-class"></span><h1>MarkovChain<a class="headerlink" href="#markovchain" title="Permalink to this headline"></a></h1>
+<div class="contents local topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#module-kedgeswap.MarkovChain" id="id2">MarkovChain Class</a></p></li>
+<li><a class="reference internal" href="#module-kedgeswap.MarkovChain" id="id2">MarkovChain Class</a></li>
 </ul>
-</nav>
-<section id="module-kedgeswap.MarkovChain">
-<span id="id1"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">MarkovChain Class</a><a class="headerlink" href="#module-kedgeswap.MarkovChain" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-kedgeswap.MarkovChain">
+<span id="id1"></span><h2><a class="toc-backref" href="#id2">MarkovChain Class</a><a class="headerlink" href="#module-kedgeswap.MarkovChain" title="Permalink to this headline"></a></h2>
 <p>MarkovChain class, used to perform k-edge on a Graph object.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kedgeswap.MarkovChain.</span></span><span class="sig-name descname"><span class="pre">MarkovChain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_swap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_jd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_triangles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_assortativity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mutualdiades</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_record</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain" title="Permalink to this definition"></a></dt>
+<dl class="class">
+<dt id="kedgeswap.MarkovChain.MarkovChain">
+<em class="property">class </em><code class="descclassname">kedgeswap.MarkovChain.</code><code class="descname">MarkovChain</code><span class="sig-paren">(</span><em>graph</em>, <em>N_swap=0</em>, <em>gamma=0</em>, <em>use_jd=False</em>, <em>use_triangles=False</em>, <em>use_assortativity=False</em>, <em>use_mutualdiades=False</em>, <em>verbose=False</em>, <em>keep_record=False</em>, <em>log_dir=None</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>make swaps</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.pick_k">
-<span class="sig-name descname"><span class="pre">pick_k</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.pick_k"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.pick_k" title="Permalink to this definition"></a></dt>
-<dd><p>Pick k value using powerlaw distribution. The exponent of the powerlaw can be fixed by the
-gamma argument.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>k</strong> (<em>int</em>) – number of edges to swap</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.find_swap">
-<span class="sig-name descname"><span class="pre">find_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.find_swap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.find_swap" title="Permalink to this definition"></a></dt>
-<dd><p>Randomly pick k edges to swap, and randomly pick a permutation
-When self.force_k == True, permutation is a cyclic permutation,
-else it is a random permutation, with possible identity for some edges.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>k</strong> (<em>int</em>) – number of edges to swap</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>edge_to_swap</strong> (<em>list(tuples)</em>) – list of the edges to swap</p></li>
-<li><p><strong>permutation</strong> (<em>list(tuples)</em>) – list of the edges with which we should swap the                edges in edge_to_swap</p></li>
-<li><p><strong>_edge_to_swap</strong> (<em>list(int)</em>) – indexes in unique_edges of the edges in edge_to_swap</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.check_swap">
-<span class="sig-name descname"><span class="pre">check_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_to_swap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.check_swap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.check_swap" title="Permalink to this definition"></a></dt>
-<dd><p>Verify constraints to see if swap can be accepted or not</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>edge_to_swap</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges to swap</p></li>
-<li><p><strong>permutation</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges with which we should swap the                edges in edge_to_swap</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>swap_accepted</strong> (<em>bool</em>) – true if swap can be accepted</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.check_dyads">
-<span class="sig-name descname"><span class="pre">check_dyads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_to_swap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.check_dyads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.check_dyads" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.check_dyads">
+<code class="descname">check_dyads</code><span class="sig-paren">(</span><em>edge_to_swap</em>, <em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.check_dyads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.check_dyads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.perform_swap">
-<span class="sig-name descname"><span class="pre">perform_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_to_swap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_to_swap_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.perform_swap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.perform_swap" title="Permalink to this definition"></a></dt>
-<dd><p>When permutation is accepted, swap the edges in the graph data structure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>edge_to_swap</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges to swap</p></li>
-<li><p><strong>permutation</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges with which we should swap the                edges in edge_to_swap</p></li>
-<li><p><strong>edge_to_swap_idx</strong> (<em>list</em><em>(</em><em>int</em><em>)</em>) – index of the edges in graph.unique_edges (useful when undirected)</p></li>
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.check_out_neighb">
+<code class="descname">check_out_neighb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.check_out_neighb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.check_out_neighb" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.check_swap">
+<code class="descname">check_swap</code><span class="sig-paren">(</span><em>edge_to_swap</em>, <em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.check_swap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.check_swap" title="Permalink to this definition"></a></dt>
+<dd><p>Verify constraints to see if swap can be accepted or not</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>edge_to_swap</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges to swap</li>
+<li><strong>permutation</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges with which we should swap the                edges in edge_to_swap</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>swap_accepted</strong> (<em>bool</em>) – true if swap can be accepted</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.init_assortativity">
-<span class="sig-name descname"><span class="pre">init_assortativity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.init_assortativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.init_assortativity" title="Permalink to this definition"></a></dt>
-<dd><p>Compute Assortativity initial value, using the formula found in
-“Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences”.</p>
-<blockquote>
-<div><p>Using the notation deg(u) for the degree of u, and Axy for the adjancency matrix value for
-nodes x and y, and Sk = sum_x (deg(x) ^ k), we compute the following values:</p>
-<blockquote>
-<div><p>-S1, S2 and S3,
--Sl= sum_xy (Axy * deg(x) * deg(y))</p>
-</div></blockquote>
-</div></blockquote>
-<p>Using these values, the assortativity is computed as :</p>
-<p>r = ( S1 * Sl - S2 * S2 ) / ( S1 * S3 - S2 * S2 )</p>
-<p>Since Sl is the only value to depend on the presence of each link, we store the denominator
-to update the assortativity value in O(1) after each swap.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.update_assortativity">
-<span class="sig-name descname"><span class="pre">update_assortativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_to_swap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_assortativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_assortativity" title="Permalink to this definition"></a></dt>
-<dd><p>Given a K-edge swap, update assortativy value using generalised formual from
-“Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences”</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.count_triangles">
-<span class="sig-name descname"><span class="pre">count_triangles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.count_triangles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.count_triangles" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.count_triangles">
+<code class="descname">count_triangles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.count_triangles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.count_triangles" title="Permalink to this definition"></a></dt>
 <dd><p>Enumerate and store all triangles found in the graph.
 For undirected graphs:</p>
 <blockquote>
@@ -214,19 +143,50 @@ For undirected graphs:</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.update_triangles">
-<span class="sig-name descname"><span class="pre">update_triangles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_to_swap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_triangles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_triangles" title="Permalink to this definition"></a></dt>
-<dd><p>Update the sets of triangles by looking at each edge swap:</p>
-<ul class="simple">
-<li><p>if the initial edge was involved in a triangle, remove triangle from sets</p></li>
-<li><p>if the goal edge creates a triangle, add it to the sets</p></li>
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.find_swap">
+<code class="descname">find_swap</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.find_swap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.find_swap" title="Permalink to this definition"></a></dt>
+<dd><p>Randomly pick k edges to swap, and randomly pick a permutation
+When self.force_k == True, permutation is a cyclic permutation,
+else it is a random permutation, with possible identity for some edges.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>k</strong> (<em>int</em>) – number of edges to swap</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>edge_to_swap</strong> (<em>list(tuples)</em>) – list of the edges to swap</li>
+<li><strong>permutation</strong> (<em>list(tuples)</em>) – list of the edges with which we should swap the                edges in edge_to_swap</li>
+<li><strong>_edge_to_swap</strong> (<em>list(int)</em>) – indexes in unique_edges of the edges in edge_to_swap</li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.init_joint_degree">
-<span class="sig-name descname"><span class="pre">init_joint_degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.init_joint_degree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.init_joint_degree" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.init_assortativity">
+<code class="descname">init_assortativity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.init_assortativity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.init_assortativity" title="Permalink to this definition"></a></dt>
+<dd><p>Compute Assortativity initial value, using the formula found in
+“Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences”.</p>
+<blockquote>
+<div><p>Using the notation deg(u) for the degree of u, and Axy for the adjancency matrix value for
+nodes x and y, and Sk = sum_x (deg(x) ^ k), we compute the following values:</p>
+<blockquote>
+<div>-S1, S2 and S3,
+-Sl= sum_xy (Axy * deg(x) * deg(y))</div></blockquote>
+</div></blockquote>
+<p>Using these values, the assortativity is computed as :</p>
+<p>r = ( S1 * Sl - S2 * S2 ) / ( S1 * S3 - S2 * S2 )</p>
+<p>Since Sl is the only value to depend on the presence of each link, we store the denominator
+to update the assortativity value in O(1) after each swap.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.init_joint_degree">
+<code class="descname">init_joint_degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.init_joint_degree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.init_joint_degree" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize the joint degree matrix.</p>
 <p>joint_degree[i - 1, j - 1] gives the number of links from nodes of
 degree i to nodes of the degree j.
@@ -235,9 +195,73 @@ then each neighbor nn of n, and incrementing joint_degree[deg(n), deg(nn)] by 1/
 (increment by 1/2 to take into account that each edge is added twice)</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.update_joint_degree_old">
-<span class="sig-name descname"><span class="pre">update_joint_degree_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_to_swap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_joint_degree_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_joint_degree_old" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.perform_swap">
+<code class="descname">perform_swap</code><span class="sig-paren">(</span><em>edge_to_swap</em>, <em>permutation</em>, <em>edge_to_swap_idx</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.perform_swap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.perform_swap" title="Permalink to this definition"></a></dt>
+<dd><p>When permutation is accepted, swap the edges in the graph data structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>edge_to_swap</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges to swap</li>
+<li><strong>permutation</strong> (<em>list</em><em>(</em><em>tuples</em><em>)</em>) – list of the edges with which we should swap the                edges in edge_to_swap</li>
+<li><strong>edge_to_swap_idx</strong> (<em>list</em><em>(</em><em>int</em><em>)</em>) – index of the edges in graph.unique_edges (useful when undirected)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.pick_k">
+<code class="descname">pick_k</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.pick_k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.pick_k" title="Permalink to this definition"></a></dt>
+<dd><p>Pick k value using powerlaw distribution. The exponent of the powerlaw can be fixed by the
+gamma argument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>k</strong> (<em>int</em>) – number of edges to swap</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>N_swap=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.run" title="Permalink to this definition"></a></dt>
+<dd><p>K-edge swap algorithm.
+Start by computing assortativity initial value, then
+perform N_swap, each time checking the constraints and computing
+metrics.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.update_assortativity">
+<code class="descname">update_assortativity</code><span class="sig-paren">(</span><em>edge_to_swap</em>, <em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_assortativity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_assortativity" title="Permalink to this definition"></a></dt>
+<dd><p>Given a K-edge swap, update assortativy value using generalised formual from
+“Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences”</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.update_joint_degree">
+<code class="descname">update_joint_degree</code><span class="sig-paren">(</span><em>edge_to_swap</em>, <em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_joint_degree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_joint_degree" title="Permalink to this definition"></a></dt>
+<dd><p>Given a permutation, compute the changed in the joint degree matrix.
+Compute the update by copying the joint degree matrix, looping over
+each edge swap, decrementing the joint degree value for the ‘old’ edges
+and incrementing the joint degree value for the ‘new’ edges.</p>
+<p>Parameters:
+edge_to_swap : list of the edges to swap
+permutation  : list of the edges with which we should swap the                           edges in edge_to_swap</p>
+<p>Return :
+updated_joint_degree : np.array, the updated version of the joint degree matrix                                   if the permutation given in input is performed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.update_joint_degree_old">
+<code class="descname">update_joint_degree_old</code><span class="sig-paren">(</span><em>edge_to_swap</em>, <em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_joint_degree_old"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_joint_degree_old" title="Permalink to this definition"></a></dt>
 <dd><p>DEPRECATED - Only used for unit testing !
 Given a permutation, compute the changed in the joint degree matrix.
 Compute the update by copying the joint degree matrix, looping over
@@ -250,33 +274,20 @@ permutation  : list of the edges with which we should swap the                  
 updated_joint_degree : np.array, the updated version of the joint degree matrix                                   if the permutation given in input is performed.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.update_joint_degree">
-<span class="sig-name descname"><span class="pre">update_joint_degree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_to_swap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_joint_degree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_joint_degree" title="Permalink to this definition"></a></dt>
-<dd><p>Given a permutation, compute the changed in the joint degree matrix.
-Compute the update by copying the joint degree matrix, looping over
-each edge swap, decrementing the joint degree value for the ‘old’ edges
-and incrementing the joint degree value for the ‘new’ edges.</p>
-<p>Parameters:
-edge_to_swap : list of the edges to swap
-permutation  : list of the edges with which we should swap the                           edges in edge_to_swap</p>
-<p>Return :
-updated_joint_degree : np.array, the updated version of the joint degree matrix                                   if the permutation given in input is performed.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.MarkovChain.MarkovChain.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N_swap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.run" title="Permalink to this definition"></a></dt>
-<dd><p>K-edge swap algorithm.
-Start by computing assortativity initial value, then
-perform N_swap, each time checking the constraints and computing
-metrics.</p>
+<dl class="method">
+<dt id="kedgeswap.MarkovChain.MarkovChain.update_triangles">
+<code class="descname">update_triangles</code><span class="sig-paren">(</span><em>edge_to_swap</em>, <em>permutation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/MarkovChain.html#MarkovChain.update_triangles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.MarkovChain.MarkovChain.update_triangles" title="Permalink to this definition"></a></dt>
+<dd><p>Update the sets of triangles by looking at each edge swap:</p>
+<ul class="simple">
+<li>if the initial edge was involved in a triangle, remove triangle from sets</li>
+<li>if the goal edge creates a triangle, add it to the sets</li>
+</ul>
 </dd></dl>
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

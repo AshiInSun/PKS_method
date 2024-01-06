@@ -1,21 +1,18 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Graph &mdash; pks 1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Graph &mdash; pks 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -31,7 +28,7 @@
 
           
           
-          <a href="../index.html" class="icon icon-home">
+          <a href="../contents.html" class="icon icon-home">
             pks
           </a>
 <div role="search">
@@ -42,7 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
@@ -50,10 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../benchmark.html">Benchmark</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Python API Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Graph</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-kedgeswap.Graph">Graph Class</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#kedgeswap.Graph.Graph"><code class="docutils literal notranslate"><span class="pre">Graph</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kedgeswap.Graph">Graph Class</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="MarkovChain.html">MarkovChain</a></li>
@@ -68,14 +62,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">pks</a>
+          <a href="../contents.html">pks</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../contents.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Python API Documentation</a></li>
       <li class="breadcrumb-item active">Graph</li>
       <li class="wy-breadcrumbs-aside">
@@ -87,82 +81,97 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="graph">
-<span id="graph-class"></span><h1>Graph<a class="headerlink" href="#graph" title="Permalink to this heading"></a></h1>
-<nav class="contents local" id="contents">
+  <div class="section" id="graph">
+<span id="graph-class"></span><h1>Graph<a class="headerlink" href="#graph" title="Permalink to this headline"></a></h1>
+<div class="contents local topic" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#module-kedgeswap.Graph" id="id4">Graph Class</a></p></li>
+<li><a class="reference internal" href="#module-kedgeswap.Graph" id="id4">Graph Class</a></li>
 </ul>
-</nav>
-<section id="module-kedgeswap.Graph">
-<span id="id1"></span><h2><a class="toc-backref" href="#id4" role="doc-backlink">Graph Class</a><a class="headerlink" href="#module-kedgeswap.Graph" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kedgeswap.Graph.</span></span><span class="sig-name descname"><span class="pre">Graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph" title="Permalink to this definition"></a></dt>
+</div>
+<div class="section" id="module-kedgeswap.Graph">
+<span id="id1"></span><h2><a class="toc-backref" href="#id4">Graph Class</a><a class="headerlink" href="#module-kedgeswap.Graph" title="Permalink to this headline"></a></h2>
+<dl class="class">
+<dt id="kedgeswap.Graph.Graph">
+<em class="property">class </em><code class="descclassname">kedgeswap.Graph.</code><code class="descname">Graph</code><span class="sig-paren">(</span><em>directed=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Graph.Graph" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Read input graph and store graph as
 adjacency list</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.N">
-<span class="sig-name descname"><span class="pre">N</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.N" title="Permalink to this definition"></a></dt>
+<dl class="attribute">
+<dt id="kedgeswap.Graph.Graph.N">
+<code class="descname">N</code><a class="headerlink" href="#kedgeswap.Graph.Graph.N" title="Permalink to this definition"></a></dt>
 <dd><p>number of nodes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.M">
-<span class="sig-name descname"><span class="pre">M</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.M" title="Permalink to this definition"></a></dt>
+<dl class="attribute">
+<dt id="kedgeswap.Graph.Graph.M">
+<code class="descname">M</code><a class="headerlink" href="#kedgeswap.Graph.Graph.M" title="Permalink to this definition"></a></dt>
 <dd><p>number of edges</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.neighbors">
-<span class="sig-name descname"><span class="pre">neighbors</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.neighbors" title="Permalink to this definition"></a></dt>
+<dl class="attribute">
+<dt id="kedgeswap.Graph.Graph.neighbors">
+<code class="descname">neighbors</code><a class="headerlink" href="#kedgeswap.Graph.Graph.neighbors" title="Permalink to this definition"></a></dt>
 <dd><p>store adjacency list for each node</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict(list)</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict(list)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.in_neighbors">
-<span class="sig-name descname"><span class="pre">in_neighbors</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.in_neighbors" title="Permalink to this definition"></a></dt>
+<dl class="attribute">
+<dt id="kedgeswap.Graph.Graph.in_neighbors">
+<code class="descname">in_neighbors</code><a class="headerlink" href="#kedgeswap.Graph.Graph.in_neighbors" title="Permalink to this definition"></a></dt>
 <dd><p>used only in directed graph, for each node
 store their neighbors from “in-edges”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict(list)</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict(list)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.out_neighbors">
-<span class="sig-name descname"><span class="pre">out_neighbors</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.out_neighbors" title="Permalink to this definition"></a></dt>
+<dl class="attribute">
+<dt id="kedgeswap.Graph.Graph.out_neighbors">
+<code class="descname">out_neighbors</code><a class="headerlink" href="#kedgeswap.Graph.Graph.out_neighbors" title="Permalink to this definition"></a></dt>
 <dd><p>used only in directed graph, for each node
 store their neighbors from “out-edges”</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict(list)</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict(list)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.edges">
-<span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.edges" title="Permalink to this definition"></a></dt>
+<dl class="attribute">
+<dt id="kedgeswap.Graph.Graph.edges">
+<code class="descname">edges</code><a class="headerlink" href="#kedgeswap.Graph.Graph.edges" title="Permalink to this definition"></a></dt>
 <dd><div class="line-block">
 <div class="line">in undirected graph:</div>
 <div class="line-block">
@@ -171,32 +180,46 @@ store their neighbors from “out-edges”</p>
 </div>
 </div>
 <p>used mostly for undirected graph, to store one version            of each edge</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict()</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict()</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.directed">
-<span class="sig-name descname"><span class="pre">directed</span></span><a class="headerlink" href="#kedgeswap.Graph.Graph.directed" title="Permalink to this definition"></a></dt>
+<dl class="attribute">
+<dt id="kedgeswap.Graph.Graph.directed">
+<code class="descname">directed</code><a class="headerlink" href="#kedgeswap.Graph.Graph.directed" title="Permalink to this definition"></a></dt>
 <dd><p>enable if graph is directed</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.copy" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.Graph.Graph.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.copy" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.read_ssv">
-<span class="sig-name descname"><span class="pre">read_ssv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.read_ssv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.read_ssv" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.Graph.Graph.read_ael">
+<code class="descname">read_ael</code><span class="sig-paren">(</span><em>in_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.read_ael"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.read_ael" title="Permalink to this definition"></a></dt>
+<dd><p>Read ael format
+TODO example format
+TODO lecteurs pour d’autres formats</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kedgeswap.Graph.Graph.read_ssv">
+<code class="descname">read_ssv</code><span class="sig-paren">(</span><em>in_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.read_ssv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.read_ssv" title="Permalink to this definition"></a></dt>
 <dd><p>Read space separated values
 Input format is separated with spaces or tabulations, e.g.:</p>
 <div class="line-block">
@@ -213,35 +236,30 @@ the destination node.
 edges are stored as written in the file,
 else they are stored as (src, dest) with src &lt; dest.
 Self Loop and multi-graphs are not accepted.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>in_file</strong> (<em>str</em>) – path to the input file</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>in_file</strong> (<em>str</em>) – path to the input file</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.read_ael">
-<span class="sig-name descname"><span class="pre">read_ael</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.read_ael"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.read_ael" title="Permalink to this definition"></a></dt>
-<dd><p>Read ael format
-TODO example format
-TODO lecteurs pour d’autres formats</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.to_ael">
-<span class="sig-name descname"><span class="pre">to_ael</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.to_ael"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.to_ael" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.Graph.Graph.to_ael">
+<code class="descname">to_ael</code><span class="sig-paren">(</span><em>output</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.to_ael"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.to_ael" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kedgeswap.Graph.Graph.to_ssv">
-<span class="sig-name descname"><span class="pre">to_ssv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.to_ssv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.to_ssv" title="Permalink to this definition"></a></dt>
+<dl class="method">
+<dt id="kedgeswap.Graph.Graph.to_ssv">
+<code class="descname">to_ssv</code><span class="sig-paren">(</span><em>output</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kedgeswap/Graph.html#Graph.to_ssv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kedgeswap.Graph.Graph.to_ssv" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
