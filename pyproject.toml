@@ -6,10 +6,8 @@ build-backend = "hatchling.build"
 name = "kedgeswap"
 version = "1.1.0"
 authors = [
-    {name ="Lionel Tabourier",
-        email= "email@hisemail.com"},
-    {name="Julien Karadayi",
-        email="email@hisemail.com"}
+    {name ="Lionel Tabourier", email= "email@hisemail.com"},
+    {name="Julien Karadayi", email="email@hisemail.com"}
 ]
 description = "Python code to generate uniformly at random graphs obeying a given set of constraints."
 readme = "README.md"
