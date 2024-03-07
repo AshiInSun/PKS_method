@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; pks 1.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <title>Usage &mdash; pks 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,7 +31,7 @@
 
           
           
-          <a href="contents.html" class="icon icon-home">
+          <a href="index.html" class="icon icon-home">
             pks
           </a>
 <div role="search">
@@ -39,7 +42,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
@@ -60,14 +63,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="contents.html">pks</a>
+          <a href="index.html">pks</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="contents.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Usage</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
@@ -78,25 +81,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="usage">
-<span id="id1"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
+  <section id="usage">
+<span id="id1"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
 <ul>
-<li><p class="first">The <strong>pks</strong> package provides a program to generate random simple graphs uniformly with a given set of target constraints:</p>
+<li><p>The <strong>pks</strong> package provides a program to generate random simple graphs uniformly with a given set of target constraints:</p>
 <blockquote>
 <div><ul class="simple">
-<li>undirected graphs with a fixed degree sequence</li>
-<li>directed graphs with a fixed degree sequence</li>
-<li>bipartite graphs with a fixed degree sequence</li>
-<li>directed graphs with a fixed degree sequence and a fixed number of mutual dyads</li>
-<li>undirected graphs with a fixed joint degree matrix</li>
+<li><p>undirected graphs with a fixed degree sequence</p></li>
+<li><p>directed graphs with a fixed degree sequence</p></li>
+<li><p>bipartite graphs with a fixed degree sequence</p></li>
+<li><p>directed graphs with a fixed degree sequence and a fixed number of mutual dyads</p></li>
+<li><p>undirected graphs with a fixed joint degree matrix</p></li>
 </ul>
 </div></blockquote>
 </li>
 </ul>
-<div class="section" id="input-format">
-<h2>Input Format<a class="headerlink" href="#input-format" title="Permalink to this headline"></a></h2>
+<section id="input-format">
+<h2>Input Format<a class="headerlink" href="#input-format" title="Permalink to this heading"></a></h2>
 <ul>
-<li><p class="first">The program takes as input a simple graph described as an edge list (one line corresponds to an edge, two nodes are seperated by a space or tabulation):</p>
+<li><p>The program takes as input a simple graph described as an edge list (one line corresponds to an edge, two nodes are seperated by a space or tabulation):</p>
 <blockquote>
 <div><div class="line-block">
 <div class="line">1 2</div>
@@ -110,77 +113,78 @@
 </li>
 </ul>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This package does not handle loops and multiple edges.
+<p class="admonition-title">Note</p>
+<p>This package does not handle loops and multiple edges.
 If the input graph contains either, they will be automatically removed when the graph is read.</p>
 </div>
-</div>
-<div class="section" id="output">
-<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline"></a></h2>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li>The program generates a sample of graphs selected uniformly at random from the set of graphs with the same target constraints as the input graph.</li>
+<li><p>The program generates a sample of graphs selected uniformly at random from the set of graphs with the same target constraints as the input graph.</p></li>
 </ul>
-</div>
-<div class="section" id="target-constraints">
-<h2>Target Constraints<a class="headerlink" href="#target-constraints" title="Permalink to this headline"></a></h2>
+</section>
+<section id="target-constraints">
+<h2>Target Constraints<a class="headerlink" href="#target-constraints" title="Permalink to this heading"></a></h2>
 <ul>
-<li><p class="first">The program generates uniformly at random <strong>simple</strong> graphs (no loop, no multiedge).</p>
-</li>
-<li><p class="first">Several target constraints are available:</p>
+<li><p>The program generates uniformly at random <strong>simple</strong> graphs (no loop, no multiedge).</p></li>
+<li><p>Several target constraints are available:</p>
 <blockquote>
 <div><ul class="simple">
-<li>fixed degree sequence (default): Can be applied on several “flavours” of simple graphs: undirected, directed, bipartite. The convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).</li>
-<li>fixed joint degree matrix: Can be applied to undirected, directed and bipartite graphs. The convergence can only be evaluated by following the number of triangles (-t), as the assortativity is constant.</li>
-<li>fixed number of mutual dyads: Can only be applied to directed graphs. A mutual dyad occurs when the graph contain links in two directions between two nodes, this constraint fixes the total number of mutual dyads in the graph. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).</li>
+<li><p>fixed degree sequence (default): Can be applied on several “flavours” of simple graphs: undirected, directed, bipartite. The convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).</p></li>
+<li><p>fixed joint degree matrix: Can be applied to undirected, directed and bipartite graphs. The convergence can only be evaluated by following the number of triangles (-t), as the assortativity is constant.</p></li>
+<li><p>fixed number of mutual dyads: Can only be applied to directed graphs. A mutual dyad occurs when the graph contain links in two directions between two nodes, this constraint fixes the total number of mutual dyads in the graph. The model convergence can be evaluated either by following the assortativity (-a option) or the number of triangles (-t option).</p></li>
 </ul>
 </div></blockquote>
 </li>
 </ul>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">A user can add to the code additional constraints by adding them to the
+<p class="admonition-title">Note</p>
+<p>A user can add to the code additional constraints by adding them to the
 MarkovChain class. The constraints should be added in the
 <strong>check_swap</strong> method, used to verify if an edge swap is valid or not.
 An argument to select this constraint can then be added to the list
 of arguments in the main.py file.</p>
 </div>
-</div>
-<div class="section" id="command-line-interface">
-<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline"></a></h2>
+</section>
+<section id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading"></a></h2>
 <ul>
-<li><p class="first">Usage example, in the root folder of the package:</p>
+<li><p>Usage example, in the root folder of the package:</p>
 <blockquote>
 <div><p>python kedgeswap/main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out -a</p>
 </div></blockquote>
 </li>
-<li><p class="first">list of main.py parameters:</p>
+<li><p>list of main.py parameters:</p>
 <ul class="simple">
-<li>Required arguments:<ul>
-<li>-f &lt;path&gt; : path to the input file.</li>
-<li>-o &lt;path&gt; : path to the output files. Will write <em>N</em> output graphs with this prefix as filename, where <em>N</em> is fixed by the <em>–output_number</em> parameter (see Optional arguments).</li>
-<li>-d : enable if the input graph is directed or bipartite.</li>
-<li>-a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with <em>-t</em> or <em>-jd</em>.</li>
-<li>-t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with <em>-a</em>.</li>
-<li>-jd : (target constraint argument) enable to generate sample of graphs with a fixed joint degree matrix. Warning: only works with <em>-t</em> option to follow convergence (assortativity is constant when joint degree matrix is fixed).</li>
-<li>-md : (target constraint argument) enable to generate sample of graphs with a fixed number of mutual dyads. Warning: only works on directed graphs (<em>-d</em> option).</li>
+<li><p>Required arguments:</p>
+<ul>
+<li><p>-f &lt;path&gt; : path to the input file.</p></li>
+<li><p>-o &lt;path&gt; : path to the output files. Will write <em>N</em> output graphs with this prefix as filename, where <em>N</em> is fixed by the <em>--output_number</em> parameter (see Optional arguments).</p></li>
+<li><p>-d : enable if the input graph is directed or bipartite.</p></li>
+<li><p>-a : enable to follow the convergence of the Markov chain using the assortativity of the graph. Warning, option is not compatible with <em>-t</em> or <em>-jd</em>.</p></li>
+<li><p>-t : enable to follow the convergence of the Markov chain using the number of triangles in the graph. Warning, option is not compatible with <em>-a</em>.</p></li>
+<li><p>-jd : (target constraint argument) enable to generate sample of graphs with a fixed joint degree matrix. Warning: only works with <em>-t</em> option to follow convergence (assortativity is constant when joint degree matrix is fixed).</p></li>
+<li><p>-md : (target constraint argument) enable to generate sample of graphs with a fixed number of mutual dyads. Warning: only works on directed graphs (<em>-d</em> option).</p></li>
 </ul>
 </li>
-<li>Optional arguments:<ul>
-<li>-v : enable to be more verbose. Adds the Markov Chain status to the logs, number of accepted/rejected swaps, DFGLS output to follow convergence.</li>
-<li>-g &lt;positive integer&gt; : exponent of the probability law used to pick the number of edges to swap.</li>
-<li>-e &lt;positive integer&gt; : sampling gap between each generated graph. If not specified, will use a (slow) estimation method.</li>
-<li>–output_number &lt;positive integer&gt; : number <em>N</em> of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default is 1000.</li>
-<li>–njobs &lt;positive integer&gt; : number of threads on which the process is parallelized, if possible. Default is 4.</li>
-<li>–debug : makes some additional checks, like checking that the degree sequence hasn’t changed after a swap (warning: slows down the code, only used for debugging purposes).</li>
-<li>–keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a large number of files, mostly useful for debugging purposes).</li>
-<li>–log_dir : only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain.</li>
+<li><p>Optional arguments:</p>
+<ul>
+<li><p>-v : enable to be more verbose. Adds the Markov Chain status to the logs, number of accepted/rejected swaps, DFGLS output to follow convergence.</p></li>
+<li><p>-g &lt;positive integer&gt; : exponent of the probability law used to pick the number of edges to swap.</p></li>
+<li><p>-e &lt;positive integer&gt; : sampling gap between each generated graph. If not specified, will use a (slow) estimation method.</p></li>
+<li><p>--output_number &lt;positive integer&gt; : number <em>N</em> of uncorrelated graphs to generate once the Markov Chain has reached its convergence. Default is 1000.</p></li>
+<li><p>--njobs &lt;positive integer&gt; : number of threads on which the process is parallelized, if possible. Default is 4.</p></li>
+<li><p>--debug : makes some additional checks, like checking that the degree sequence hasn’t changed after a swap (warning: slows down the code, only used for debugging purposes).</p></li>
+<li><p>--keep_record : enable to store every step (as gzip file) of the Markov chain, as well as every permutation (warning: produces a large number of files, mostly useful for debugging purposes).</p></li>
+<li><p>--log_dir : only useful if keep_record is enabled. Specify a path to store each step of the Markov Chain.</p></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
