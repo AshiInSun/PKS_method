@@ -14,6 +14,7 @@ import gzip
 import copy
 import argparse
 import numpy as np
+from numpy.f2py.auxfuncs import throw_error
 
 from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
@@ -22,7 +23,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False):
         """
             Class to handle k-edge random swap
 
@@ -93,9 +94,12 @@ class MarkovChain:
         # triangles
         self.edges2triangles = defaultdict(list)
         self.triangles2edges = defaultdict(list)
+        self.initial_trianglenumber = 45
 
         # constraints
         self.use_jd = use_jd
+        self.use_fixed_triangle = use_fixed_triangle # use_triangle and use_fixed_triangle are mutually exclusive,
+                                                     # as fixed one is a generation constraint while the other is a convergence constraint.
         self.use_triangles = use_triangles
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
         self.use_mutualdiades = use_mutualdiades
@@ -263,6 +267,26 @@ class MarkovChain:
         else:
             updated_jd1 = None
 
+        # using the number of triangles as a constraint on generation,
+        # check if the number of triangles change
+        if self.use_fixed_triangle:
+            # Save triangle state
+            temp_edges2triangles = copy.deepcopy(self.edges2triangles)
+            temp_triangles2edges = copy.deepcopy(self.triangles2edges)
+
+            # Update triangles with the simulated swap
+            self.update_triangles(edge_to_swap, permutation)
+
+            # Check if triangle count changed
+            if len(self.triangles2edges) != 45:
+                # Revert graph and triangle changes
+                print("UNNACPTED : " + str(len(self.triangles2edges)))
+                self.edges2triangles = temp_edges2triangles
+                self.triangles2edges = temp_triangles2edges
+                return False
+            else:
+                print(len(self.triangles2edges))
+
         # check if total number of mutual diades changes
         #if self.graph.directed and self.use_mutualdiades:
         #    if len(broken_diades) != len(created_diades):
@@ -273,6 +297,8 @@ class MarkovChain:
             old_dyads, new_dyads = self.check_dyads(edge_to_swap, permutation)
             if len(old_dyads) != len(new_dyads):
                 return False
+
+
         return True
 
     def check_dyads(self,edge_to_swap, permutation):
@@ -757,6 +783,9 @@ class MarkovChain:
         # initialize values
         if self.use_jd:
             self.init_joint_degree()
+        if self.use_fixed_triangle:
+            self.count_triangles()
+            self.initial_trianglenumber = 45
 
         if self.use_triangles:
             self.count_triangles()
@@ -808,7 +837,7 @@ class MarkovChain:
                     self.update_assortativity(edge_to_swap, permutation)
                 elif self.use_triangles:
                     self.update_triangles(edge_to_swap, permutation)
-                
+
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
                 #write_swap(edge_to_swap, permutation) 

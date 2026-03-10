@@ -18,10 +18,7 @@ from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
 
-def run(dataset, directed, gamma, use_jd, 
-        use_triangles, use_assortativity, mutualdiades, turbo, 
-        eta, output, verbose, keep_record, log_dir, 
-        output_number, debug, njobs):
+def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use_assortativity, mutualdiades, turbo, eta, output, verbose, keep_record, log_dir, output_number, debug, njobs):
 
     # read graph
     print('Reading graph...')
@@ -31,8 +28,8 @@ def run(dataset, directed, gamma, use_jd,
     # initialize MCMC
     print('Initializing markov chain')
     mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, 
-            use_triangles=use_triangles, use_assortativity=use_assortativity, use_mutualdiades=mutualdiades,
-            verbose=verbose, 
+            use_fixed_triangle=use_fixed_triangle, use_triangles=use_triangles, use_assortativity=use_assortativity, use_mutualdiades=mutualdiades,
+            verbose=verbose,
             keep_record=keep_record, log_dir=log_dir, debug=debug)
 
     # initialize metrics
@@ -77,6 +74,9 @@ def main():
 
     parser.add_argument('-md', '--mutualdiades', action='store_true', default=False,
             help='enable to check if number of mutual diades (aka reciprocal links) stays constant to accept or refuse a swap. Only use with directed graphs.')
+
+    parser.add_argument('-ft', '--fixed_triangle', action='store_true', default=False,
+            help='enable to keep the number of triangles fixed during swaps')
 
     parser.add_argument('--output_number', type=int, default=1000,
             help='set the number of graph to generate after Markov Chain convergence.'
@@ -132,12 +132,16 @@ def main():
         print('Error: no value selected to estimate convergence. Please select -a for assortativity, or -t for the number of triangles.\n We recommend -a for the fixed degree sequence condition, and -t for the fixed joint degree matrix condition')
         sys.exit()
 
+    if (args.triangles and args.fixed_triangle):
+        print("Error: cannot use triangle count for convergence when triangles are fixed as a constraint. Use -a for assortativity instead. Exiting...")
+        sys.exit()
 
-    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.triangles, 
-            args.assortativity, args.mutualdiades, args.turbo, 
+
+    run(args.dataset, args.directed, args.gamma, args.jointdegree, args.fixed_triangle, args.triangles,
+            args.assortativity, args.mutualdiades, args.turbo,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
             args.output_number, args.debug, args.njobs)
-    
+
 
 if __name__ == "__main__":
     main()

@@ -38,7 +38,9 @@ Python code to generate uniformly at random graphs obeying a given set of constr
 ## Usage
 
 * Usage example: 
-	python main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out -v
+    ```bash
+    python main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out -v
+    ```
 
 * Get a list of the main.py arguments:
 
