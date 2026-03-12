@@ -305,6 +305,10 @@ class MarkovChain:
 
             local_graph.neighbors[u][v_idx] = y # on change v dans neighbors (u)
             local_graph.neighbors[y][x_idx] = u
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
+            del local_graph.edges[(u,v)]
+            if not local_graph.directed:
+                del local_graph.edges[(v,u)]
 
     def delta_local_triangle(self, local_graph, edge_to_swap, permutation):
         """
@@ -434,19 +438,19 @@ class MarkovChain:
 
             #we check the delta of the number of triangle which need to be equal to zero
 
-            local_graph, eidx = self.create_partial_local_graph(edge_to_swap)
+            local_graph, dico_globaltolocal = self.create_partial_local_graph(edge_to_swap)
             temp_mc = MarkovChain(local_graph)
             temp_mc.count_triangles()
-            temp_triangle = len(temp_mc.triangles2edges)
+            init_number_triangle = len(temp_mc.triangles2edges)
 
-            self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, eidx)
+            after_swap_graph = local_graph.copy()
+            self.perform_local_swap(after_swap_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
 
-            tobesafeiguess = local_graph.copy()
-            new_temp_mc = MarkovChain(tobesafeiguess)
-            new_temp_mc.count_triangles()
-            new_number_of_triangles = len(new_temp_mc.triangles2edges)
+            after_swap_temp_mc = MarkovChain(after_swap_graph)
+            after_swap_temp_mc.count_triangles()
+            new_number_of_triangles = len(after_swap_temp_mc.triangles2edges)
 
-            delta_triangle = temp_triangle - new_number_of_triangles
+            delta_triangle = new_number_of_triangles - init_number_triangle
             if delta_triangle != 0:
                 return False
 
@@ -1027,4 +1031,5 @@ class MarkovChain:
         self.accept_rate = accept_rate
         self.refusal_rate = refusal_rate
         return window
+
 

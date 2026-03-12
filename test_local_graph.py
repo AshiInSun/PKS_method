@@ -37,7 +37,7 @@ for edge in sorted(mygraph.unique_edges):
 # Create MarkovChain to access local graph methods
 mc = MarkovChain(mygraph, 10, 2, False)
 edge_to_swap, permutation, e_idx = mc.find_swap(2)
-mc.count_triangles()
+
 
 # Define edges to use for local graph
 edges_to_include = edge_to_swap
@@ -45,6 +45,9 @@ print(f"\n=== Creating Local Graph with edges: {edges_to_include} ===")
 
 # Create partial local graph
 local_graph, dico = mc.create_partial_local_graph(edges_to_include)
+tempmc = MarkovChain(local_graph)
+tempmc.count_triangles()
+initial_count_triangles = len(tempmc.triangles2edges)
 
 print(f"\nLocal Graph Stats:")
 print(f"Nodes: {local_graph.N}")
@@ -57,13 +60,46 @@ print(f"\nLocal Graph Unique Edges:")
 for edge in sorted(local_graph.unique_edges):
     print(f"  {edge}")
 
+print(f"\nLocal Graph Unique Edges:")
+for edge in sorted(local_graph.edges):
+    print(f"  {edge}")
+
+print(f"\nLocal Graph Triangles:")
+for triangle in mc.triangles2edges:
+    print(f"  {triangle} : {mc.triangles2edges[triangle]}")
+
 after_swap_graph = local_graph.copy()
 print(f"\n=== Performing one edge swap in local graph ===")
 
 mc.perform_local_swap(after_swap_graph, edge_to_swap, permutation, e_idx, dico)
 
-delta = mc.delta_local_triangle(after_swap_graph, edge_to_swap, permutation)
+print(f"\nAfter Swap Graph Stats:")
+print(f"Nodes: {local_graph.N}")
+print(f"Edges: {local_graph.M}")
+print(f"\nAfter Swap Graph Adjacency List:")
+for node in sorted(after_swap_graph.neighbors.keys()):
+    print(f"  {node}: {sorted(after_swap_graph.neighbors[node])}")
 
+print(f"\nLocal Graph Unique Edges:")
+for edge in sorted(after_swap_graph.unique_edges):
+    print(f"  {edge}")
+
+print(f"\nLocal Graph Edges:")
+for edge in sorted(after_swap_graph.edges):
+    print(f"  {edge}")
+
+
+newmc = MarkovChain(after_swap_graph)
+newmc.count_triangles()
+new_count_triangles = len(newmc.triangles2edges)
+delta = initial_count_triangles - new_count_triangles
+
+print(f"\nLocal Graph Triangles:")
+for triangle in mc.triangles2edges:
+    print(f"  {triangle} : {mc.triangles2edges[triangle]}")
+
+print(f"\nnumber of triangles before swap: {initial_count_triangles}")
+print(f"\nnumber of triangles after swap: {new_count_triangles}")
 print(f"\nDELTA in number of triangles after swap: {delta}")
 
 # ===== VISUALIZATION =====
