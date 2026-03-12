@@ -39,6 +39,14 @@ def handcrafted_directed(request):
     mygraph.read_ssv(os.path.join(request.fspath.dirname,'handcrafted_directed.tsv'))
     return mygraph 
 
+@pytest.fixture
+def egograph(request):
+    mygraph = Graph(False)
+    # Load from the egograph_edges.txt file in the data folder
+    egograph_path = os.path.join(request.fspath.dirname, '..', 'data', 'ucidata-zachary', 'egograph_edges.txt')
+    mygraph.read_ssv(egograph_path)
+    return mygraph
+
 def test_directed_graph(japanese_macaques):
     #mygraph = Graph(True)
     #mygraph.read_ssv('data/japanese_macaques.tsv')#TODO
@@ -77,7 +85,7 @@ def test_directed_mc(japanese_macaques):
     permutation = [(59, 61), (43, 34), (57, 62), (36, 7), (12, 51), (27, 48), (49, 62), (11, 46), (8, 23), (56, 22)]
     edge_to_swap_idx = [1090, 1185, 100, 458, 1015, 1123, 436, 333, 734, 915]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -119,7 +127,7 @@ def test_undirected_mc(euroroad):
     permutation = [(28, 29), (578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382)]
     edge_to_swap_idx = [972, 1343, 1281, 502, 566, 662, 837, 1300, 709, 59]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -181,7 +189,7 @@ def test_update_triangles(euroroad, japanese_macaques):
 
     assert destroyed_triangles[0] in mc.triangles2edges
     
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -232,7 +240,7 @@ def test_update_triangles(euroroad, japanese_macaques):
             (33, 48, 53), (33, 48, 54), (33, 34, 48), (33, 35, 48), (33, 48, 55), 
             (33, 48, 57)]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -273,7 +281,7 @@ def test_update_triangles_random(japanese_macaques):
     k = 4
     for swap_idx in range(10):
         edge_to_swap, permutation, edge_to_swap_idx = mc.find_swap(k)
-        accept_permutation = mc.check_swap(edge_to_swap, permutation)
+        accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
 
         if (accept_permutation):
             mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
@@ -315,7 +323,7 @@ def test_update_assortativity(euroroad):
     permutation = [(28, 29), (578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382)]
     edge_to_swap_idx = [972, 1343, 1281, 502, 566, 662, 837, 1300, 709, 59]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
     mc.update_assortativity(edge_to_swap, permutation)
@@ -396,7 +404,7 @@ def test_update_joint_degree_directed(japanese_macaques):
     edge_to_swap = [(5, 38), (46, 57), (3, 28), (46, 62)]
     permutation = [(46, 57), (3, 28), (46, 62), (5, 38)]
     edge_to_swap_idx = [178, 1156, 87, 1157]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     mc.init_joint_degree()
 
     updated_joint_degree = mc.update_joint_degree_old(edge_to_swap, permutation)
@@ -412,12 +420,12 @@ def test_mutualdiades(japanese_macaques, handcrafted_directed):
 
     edge_to_swap =[(59, 35), (21, 20)]
     permutation = [(21, 20), (59, 35)]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == True # same number of mutual diades
 
     edge_to_swap = [(28, 46), (41, 24)]
     permutation = [(41, 24), (28, 46)]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == False # create one mutual diades
 
     # TODO find more examples, maybe on health dataset ?
@@ -427,12 +435,138 @@ def test_mutualdiades(japanese_macaques, handcrafted_directed):
 
     edge_to_swap =[(0,1), (2,6)]
     permutation = [(2,6), (0,1)]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == True # same number of mutual diades
 
     edge_to_swap = [(4,1), (2,6)]
     permutation = [(2,6), (4,1)] # break two diades, create one
     
-    accept_permutation = mc.check_swap(edge_to_swap, permutation)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
     assert accept_permutation == False # create one mutual diades
 
+
+def test_delta_local_triangle_calculation(euroroad):
+    """
+    Test if delta_local_triangle correctly counts the difference of triangles before/after swap
+    Uses the same functions as check_swap: create_partial_local_graph, perform_local_swap, delta_local_triangle
+    This test uses the same swap data as test_update_triangles from euroroad dataset.
+    """
+    mygraph = euroroad
+    mc = MarkovChain(mygraph, 10, 2, False)
+    mc.count_triangles()
+
+    # Same swap data from test_update_triangles (euroroad)
+    edge_to_swap = [(469, 470), (1085, 1086), (428, 732)]
+    permutation = [(1085, 1086), (428, 732), (469, 470)]
+    edge_to_swap_idx = [831, 1363, 768]
+    # This swap destroys the triangle (428, 429, 732)
+
+    # Count triangles before swap
+    triangles_count_before = len(mc.triangles2edges)
+
+    # Use the same approach as check_swap: create a local graph, perform swap on it, compute delta
+    local_graph = mc.create_partial_local_graph(edge_to_swap)
+    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx)
+    delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
+
+    print(f"Delta from delta_local_triangle: {delta_triangle}")
+
+    # Now perform the actual swap on the main graph to verify
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.update_triangles(edge_to_swap, permutation)
+    triangles_count_after = len(mc.triangles2edges)
+
+    observed_delta = triangles_count_after - triangles_count_before
+
+    print(f"Observed delta from actual swap: {observed_delta}")
+    print(f"Triangle count before: {triangles_count_before}, after: {triangles_count_after}")
+
+    # The delta from delta_local_triangle should match the observed delta
+    assert delta_triangle == observed_delta, f"Delta mismatch: {delta_triangle} != {observed_delta}"
+
+
+def test_delta_local_triangle_directed(japanese_macaques):
+    """
+    Test if delta_local_triangle correctly counts the difference of triangles before/after swap
+    for directed graphs. Uses the same functions as check_swap.
+    This test uses the same swap data as test_update_triangles from japanese_macaques dataset.
+    """
+    mygraph = japanese_macaques
+    mc = MarkovChain(mygraph, 10, 2, False)
+    mc.count_triangles()
+
+    # Same swap data from test_update_triangles (japanese_macaques - directed)
+    edge_to_swap = [(18, 33), (48, 62)]
+    permutation = [(48, 62), (18, 33)]
+    edge_to_swap_idx = [647, 1112]
+
+    # Count triangles before swap
+    triangles_count_before = len(mc.triangles2edges)
+
+    # Use the same approach as check_swap
+    local_graph = mc.create_partial_local_graph(edge_to_swap)
+    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx)
+    delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
+
+    print(f"Delta from delta_local_triangle: {delta_triangle}")
+
+    # Now perform the actual swap on the main graph to verify
+    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+    mc.update_triangles(edge_to_swap, permutation)
+    triangles_count_after = len(mc.triangles2edges)
+
+    observed_delta = triangles_count_after - triangles_count_before
+
+    print(f"Observed delta from actual swap: {observed_delta}")
+    print(f"Triangle count before: {triangles_count_before}, after: {triangles_count_after}")
+
+    # The delta from delta_local_triangle should match the observed delta
+    assert delta_triangle == observed_delta, f"Delta mismatch: {delta_triangle} != {observed_delta}"
+
+
+def test_egograph_triangles(egograph):
+    """
+    Test delta_local_triangle calculation on egograph dataset
+    This is a real-world network (Zachary's karate club)
+    """
+    mygraph = egograph
+    mc = MarkovChain(mygraph, 10, 2, False)
+    mc.count_triangles()
+
+    print(f"\nEgograph basic stats:")
+    print(f"Number of nodes: {mygraph.N}")
+    print(f"Number of edges: {mygraph.M}")
+    print(f"Number of triangles: {len(mc.triangles2edges)}")
+
+    # Test multiple random swaps and verify delta calculation
+    for swap_idx in range(5):
+        # Find a swap
+        edge_to_swap, permutation, edge_to_swap_idx = mc.find_swap(2)
+
+        # Count triangles before swap
+        triangles_count_before = len(mc.triangles2edges)
+
+        # Use the same approach as check_swap
+        local_graph = mc.create_partial_local_graph(edge_to_swap)
+        mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx)
+        delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
+
+        print(f"\nSwap {swap_idx + 1}:")
+        print(f"  Edge to swap: {edge_to_swap}")
+        print(f"  Permutation: {permutation}")
+        print(f"  Delta from delta_local_triangle: {delta_triangle}")
+
+        # Now perform the actual swap on the main graph to verify
+        mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
+        mc.update_triangles(edge_to_swap, permutation)
+        triangles_count_after = len(mc.triangles2edges)
+
+        observed_delta = triangles_count_after - triangles_count_before
+
+        print(f"  Observed delta from actual swap: {observed_delta}")
+        print(f"  Triangle count before: {triangles_count_before}, after: {triangles_count_after}")
+
+        # The delta from delta_local_triangle should match the observed delta
+        assert delta_triangle == observed_delta, f"Delta mismatch for swap {swap_idx + 1}: {delta_triangle} != {observed_delta}"
+
+    print(f"\n✓ All 5 swaps passed delta calculation verification on egograph!")

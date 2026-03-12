@@ -94,7 +94,7 @@ class MarkovChain:
         # triangles
         self.edges2triangles = defaultdict(list)
         self.triangles2edges = defaultdict(list)
-        self.initial_trianglenumber = 45
+        self.initial_trianglenumber = 0
 
         # constraints
         self.use_jd = use_jd
@@ -200,7 +200,165 @@ class MarkovChain:
 
         return edge_to_swap, permutation, _edge_to_swap
 
-    def check_swap(self, edge_to_swap, permutation):
+    def create_partial_local_graph(self, edges):
+        """
+        Crée un sous-graphe local pour un ensemble d'arêtes,
+        en gardant les voisins originaux des nœuds impliqués.
+
+        Parameters
+        ----------
+        edges : list of tuple
+            Liste des arêtes impliquées dans le swap
+
+        Returns
+        -------
+        local_graph : Graph
+            Copie locale contenant :
+            - Tous les voisins des nœuds impliqués
+            - TOUTES les arêtes entre nœuds impliqués
+            - Les arêtes "actives" du swap pour la modification
+        """
+
+        graph = self.graph
+
+        nodes = set()
+        for u, v in edges:
+            nodes.add(u)
+            nodes.add(v)
+
+        for node in list(nodes):
+            nodes.update(graph.neighbors[node])
+
+        local_graph = Graph(directed=graph.directed)
+
+        unique_edges = set()
+
+        for u in nodes:
+            for v in graph.neighbors[u]:
+                if v not in nodes:
+                    continue
+
+                if graph.directed:
+                    local_graph.neighbors[u].append(v)
+                    local_graph.edges[(u, v)] = len(local_graph.neighbors[u]) - 1
+                    unique_edges.add((u, v))
+
+                else:
+                    if (u, v) not in local_graph.edges:
+                        local_graph.neighbors[u].append(v)
+                        local_graph.edges[(u, v)] = len(local_graph.neighbors[u]) - 1
+
+                        local_graph.neighbors[v].append(u)
+                        local_graph.edges[(v, u)] = len(local_graph.neighbors[v]) - 1
+
+                        unique_edges.add((min(u, v), max(u, v)))
+
+        local_graph.unique_edges = list(unique_edges)
+        local_graph.N = len(nodes)
+        local_graph.M = len(unique_edges)
+
+        global_index_map = {e: i for i, e in enumerate(self.graph.unique_edges)}
+        local_to_global = {i: global_index_map[e] for i, e in enumerate(local_graph.unique_edges)}
+        global_to_local = {global_idx: local_idx for local_idx, global_idx in local_to_global.items()}
+
+        return local_graph, global_to_local
+
+    def perform_local_swap(self, local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico):
+        """
+        Effectue un swap local sur un sous-graphe, en mettant à jour les voisins impliqués et les autres voisins.
+
+        Parameters
+        ----------
+        local_graph : Graph
+            Le sous-graphe local à modifier
+        edge_to_swap : list of tuple
+            Liste des arêtes à échanger
+        permutation : list of tuple
+            Liste des arêtes cibles pour le swap
+        edge_to_swap_idx : list of int
+        dico : list of index global -> local
+        """
+        for (u, v), (x, y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+
+            if local_graph.directed:
+                goal_edge = (u, y)
+            else:
+                goal_edge = (u, y) if u < y else (y, u)
+            local_index = dico[e_idx]
+            local_graph.unique_edges[local_index] = goal_edge
+
+            if local_graph.directed:
+                v_idx, u_idx, v_out_idx, u_in_idx = local_graph.edges[(u, v)]
+                y_idx, x_idx, y_out_idx, x_in_idx = local_graph.edges[(x, y)]
+                local_graph.out_neighbors[u][v_out_idx] = y
+                local_graph.in_neighbors[y][x_in_idx] = u
+
+                local_graph.edges[(u, y)] = (v_idx, x_idx, v_out_idx, x_in_idx)
+            else:
+                v_idx = local_graph.edges[(u, v)]
+                u_idx = local_graph.edges[(v, u)]
+                y_idx = local_graph.edges[(x, y)]
+                x_idx = local_graph.edges[(y, x)]
+
+                local_graph.edges[(u, y)] = v_idx
+                local_graph.edges[(y, u)] = x_idx
+
+            local_graph.neighbors[u][v_idx] = y # on change v dans neighbors (u)
+            local_graph.neighbors[y][x_idx] = u
+
+    def delta_local_triangle(self, local_graph, edge_to_swap, permutation):
+        """
+        Calcule le delta du nombre de triangles dans un sous-graphe local après un swap.
+
+        Cette fonction calcule le changement net du nombre de triangles sans modifier les structures
+        de données globales (edges2triangles, triangles2edges). Elle utilise la même logique que
+        update_triangles mais retourne seulement le delta.
+
+        Parameters
+        ----------
+        local_graph : Graph
+            Le sous-graphe local après le swap local (local_graph a déjà été modifié par perform_local_swap)
+        edge_to_swap : list of tuple
+            Liste des arêtes à échanger (arêtes avant le swap)
+        permutation : list of tuple
+            Liste des arêtes cibles pour le swap (arêtes après le swap)
+
+        Returns
+        -------
+        delta_triangle : int
+            Le changement net du nombre de triangles après le swap
+        """
+        delta = 0
+        destroyed_triangles_set = set()
+        created = set()
+        created_triangles_set = set()
+
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
+            if local_graph.directed:
+                goal_edge = (u, y)
+            else:
+                goal_edge = (u, y) if u < y else (y ,u)
+
+            if (u, v) in self.edges2triangles:
+                destroyed_triangle = self.edges2triangles[(u, v)].copy()
+                for triangle in destroyed_triangle:
+                    destroyed_triangles_set.add(triangle)
+
+            if (not self.graph.directed) and (v, u) in self.edges2triangles:
+                destroyed_triangles = self.edges2triangles[(v,u)].copy()
+                for triangle in destroyed_triangles:
+                    destroyed_triangles_set.add(triangle)
+
+            for neigh in local_graph.neighbors[u]:
+                if neigh == y:
+                    continue
+                if (neigh, y) in local_graph.edges or (y, neigh) in local_graph.edges:
+                    current_triangle = tuple(sorted((u, y, neigh)))
+                    created.add(current_triangle)
+        delta += len(created)
+        delta -= len(destroyed_triangles_set)
+        return delta
+    def check_swap(self, edge_to_swap, permutation, edge_to_swap_idx):
         """
             Verify constraints to see if swap can be accepted or not
 
@@ -211,6 +369,8 @@ class MarkovChain:
             permutation: list(tuples)
                 list of the edges with which we should swap the\
                 edges in edge_to_swap
+            edge_to_swap_idx: list(int)
+                index of the edges in graph.unique_edges (useful when undirected)
 
             Returns
             -------
@@ -270,22 +430,25 @@ class MarkovChain:
         # using the number of triangles as a constraint on generation,
         # check if the number of triangles change
         if self.use_fixed_triangle:
-            # Save triangle state
-            temp_edges2triangles = copy.deepcopy(self.edges2triangles)
-            temp_triangles2edges = copy.deepcopy(self.triangles2edges)
+            #we do a copy of the sub-graph changed by the swap, i.e. the nodes implied in the swap and their neighboors.
 
-            # Update triangles with the simulated swap
-            self.update_triangles(edge_to_swap, permutation)
+            #we check the delta of the number of triangle which need to be equal to zero
 
-            # Check if triangle count changed
-            if len(self.triangles2edges) != 45:
-                # Revert graph and triangle changes
-                print("UNNACPTED : " + str(len(self.triangles2edges)))
-                self.edges2triangles = temp_edges2triangles
-                self.triangles2edges = temp_triangles2edges
+            local_graph, eidx = self.create_partial_local_graph(edge_to_swap)
+            temp_mc = MarkovChain(local_graph)
+            temp_mc.count_triangles()
+            temp_triangle = len(temp_mc.triangles2edges)
+
+            self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, eidx)
+
+            tobesafeiguess = local_graph.copy()
+            new_temp_mc = MarkovChain(tobesafeiguess)
+            new_temp_mc.count_triangles()
+            new_number_of_triangles = len(new_temp_mc.triangles2edges)
+
+            delta_triangle = temp_triangle - new_number_of_triangles
+            if delta_triangle != 0:
                 return False
-            else:
-                print(len(self.triangles2edges))
 
         # check if total number of mutual diades changes
         #if self.graph.directed and self.use_mutualdiades:
@@ -485,8 +648,6 @@ class MarkovChain:
                | e.g. for triangle (u,v,w) we store {(u,v,w), (v,w,u), (w,u,v)}. We store each link\
                | involved in the triangle in edges_in_triangles (pointing to the triangle tuplet)\
         """
-
-        nb_triangles = 0
         for node_1 in self.graph.neighbors.keys():
             
             # skip nodes of degree < 2, they can't have triangles...
@@ -718,8 +879,8 @@ class MarkovChain:
             # get degree of each node involved
             deg_u = len(self.graph.neighbors[u]) - 1
             deg_v = len(self.graph.neighbors[v]) -1
-            deg_x = len(self.graph.neighbors[x]) -1
-            deg_y = len(self.graph.neighbors[y]) -1
+            deg_x = len(self.graph.neighbors[x]) - 1
+            deg_y = len(self.graph.neighbors[y]) - 1
 
 
             # update the joint degree values for the previous degrees
@@ -785,7 +946,7 @@ class MarkovChain:
             self.init_joint_degree()
         if self.use_fixed_triangle:
             self.count_triangles()
-            self.initial_trianglenumber = 45
+            self.initial_trianglenumber = len(self.triangles2edges)
 
         if self.use_triangles:
             self.count_triangles()
@@ -803,12 +964,12 @@ class MarkovChain:
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
-            accept_permutation = self.check_swap(edge_to_swap, permutation)
+            accept_permutation = self.check_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
 
 
             # if swap is accepted, perform swap and update graph metrics values
-            if (accept_permutation):
+            if accept_permutation:
 
                 # if debug is enabled, check that degree sequence is constant
                 if self.debug:
@@ -835,7 +996,8 @@ class MarkovChain:
                 # compute value of interest (assortativity/triangles) to follow convergence
                 if self.use_assortativity:
                     self.update_assortativity(edge_to_swap, permutation)
-                elif self.use_triangles:
+                # we need to keep triangles also when it's a generative constraint
+                elif self.use_triangles or self.use_fixed_triangle:
                     self.update_triangles(edge_to_swap, permutation)
 
                 #if self.use_jd:
