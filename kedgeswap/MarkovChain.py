@@ -946,12 +946,11 @@ class MarkovChain:
         # initialize values
         if self.use_jd:
             self.init_joint_degree()
-        if self.use_fixed_triangle:
+        if self.use_fixed_triangle or self.use_triangles:
             self.count_triangles()
             self.initial_trianglenumber = len(self.triangles2edges)
+            print(f"Number of initial triangles :{self.initial_trianglenumber}")
 
-        if self.use_triangles:
-            self.count_triangles()
         elif self.use_assortativity:
             self.init_assortativity()
 
@@ -1001,6 +1000,9 @@ class MarkovChain:
                 # we need to keep triangles also when it's a generative constraint
                 elif self.use_triangles or self.use_fixed_triangle:
                     self.update_triangles(edge_to_swap, permutation)
+                    new_tr= len(self.triangles2edges)
+                    if self.verbose and (new_tr != self.initial_trianglenumber):
+                        print(f"New number of triangles :{len(self.triangles2edges)}")
 
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
