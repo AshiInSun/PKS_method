@@ -77,7 +77,6 @@ class MarkovChain:
             debug: bool
                 if enabled, adds check and log output. Used for debugging purposes only.
         """
-        print(use_mutualdiades)
         self.graph = graph
         self.N_swap = N_swap
 
@@ -607,7 +606,7 @@ class MarkovChain:
             Given a K-edge swap, update assortativy value using generalised formual from
             "Dutta, Fosdick et Clauset, 2022: Sampling random graphs with specified degree sequences"
         """
-        N = 0 
+        N = 0
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
 
             # new edge is (u,y), disappearing edge is (u,v)
@@ -754,8 +753,6 @@ class MarkovChain:
                             
                             self.edges2triangles[(node_2, node_1)].append(current_triangle)
                             self.triangles2edges[current_triangle].append((node_2, node_1))
-
-
     def init_joint_degree(self):
         """ Initialize the joint degree matrix.
 
@@ -949,9 +946,8 @@ class MarkovChain:
         if self.use_fixed_triangle or self.use_triangles:
             self.count_triangles()
             self.initial_trianglenumber = len(self.triangles2edges)
-            print(f"Number of initial triangles :{self.initial_trianglenumber}")
 
-        elif self.use_assortativity:
+        if self.use_assortativity:
             self.init_assortativity()
 
         # run N_swap swaps
@@ -998,12 +994,9 @@ class MarkovChain:
                 if self.use_assortativity:
                     self.update_assortativity(edge_to_swap, permutation)
                 # we need to keep triangles also when it's a generative constraint
-                elif self.use_triangles or self.use_fixed_triangle:
+                if self.use_triangles or self.use_fixed_triangle:
                     self.update_triangles(edge_to_swap, permutation)
                     new_tr= len(self.triangles2edges)
-                    if self.verbose and (new_tr != self.initial_trianglenumber):
-                        print(f"New number of triangles :{len(self.triangles2edges)}")
-
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
                 #write_swap(edge_to_swap, permutation) 
