@@ -89,7 +89,7 @@ class Stat():
         """
         # run a short burn in
         N_swap = 5 * self.mc.graph.M # burn in 
-        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, 
+        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_fixed_triangle=self.mc.use_fixed_triangle,
                               use_assortativity=self.mc.use_assortativity, use_mutualdiades=self.mc.use_mutualdiades, 
                               verbose=self.mc.verbose, keep_record=False, log_dir=None)
         burn_in.run()
@@ -234,7 +234,7 @@ class Stat():
 
         # run long burn in to reach convergence of the markov chain
 
-        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles,
+        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_fixed_triangle=self.mc.use_fixed_triangle,
                               use_assortativity=self.mc.use_assortativity,
                               use_mutualdiades=self.mc.use_mutualdiades,
                               verbose=self.mc.verbose, keep_record=False, log_dir=None)
@@ -273,12 +273,12 @@ class Stat():
 
                 if len(mc) <= c:
                     mc.append(MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd,
-                            use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity,
+                            use_triangles=self.mc.use_triangles, use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
                             use_mutualdiades=self.mc.use_mutualdiades,
                             verbose=self.mc.verbose, keep_record=False, log_dir=None))
                 else:
                     mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd,
-                                use_triangles=self.mc.use_triangles, use_assortativity=self.mc.use_assortativity,
+                                use_triangles=self.mc.use_triangles,use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
                                 use_mutualdiades=self.mc.use_mutualdiades,
                                 verbose=self.mc.verbose, keep_record=False, log_dir=None)
 

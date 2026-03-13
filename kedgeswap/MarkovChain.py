@@ -997,6 +997,7 @@ class MarkovChain:
                 if self.use_triangles or self.use_fixed_triangle:
                     self.update_triangles(edge_to_swap, permutation)
                     new_tr= len(self.triangles2edges)
+                    print(new_tr)
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
                 #write_swap(edge_to_swap, permutation) 

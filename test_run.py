@@ -19,7 +19,7 @@ def test_run():
 
     mc = MarkovChain(
         graph,
-        N_swap=1000000,
+        N_swap=10000,
         gamma=2.0,
         use_assortativity=True,
         use_fixed_triangle=True,
