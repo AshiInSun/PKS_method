@@ -37,6 +37,30 @@ for edge in sorted(mygraph.unique_edges):
 # Create MarkovChain to access local graph methods
 mc = MarkovChain(mygraph, 10, 2, False)
 edge_to_swap, permutation, e_idx = mc.find_swap(2)
+goal_edges = []
+checks_passed = False
+
+def check_swap_validity(edges, permutations):
+    for ((u, v), (x, y)) in zip(edges, permutations):
+        # goal edge is the result of permutation between (u,v) and (x,y)
+        if mygraph.directed:
+            goal_edge = (u, y)
+        else:
+            goal_edge = (u, y) if u < y else (y, u)
+        goal_edges.append(goal_edge)
+
+        # avoid loops
+        if u == y:
+            return False
+
+        # avoid multiple edges
+        if goal_edge in mygraph.edges:
+            return False
+    return True
+
+while not checks_passed:
+    edge_to_swap, permutation, e_idx = mc.find_swap(2)
+    checks_passed = check_swap_validity(edge_to_swap, permutation)
 
 
 # Define edges to use for local graph
@@ -65,38 +89,40 @@ for edge in sorted(local_graph.edges):
     print(f"  {edge}")
 
 print(f"\nLocal Graph Triangles:")
-for triangle in mc.triangles2edges:
-    print(f"  {triangle} : {mc.triangles2edges[triangle]}")
+for triangle in tempmc.triangles2edges:
+    print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")
 
-after_swap_graph = local_graph.copy()
 print(f"\n=== Performing one edge swap in local graph ===")
 
-mc.perform_local_swap(after_swap_graph, edge_to_swap, permutation, e_idx, dico)
+before_swap_graph = local_graph.copy()
+
+if checks_passed:
+    mc.perform_local_swap(local_graph, edge_to_swap, permutation, e_idx, dico)
 
 print(f"\nAfter Swap Graph Stats:")
 print(f"Nodes: {local_graph.N}")
 print(f"Edges: {local_graph.M}")
 print(f"\nAfter Swap Graph Adjacency List:")
-for node in sorted(after_swap_graph.neighbors.keys()):
-    print(f"  {node}: {sorted(after_swap_graph.neighbors[node])}")
+for node in sorted(local_graph.neighbors.keys()):
+    print(f"  {node}: {sorted(local_graph.neighbors[node])}")
 
 print(f"\nLocal Graph Unique Edges:")
-for edge in sorted(after_swap_graph.unique_edges):
+for edge in sorted(local_graph.unique_edges):
     print(f"  {edge}")
 
 print(f"\nLocal Graph Edges:")
-for edge in sorted(after_swap_graph.edges):
+for edge in sorted(local_graph.edges):
     print(f"  {edge}")
 
-
-newmc = MarkovChain(after_swap_graph)
-newmc.count_triangles()
-new_count_triangles = len(newmc.triangles2edges)
+tempmc.update_triangles(edge_to_swap, permutation)
+new_count_triangles = len(tempmc.triangles2edges)
 delta = initial_count_triangles - new_count_triangles
 
 print(f"\nLocal Graph Triangles:")
-for triangle in mc.triangles2edges:
-    print(f"  {triangle} : {mc.triangles2edges[triangle]}")
+for triangle in tempmc.triangles2edges:
+    print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")
+
+print(f"\nchecks passed for swap: {checks_passed}")
 
 print(f"\nnumber of triangles before swap: {initial_count_triangles}")
 print(f"\nnumber of triangles after swap: {new_count_triangles}")
@@ -130,16 +156,16 @@ ax1.axis('off')
 # Local graph
 ax2 = axes[1]
 G_local = nx.Graph()
-G_local.add_nodes_from(sorted(local_graph.neighbors.keys()))
-for edge in local_graph.unique_edges:
+G_local.add_nodes_from(sorted(before_swap_graph.neighbors.keys()))
+for edge in before_swap_graph.unique_edges:
     G_local.add_edge(edge[0], edge[1])
 
 # After swap graph
 ax3 = axes[2]
 G_after = nx.Graph()
-G_after.add_nodes_from(sorted(after_swap_graph.neighbors.keys()))
+G_after.add_nodes_from(sorted(local_graph.neighbors.keys()))
 
-for edge in after_swap_graph.unique_edges:
+for edge in local_graph.unique_edges:
     G_after.add_edge(edge[0], edge[1])
 
 if G_after.number_of_nodes() > 0:

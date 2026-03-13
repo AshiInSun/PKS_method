@@ -443,12 +443,10 @@ class MarkovChain:
             temp_mc.count_triangles()
             init_number_triangle = len(temp_mc.triangles2edges)
 
-            after_swap_graph = local_graph.copy()
-            self.perform_local_swap(after_swap_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
+            self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
 
-            after_swap_temp_mc = MarkovChain(after_swap_graph)
-            after_swap_temp_mc.count_triangles()
-            new_number_of_triangles = len(after_swap_temp_mc.triangles2edges)
+            temp_mc.update_triangles(edge_to_swap, permutation)
+            new_number_of_triangles = len(temp_mc.triangles2edges)
 
             delta_triangle = new_number_of_triangles - init_number_triangle
             if delta_triangle != 0:
