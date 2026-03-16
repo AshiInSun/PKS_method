@@ -39,6 +39,7 @@ mc = MarkovChain(mygraph, 10, 2, False)
 edge_to_swap, permutation, e_idx = mc.find_swap(2)
 goal_edges = []
 checks_passed = False
+mc.count_triangles()
 
 def check_swap_validity(edges, permutations):
     for ((u, v), (x, y)) in zip(edges, permutations):
@@ -69,6 +70,7 @@ print(f"\n=== Creating Local Graph with edges: {edges_to_include} ===")
 
 # Create partial local graph
 local_graph, dico = mc.create_partial_local_graph(edges_to_include)
+
 tempmc = MarkovChain(local_graph)
 tempmc.count_triangles()
 initial_count_triangles = len(tempmc.triangles2edges)
@@ -95,9 +97,7 @@ for triangle in tempmc.triangles2edges:
 print(f"\n=== Performing one edge swap in local graph ===")
 
 before_swap_graph = local_graph.copy()
-
-if checks_passed:
-    mc.perform_local_swap(local_graph, edge_to_swap, permutation, e_idx, dico)
+mc.perform_local_swap(local_graph, edge_to_swap, permutation, e_idx, dico)
 
 print(f"\nAfter Swap Graph Stats:")
 print(f"Nodes: {local_graph.N}")
@@ -116,17 +116,20 @@ for edge in sorted(local_graph.edges):
 
 tempmc.update_triangles(edge_to_swap, permutation)
 new_count_triangles = len(tempmc.triangles2edges)
-delta = initial_count_triangles - new_count_triangles
 
-print(f"\nLocal Graph Triangles:")
-for triangle in tempmc.triangles2edges:
-    print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")
-
-print(f"\nchecks passed for swap: {checks_passed}")
-
-print(f"\nnumber of triangles before swap: {initial_count_triangles}")
-print(f"\nnumber of triangles after swap: {new_count_triangles}")
-print(f"\nDELTA in number of triangles after swap: {delta}")
+delta_plus, delta_moins =  mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
+delta = delta_plus - delta_moins
+print(f"\nDelta plus (triangles created): {delta_plus}")
+print(f"\nDelta moins (triangles destroyed): {delta_moins}")
+# print(f"\nLocal Graph Triangles:")
+# for triangle in tempmc.triangles2edges:
+#     print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")
+#
+# print(f"\nchecks passed for swap: {checks_passed}")
+#
+# print(f"\nnumber of triangles before swap: {initial_count_triangles}")
+# print(f"\nnumber of triangles after swap: {new_count_triangles}")
+# print(f"\nDELTA in number of triangles after swap: {delta}")
 
 # ===== VISUALIZATION =====
 fig, axes = plt.subplots(1, 3, figsize=(20, 6))

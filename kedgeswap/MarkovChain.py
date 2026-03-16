@@ -334,7 +334,6 @@ class MarkovChain:
         delta = 0
         destroyed_triangles_set = set()
         created = set()
-        created_triangles_set = set()
 
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
             if local_graph.directed:
@@ -342,9 +341,10 @@ class MarkovChain:
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
 
+            #destroyed triangles
             if (u, v) in self.edges2triangles:
-                destroyed_triangle = self.edges2triangles[(u, v)].copy()
-                for triangle in destroyed_triangle:
+                destroyed_triangles = self.edges2triangles[(u, v)].copy()
+                for triangle in destroyed_triangles:
                     destroyed_triangles_set.add(triangle)
 
             if (not self.graph.directed) and (v, u) in self.edges2triangles:
@@ -352,6 +352,8 @@ class MarkovChain:
                 for triangle in destroyed_triangles:
                     destroyed_triangles_set.add(triangle)
 
+
+            #created triangles
             for neigh in local_graph.neighbors[u]:
                 if neigh == y:
                     continue
@@ -360,6 +362,7 @@ class MarkovChain:
                     created.add(current_triangle)
         delta += len(created)
         delta -= len(destroyed_triangles_set)
+
         return delta
     def check_swap(self, edge_to_swap, permutation, edge_to_swap_idx):
         """
@@ -438,16 +441,16 @@ class MarkovChain:
             #we check the delta of the number of triangle which need to be equal to zero
 
             local_graph, dico_globaltolocal = self.create_partial_local_graph(edge_to_swap)
-            temp_mc = MarkovChain(local_graph)
-            temp_mc.count_triangles()
-            init_number_triangle = len(temp_mc.triangles2edges)
+            # temp_mc = MarkovChain(local_graph)
+            # temp_mc.count_triangles()
+            # init_number_triangle = len(temp_mc.triangles2edges)
 
             self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
 
-            temp_mc.update_triangles(edge_to_swap, permutation)
-            new_number_of_triangles = len(temp_mc.triangles2edges)
+            # temp_mc.update_triangles(edge_to_swap, permutation)
+            # new_number_of_triangles = len(temp_mc.triangles2edges)
 
-            delta_triangle = new_number_of_triangles - init_number_triangle
+            delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
             if delta_triangle != 0:
                 return False
 
@@ -996,8 +999,6 @@ class MarkovChain:
                 # we need to keep triangles also when it's a generative constraint
                 if self.use_triangles or self.use_fixed_triangle:
                     self.update_triangles(edge_to_swap, permutation)
-                    new_tr= len(self.triangles2edges)
-                    print(new_tr)
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
                 #write_swap(edge_to_swap, permutation) 
