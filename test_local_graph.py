@@ -117,10 +117,8 @@ for edge in sorted(local_graph.edges):
 tempmc.update_triangles(edge_to_swap, permutation)
 new_count_triangles = len(tempmc.triangles2edges)
 
-delta_plus, delta_moins =  mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
-delta = delta_plus - delta_moins
-print(f"\nDelta plus (triangles created): {delta_plus}")
-print(f"\nDelta moins (triangles destroyed): {delta_moins}")
+delta = mc.delta_local_3path(local_graph, edge_to_swap, permutation)
+print(f"\nDelta in number of 3path after swap (computed): {delta}")
 # print(f"\nLocal Graph Triangles:")
 # for triangle in tempmc.triangles2edges:
 #     print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")

@@ -14,6 +14,7 @@ import gzip
 import copy
 import argparse
 import numpy as np
+from networkx.classes import neighbors
 from numpy.f2py.auxfuncs import throw_error
 
 from kedgeswap.Graph import Graph
@@ -256,9 +257,13 @@ class MarkovChain:
         local_graph.N = len(nodes)
         local_graph.M = len(unique_edges)
 
+        #we need to keep the mapping between edges indexes of the global graph and their
+        #local index in the local graph.
         global_index_map = {e: i for i, e in enumerate(self.graph.unique_edges)}
-        local_to_global = {i: global_index_map[e] for i, e in enumerate(local_graph.unique_edges)}
-        global_to_local = {global_idx: local_idx for local_idx, global_idx in local_to_global.items()}
+        global_to_local = {
+            global_index_map[e]: i
+            for i, e in enumerate(local_graph.unique_edges)
+        }
 
         return local_graph, global_to_local
 
@@ -364,6 +369,47 @@ class MarkovChain:
         delta -= len(destroyed_triangles_set)
 
         return delta
+
+    def delta_local_3path(self,local_graph, edge_to_swap, permutation):
+        delta = 0
+
+        for (u, v), (x, y) in zip(edge_to_swap, permutation):
+            if local_graph.directed:
+                goal_edge = (u, y)
+            else:
+                goal_edge = (u, y) if u < y else (y, u)
+
+            #destroyed path
+            #where u is an extremity
+            for nu in self.graph.neighbors[u]:
+                if nu == v:
+                    continue
+                for nnu in self.graph.neighbors[nu]:
+                    if nnu == v or nnu == u:
+                        continue
+                    else:
+                        delta += 1
+
+            #where v is an extremity
+            for nv in self.graph.neighbors[v]:
+                if nv == u:
+                    continue
+                for nnv in self.graph.neighbors[nv]:
+                    if nnv == u or nnv == v:
+                        continue
+                    else:
+                        delta += 1
+            #where u nor v are extremity
+            for nu in self.graph.neighbors[u]:
+                if nu == v:
+                    continue
+                for nv in self.graph.neighbors[v]:
+                    if nv == u or nu == nv:
+                        continue
+                    else:
+                        delta +=1
+
+        return (- delta)
     def check_swap(self, edge_to_swap, permutation, edge_to_swap_idx):
         """
             Verify constraints to see if swap can be accepted or not
@@ -437,19 +483,8 @@ class MarkovChain:
         # check if the number of triangles change
         if self.use_fixed_triangle:
             #we do a copy of the sub-graph changed by the swap, i.e. the nodes implied in the swap and their neighboors.
-
-            #we check the delta of the number of triangle which need to be equal to zero
-
             local_graph, dico_globaltolocal = self.create_partial_local_graph(edge_to_swap)
-            # temp_mc = MarkovChain(local_graph)
-            # temp_mc.count_triangles()
-            # init_number_triangle = len(temp_mc.triangles2edges)
-
             self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
-
-            # temp_mc.update_triangles(edge_to_swap, permutation)
-            # new_number_of_triangles = len(temp_mc.triangles2edges)
-
             delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
             if delta_triangle != 0:
                 return False
