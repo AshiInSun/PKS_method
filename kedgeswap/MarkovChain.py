@@ -24,7 +24,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False, use_fixed_threechains=False):
         """
             Class to handle k-edge random swap
 
@@ -96,6 +96,7 @@ class MarkovChain:
         self.triangles2edges = defaultdict(list)
         self.initial_trianglenumber = 0
 
+
         # constraints
         self.use_jd = use_jd
         self.use_fixed_triangle = use_fixed_triangle # use_triangle and use_fixed_triangle are mutually exclusive,
@@ -104,6 +105,7 @@ class MarkovChain:
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
         self.use_mutualdiades = use_mutualdiades
         self.joint_degree = np.zeros(0)
+        self.use_fixed_threechains = use_fixed_threechains
 
         # debug
         self.verbose = verbose
@@ -200,7 +202,7 @@ class MarkovChain:
 
         return edge_to_swap, permutation, _edge_to_swap
 
-    def create_partial_local_graph(self, edges):
+    def create_partial_local_graph(self, edges, frontier):
         """
         Crée un sous-graphe local pour un ensemble d'arêtes,
         en gardant les voisins originaux des nœuds impliqués.
@@ -226,8 +228,9 @@ class MarkovChain:
             nodes.add(u)
             nodes.add(v)
 
-        for node in list(nodes):
-            nodes.update(graph.neighbors[node])
+        for _ in range(frontier):
+            for node in list(nodes):
+                nodes.update(graph.neighbors[node])
 
         local_graph = Graph(directed=graph.directed)
 
@@ -370,46 +373,49 @@ class MarkovChain:
 
         return delta
 
+    def count_involved_3path(self, graph, edge_involved):
+        number_of_involved = 0
+        (u, v) = edge_involved
+
+        #number of path
+        #where u is an extremity
+        for nu in graph.neighbors[u]:
+            if nu == v:
+                continue
+            for nnu in graph.neighbors[nu]:
+                if nnu == v or nnu == u:
+                    continue
+                else:
+                    number_of_involved += 1
+
+        #where v is an extremity
+        for nv in graph.neighbors[v]:
+            if nv == u:
+                continue
+            for nnv in graph.neighbors[nv]:
+                if nnv == u or nnv == v:
+                    continue
+                else:
+                    number_of_involved += 1
+        #where u nor v are extremity
+        for nu in graph.neighbors[u]:
+            if nu == v:
+                continue
+            for nv in graph.neighbors[v]:
+                if nv == u or nu == nv:
+                    continue
+                else:
+                    number_of_involved +=1
+        return number_of_involved
+
     def delta_local_3path(self,local_graph, edge_to_swap, permutation):
         delta = 0
-
         for (u, v), (x, y) in zip(edge_to_swap, permutation):
-            if local_graph.directed:
-                goal_edge = (u, y)
-            else:
-                goal_edge = (u, y) if u < y else (y, u)
-
-            #destroyed path
-            #where u is an extremity
-            for nu in self.graph.neighbors[u]:
-                if nu == v:
-                    continue
-                for nnu in self.graph.neighbors[nu]:
-                    if nnu == v or nnu == u:
-                        continue
-                    else:
-                        delta += 1
-
-            #where v is an extremity
-            for nv in self.graph.neighbors[v]:
-                if nv == u:
-                    continue
-                for nnv in self.graph.neighbors[nv]:
-                    if nnv == u or nnv == v:
-                        continue
-                    else:
-                        delta += 1
-            #where u nor v are extremity
-            for nu in self.graph.neighbors[u]:
-                if nu == v:
-                    continue
-                for nv in self.graph.neighbors[v]:
-                    if nv == u or nu == nv:
-                        continue
-                    else:
-                        delta +=1
-
-        return (- delta)
+            #destroyed paths : paths where the edge to swap is involved in the graph before swap
+            delta -= self.count_involved_3path(self.graph, (u, v))
+            #created paths : paths where the goal edge is involved in the graph after swap
+            delta += self.count_involved_3path(local_graph, (u, y))
+        return delta
     def check_swap(self, edge_to_swap, permutation, edge_to_swap_idx):
         """
             Verify constraints to see if swap can be accepted or not
@@ -483,10 +489,17 @@ class MarkovChain:
         # check if the number of triangles change
         if self.use_fixed_triangle:
             #we do a copy of the sub-graph changed by the swap, i.e. the nodes implied in the swap and their neighboors.
-            local_graph, dico_globaltolocal = self.create_partial_local_graph(edge_to_swap)
+            local_graph, dico_globaltolocal = self.create_partial_local_graph(edge_to_swap, 1)
             self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
             delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
             if delta_triangle != 0:
+                return False
+
+        if self.use_fixed_threechains:
+            local_graph, dico_globaltolocal = self.create_partial_local_graph(edge_to_swap, 2)
+            self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
+            delta_3path = self.delta_local_3path(local_graph, edge_to_swap, permutation)
+            if delta_3path != 0:
                 return False
 
         # check if total number of mutual diades changes

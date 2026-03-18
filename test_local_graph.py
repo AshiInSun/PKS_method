@@ -39,6 +39,7 @@ mc = MarkovChain(mygraph, 10, 2, False)
 edge_to_swap, permutation, e_idx = mc.find_swap(2)
 goal_edges = []
 checks_passed = False
+set_3chain = True
 mc.count_triangles()
 
 def check_swap_validity(edges, permutations):
@@ -57,6 +58,13 @@ def check_swap_validity(edges, permutations):
         # avoid multiple edges
         if goal_edge in mygraph.edges:
             return False
+
+        if set_3chain:
+            local_graph, dico = mc.create_partial_local_graph(edges, 2)
+            mc.perform_local_swap(local_graph, edge_to_swap, permutation, e_idx, dico)
+            delta = mc.delta_local_3path(local_graph, edge_to_swap, permutation)
+            if delta != 0:
+                return False
     return True
 
 while not checks_passed:
@@ -69,7 +77,7 @@ edges_to_include = edge_to_swap
 print(f"\n=== Creating Local Graph with edges: {edges_to_include} ===")
 
 # Create partial local graph
-local_graph, dico = mc.create_partial_local_graph(edges_to_include)
+local_graph, dico = mc.create_partial_local_graph(edges_to_include, 2)
 
 tempmc = MarkovChain(local_graph)
 tempmc.count_triangles()
@@ -116,7 +124,6 @@ for edge in sorted(local_graph.edges):
 
 tempmc.update_triangles(edge_to_swap, permutation)
 new_count_triangles = len(tempmc.triangles2edges)
-
 delta = mc.delta_local_3path(local_graph, edge_to_swap, permutation)
 print(f"\nDelta in number of 3path after swap (computed): {delta}")
 # print(f"\nLocal Graph Triangles:")

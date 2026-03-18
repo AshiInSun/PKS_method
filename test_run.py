@@ -11,7 +11,7 @@ def test_run():
         os.path.dirname(__file__),
         'data',
         'ucidata-zachary',
-        'egograph_edges.txt'
+        'out.ucidata-zachary'
     )
 
     graph = Graph(directed=False)
@@ -19,9 +19,9 @@ def test_run():
 
     mc = MarkovChain(
         graph,
-        N_swap=100000,
+        N_swap=1000000,
         gamma=3.0,
-        use_triangles=True,
+        use_assortativity=True,
         use_fixed_triangle=True,
         verbose=True
     )
