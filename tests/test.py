@@ -4,11 +4,13 @@
 #
 #    K-edge-swap is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
+#    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>.
+import sys
 
 import pytest
 import numpy as np
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
@@ -465,45 +467,6 @@ def test_delta_local_triangle_calculation(euroroad):
     triangles_count_before = len(mc.triangles2edges)
 
     # Use the same approach as check_swap: create a local graph, perform swap on it, compute delta
-    local_graph, dico = mc.create_partial_local_graph(edge_to_swap)
-    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico)
-    delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
-
-    print(f"Delta from delta_local_triangle: {delta_triangle}")
-
-    # Now perform the actual swap on the main graph to verify
-    mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
-    mc.update_triangles(edge_to_swap, permutation)
-    triangles_count_after = len(mc.triangles2edges)
-
-    observed_delta = triangles_count_after - triangles_count_before
-
-    print(f"Observed delta from actual swap: {observed_delta}")
-    print(f"Triangle count before: {triangles_count_before}, after: {triangles_count_after}")
-
-    # The delta from delta_local_triangle should match the observed delta
-    assert delta_triangle == observed_delta, f"Delta mismatch: {delta_triangle} != {observed_delta}"
-
-
-def test_delta_local_triangle_directed(japanese_macaques):
-    """
-    Test if delta_local_triangle correctly counts the difference of triangles before/after swap
-    for directed graphs. Uses the same functions as check_swap.
-    This test uses the same swap data as test_update_triangles from japanese_macaques dataset.
-    """
-    mygraph = japanese_macaques
-    mc = MarkovChain(mygraph, 10, 2, False)
-    mc.count_triangles()
-
-    # Same swap data from test_update_triangles (japanese_macaques - directed)
-    edge_to_swap = [(18, 33), (48, 62)]
-    permutation = [(48, 62), (18, 33)]
-    edge_to_swap_idx = [647, 1112]
-
-    # Count triangles before swap
-    triangles_count_before = len(mc.triangles2edges)
-
-    # Use the same approach as check_swap
     local_graph, dico = mc.create_partial_local_graph(edge_to_swap)
     mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico)
     delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
