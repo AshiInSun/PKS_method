@@ -465,8 +465,8 @@ def test_delta_local_triangle_calculation(euroroad):
     triangles_count_before = len(mc.triangles2edges)
 
     # Use the same approach as check_swap: create a local graph, perform swap on it, compute delta
-    local_graph = mc.create_partial_local_graph(edge_to_swap)
-    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx)
+    local_graph, dico = mc.create_partial_local_graph(edge_to_swap)
+    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico)
     delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
 
     print(f"Delta from delta_local_triangle: {delta_triangle}")
@@ -504,8 +504,8 @@ def test_delta_local_triangle_directed(japanese_macaques):
     triangles_count_before = len(mc.triangles2edges)
 
     # Use the same approach as check_swap
-    local_graph = mc.create_partial_local_graph(edge_to_swap)
-    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx)
+    local_graph, dico = mc.create_partial_local_graph(edge_to_swap)
+    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico)
     delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
 
     print(f"Delta from delta_local_triangle: {delta_triangle}")
@@ -547,8 +547,8 @@ def test_egograph_triangles(egograph):
         triangles_count_before = len(mc.triangles2edges)
 
         # Use the same approach as check_swap
-        local_graph = mc.create_partial_local_graph(edge_to_swap)
-        mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx)
+        local_graph, dico = mc.create_partial_local_graph(edge_to_swap)
+        mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico)
         delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
 
         print(f"\nSwap {swap_idx + 1}:")
