@@ -220,6 +220,119 @@ class Graph:
         self.M = len(self.unique_edges) #TODO for directed graph
         self.N = node_in
 
+    def read_gml(self, in_file):
+        """
+        Read a graph in GML format.
+
+        Only 'node' with 'id' and 'edge' with 'source' / 'target' are used.
+        Other attributes are ignored.
+
+        Parameters
+        ----------
+        in_file: str
+            path to the input file
+        """
+
+        self.dataset_name = Path(in_file).stem
+
+        current_block = None
+        current_data = {}
+
+        with open(in_file, 'r') as fin:
+            for raw_line in fin:
+                line = raw_line.strip()
+
+                if not line:
+                    continue
+
+                # Start of a block
+                if line.startswith("node"):
+                    current_block = "node"
+                    current_data = {}
+                    continue
+
+                elif line.startswith("edge"):
+                    current_block = "edge"
+                    current_data = {}
+                    continue
+
+                elif line == "[":
+                    continue
+
+                elif line == "]":
+                    # End of block → process it
+                    if current_block == "node":
+                        node_id = int(current_data.get("id"))
+                        if node_id not in self.neighbors:
+                            self.neighbors[node_id] = []
+
+                    elif current_block == "edge":
+                        u = int(current_data.get("source"))
+                        v = int(current_data.get("target"))
+
+                        if u == v:
+                            continue  # ignore self loops
+
+                        if self.directed:
+                            # adjacency
+                            self.neighbors[u].append(v)
+                            self.neighbors[v].append(u)
+
+                            # init dicts if needed
+                            if u not in self.out_neighbors:
+                                self.out_neighbors[u] = []
+                            if v not in self.out_neighbors:
+                                self.out_neighbors[v] = []
+                            if u not in self.in_neighbors:
+                                self.in_neighbors[u] = []
+                            if v not in self.in_neighbors:
+                                self.in_neighbors[v] = []
+
+                            self.out_neighbors[u].append(v)
+                            self.in_neighbors[v].append(u)
+
+                            self.edges[(u, v)] = (
+                                len(self.neighbors[u]) - 1,
+                                len(self.neighbors[v]) - 1,
+                                len(self.out_neighbors[u]) - 1,
+                                len(self.in_neighbors[v]) - 1
+                            )
+
+                            self.unique_edges.append((u, v))
+
+                        else:
+                            if (u, v) in self.edges or (v, u) in self.edges:
+                                continue
+
+                            if u < v:
+                                self.unique_edges.append((u, v))
+                            else:
+                                self.unique_edges.append((v, u))
+
+                            self.neighbors[u].append(v)
+                            self.edges[(u, v)] = len(self.neighbors[u]) - 1
+
+                            self.neighbors[v].append(u)
+                            self.edges[(v, u)] = len(self.neighbors[v]) - 1
+
+                    current_block = None
+                    current_data = {}
+                    continue
+
+                # block → parse key value
+                if current_block is not None:
+                    parts = line.split(maxsplit=1)
+                    if len(parts) == 2:
+                        key, value = parts
+                        value = value.strip('"')
+                        current_data[key] = value
+
+        # Final stats
+        self.M = len(self.unique_edges)
+        self.N = len(self.neighbors)
+
+        assert len(self.unique_edges) == len(set(self.unique_edges))
+
     def to_ael(self, output):
         to_write = dict()
         for node_in, node_out in self.edges:

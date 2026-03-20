@@ -23,7 +23,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False, use_fixed_threechains=False):
         """
             Class to handle k-edge random swap
 
@@ -103,6 +103,7 @@ class MarkovChain:
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
         self.use_mutualdiades = use_mutualdiades
         self.joint_degree = np.zeros(0)
+        self.use_fixed_threechains = use_fixed_threechains
 
         # debug
         self.verbose = verbose

@@ -10,17 +10,17 @@ def test_run():
     toy_file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ucidata-zachary',
-        'out.ucidata-zachary'
+        'ego_dataset',
+        'a939a651c53a358ca918c69445c8db22.gml'
     )
 
     graph = Graph(directed=False)
-    graph.read_ssv(toy_file)
+    graph.read_gml(toy_file)
 
     mc = MarkovChain(
         graph,
-        N_swap=1000000,
-        gamma=4.0,
+        N_swap=10000,
+        gamma=2.0,
         use_assortativity=True,
         use_fixed_triangle=True,
         verbose=True
