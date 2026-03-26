@@ -39,7 +39,7 @@ Python code to generate uniformly at random graphs obeying a given set of constr
 
 * Usage example: 
     ```bash
-    python main.py -f ./data/ucidata-zachary/out.ucidata-zachary -o ./karateclub.out -v
+    python kedgeswap/main.py -f ./data/ego_dataset/4a614391ef27b94d336a410bec2aa934.gml -o out_test/egograph4a614391 -ft -a -gml    
     ```
 
 * Get a list of the main.py arguments:

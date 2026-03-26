@@ -69,7 +69,7 @@ edges_to_include = edge_to_swap
 print(f"\n=== Creating Local Graph with edges: {edges_to_include} ===")
 
 # Create partial local graph
-local_graph, dico = mc.create_partial_local_graph(edges_to_include)
+local_graph = mc.create_partial_local_graph(edges_to_include)
 
 tempmc = MarkovChain(local_graph)
 tempmc.count_triangles()
@@ -97,7 +97,7 @@ for triangle in tempmc.triangles2edges:
 print(f"\n=== Performing one edge swap in local graph ===")
 
 before_swap_graph = local_graph.copy()
-mc.perform_local_swap(local_graph, edge_to_swap, permutation, e_idx, dico)
+mc.perform_local_swap(local_graph, edge_to_swap, permutation, e_idx)
 
 print(f"\nAfter Swap Graph Stats:")
 print(f"Nodes: {local_graph.N}")
@@ -117,10 +117,8 @@ for edge in sorted(local_graph.edges):
 tempmc.update_triangles(edge_to_swap, permutation)
 new_count_triangles = len(tempmc.triangles2edges)
 
-delta_plus, delta_moins =  mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
-delta = delta_plus - delta_moins
-print(f"\nDelta plus (triangles created): {delta_plus}")
-print(f"\nDelta moins (triangles destroyed): {delta_moins}")
+delta =  mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
+print(f"\nDelta plus (triangles created): {delta}")
 # print(f"\nLocal Graph Triangles:")
 # for triangle in tempmc.triangles2edges:
 #     print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")

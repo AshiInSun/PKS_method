@@ -231,8 +231,6 @@ class MarkovChain:
 
         local_graph = Graph(directed=graph.directed)
 
-        unique_edges = set()
-
         for u in nodes:
             for v in graph.neighbors[u]:
                 if v not in nodes:
@@ -241,7 +239,6 @@ class MarkovChain:
                 if graph.directed:
                     local_graph.neighbors[u].append(v)
                     local_graph.edges[(u, v)] = len(local_graph.neighbors[u]) - 1
-                    unique_edges.add((u, v))
 
                 else:
                     if (u, v) not in local_graph.edges:
@@ -251,19 +248,12 @@ class MarkovChain:
                         local_graph.neighbors[v].append(u)
                         local_graph.edges[(v, u)] = len(local_graph.neighbors[v]) - 1
 
-                        unique_edges.add((min(u, v), max(u, v)))
-
-        local_graph.unique_edges = list(unique_edges)
         local_graph.N = len(nodes)
-        local_graph.M = len(unique_edges)
+        local_graph.M = -1
 
-        global_index_map = {e: i for i, e in enumerate(self.graph.unique_edges)}
-        local_to_global = {i: global_index_map[e] for i, e in enumerate(local_graph.unique_edges)}
-        global_to_local = {global_idx: local_idx for local_idx, global_idx in local_to_global.items()}
+        return local_graph
 
-        return local_graph, global_to_local
-
-    def perform_local_swap(self, local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico):
+    def perform_local_swap(self, local_graph, edge_to_swap, permutation):
         """
         Effectue un swap local sur un sous-graphe, en mettant à jour les voisins impliqués et les autres voisins.
 
@@ -278,14 +268,12 @@ class MarkovChain:
         edge_to_swap_idx : list of int
         dico : list of index global -> local
         """
-        for (u, v), (x, y), e_idx in zip(edge_to_swap, permutation, edge_to_swap_idx):
+        for (u, v), (x, y) in zip(edge_to_swap, permutation):
 
             if local_graph.directed:
                 goal_edge = (u, y)
             else:
                 goal_edge = (u, y) if u < y else (y, u)
-            local_index = dico[e_idx]
-            local_graph.unique_edges[local_index] = goal_edge
 
             if local_graph.directed:
                 v_idx, u_idx, v_out_idx, u_in_idx = local_graph.edges[(u, v)]
@@ -337,10 +325,6 @@ class MarkovChain:
         created = set()
 
         for (u, v), (x,y) in zip(edge_to_swap, permutation):
-            if local_graph.directed:
-                goal_edge = (u, y)
-            else:
-                goal_edge = (u, y) if u < y else (y ,u)
 
             #destroyed triangles
             if (u, v) in self.edges2triangles:
@@ -365,11 +349,12 @@ class MarkovChain:
         delta -= len(destroyed_triangles_set)
 
         return delta
-    def check_swap(self, edge_to_swap, permutation, edge_to_swap_idx):
+    def check_swap(self, edge_to_swap, permutation):
         """
             Verify constraints to see if swap can be accepted or not
 
             Parameters
+            ----------
             ----------
             edge_to_swap: list(tuples)
                 list of the edges to swap
@@ -441,12 +426,12 @@ class MarkovChain:
 
             #we check the delta of the number of triangle which need to be equal to zero
 
-            local_graph, dico_globaltolocal = self.create_partial_local_graph(edge_to_swap)
+            local_graph = self.create_partial_local_graph(edge_to_swap)
             # temp_mc = MarkovChain(local_graph)
             # temp_mc.count_triangles()
             # init_number_triangle = len(temp_mc.triangles2edges)
 
-            self.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico_globaltolocal)
+            self.perform_local_swap(local_graph, edge_to_swap, permutation)
 
             # temp_mc.update_triangles(edge_to_swap, permutation)
             # new_number_of_triangles = len(temp_mc.triangles2edges)
@@ -965,7 +950,7 @@ class MarkovChain:
             # pick k, permutation, and check if swap can be accepted
             k = self.pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
-            accept_permutation = self.check_swap(edge_to_swap, permutation, edge_to_swap_idx)
+            accept_permutation = self.check_swap(edge_to_swap, permutation)
 
 
 

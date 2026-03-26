@@ -4,8 +4,8 @@
 #
 #    K-edge-swap is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License along with K-edge-swap. If not, see <https://www.gnu.org/licenses/>. 
-
+#    You should have received a copy of the GNU General Public License along with K-edge-swap. If not, see <https://www.gnu.org/licenses/>.
+import math
 import os
 import time
 import scipy
@@ -255,7 +255,7 @@ class Stat():
         # first eta is estimated from the accept/refuse rate of the burn in
         # then dichotomic search to get better eta
         #eta = 10 * self.mc.graph.M
-        eta = 1/burn_in_rate * self.mc.graph.M
+        eta = math.ceil(1/burn_in_rate * self.mc.graph.M)
         d_eta = C
         prev_d_eta = C
         prev_eta = eta
@@ -299,12 +299,12 @@ class Stat():
                     print('eta {eta} accepted (d_eta={d_eta} <= u={u})')
                 prev_eta = eta
                 prev_d_eta = d_eta
-                if prev_eta == eta/2:
+                if prev_eta == math.ceil(eta/2):
                     # don't check eta/2 again
                     tuned = True
                 else:
                     print('trying eta=eta/2...')
-                    eta = eta/2
+                    eta = eta//2
                 #tuned = True
             elif d_eta > u and prev_d_eta <= u:
                 prev_d_eta = d_eta

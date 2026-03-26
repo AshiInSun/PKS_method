@@ -10,7 +10,6 @@ import sys
 import pytest
 import numpy as np
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
@@ -87,7 +86,7 @@ def test_directed_mc(japanese_macaques):
     permutation = [(59, 61), (43, 34), (57, 62), (36, 7), (12, 51), (27, 48), (49, 62), (11, 46), (8, 23), (56, 22)]
     edge_to_swap_idx = [1090, 1185, 100, 458, 1015, 1123, 436, 333, 734, 915]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -129,7 +128,7 @@ def test_undirected_mc(euroroad):
     permutation = [(28, 29), (578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382)]
     edge_to_swap_idx = [972, 1343, 1281, 502, 566, 662, 837, 1300, 709, 59]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -191,7 +190,7 @@ def test_update_triangles(euroroad, japanese_macaques):
 
     assert destroyed_triangles[0] in mc.triangles2edges
     
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -242,7 +241,7 @@ def test_update_triangles(euroroad, japanese_macaques):
             (33, 48, 53), (33, 48, 54), (33, 34, 48), (33, 35, 48), (33, 48, 55), 
             (33, 48, 57)]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
 
@@ -283,7 +282,7 @@ def test_update_triangles_random(japanese_macaques):
     k = 4
     for swap_idx in range(10):
         edge_to_swap, permutation, edge_to_swap_idx = mc.find_swap(k)
-        accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+        accept_permutation = mc.check_swap(edge_to_swap, permutation)
 
         if (accept_permutation):
             mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
@@ -325,7 +324,7 @@ def test_update_assortativity(euroroad):
     permutation = [(28, 29), (578, 767), (1041, 1042), (935, 936), (254, 255), (284, 310), (346, 965), (473, 474), (962, 963), (381, 382)]
     edge_to_swap_idx = [972, 1343, 1281, 502, 566, 662, 837, 1300, 709, 59]
 
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True
     mc.perform_swap(edge_to_swap, permutation, edge_to_swap_idx)
     mc.update_assortativity(edge_to_swap, permutation)
@@ -406,7 +405,7 @@ def test_update_joint_degree_directed(japanese_macaques):
     edge_to_swap = [(5, 38), (46, 57), (3, 28), (46, 62)]
     permutation = [(46, 57), (3, 28), (46, 62), (5, 38)]
     edge_to_swap_idx = [178, 1156, 87, 1157]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     mc.init_joint_degree()
 
     updated_joint_degree = mc.update_joint_degree_old(edge_to_swap, permutation)
@@ -422,12 +421,12 @@ def test_mutualdiades(japanese_macaques, handcrafted_directed):
 
     edge_to_swap =[(59, 35), (21, 20)]
     permutation = [(21, 20), (59, 35)]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True # same number of mutual diades
 
     edge_to_swap = [(28, 46), (41, 24)]
     permutation = [(41, 24), (28, 46)]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == False # create one mutual diades
 
     # TODO find more examples, maybe on health dataset ?
@@ -437,13 +436,13 @@ def test_mutualdiades(japanese_macaques, handcrafted_directed):
 
     edge_to_swap =[(0,1), (2,6)]
     permutation = [(2,6), (0,1)]
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == True # same number of mutual diades
 
     edge_to_swap = [(4,1), (2,6)]
     permutation = [(2,6), (4,1)] # break two diades, create one
     
-    accept_permutation = mc.check_swap(edge_to_swap, permutation, None)
+    accept_permutation = mc.check_swap(edge_to_swap, permutation)
     assert accept_permutation == False # create one mutual diades
 
 
@@ -468,7 +467,7 @@ def test_delta_local_triangle_calculation(euroroad):
 
     # Use the same approach as check_swap: create a local graph, perform swap on it, compute delta
     local_graph, dico = mc.create_partial_local_graph(edge_to_swap)
-    mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico)
+    mc.perform_local_swap(local_graph, edge_to_swap, permutation)
     delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
 
     print(f"Delta from delta_local_triangle: {delta_triangle}")
@@ -511,7 +510,7 @@ def test_egograph_triangles(egograph):
 
         # Use the same approach as check_swap
         local_graph, dico = mc.create_partial_local_graph(edge_to_swap)
-        mc.perform_local_swap(local_graph, edge_to_swap, permutation, edge_to_swap_idx, dico)
+        mc.perform_local_swap(local_graph, edge_to_swap, permutation)
         delta_triangle = mc.delta_local_triangle(local_graph, edge_to_swap, permutation)
 
         print(f"\nSwap {swap_idx + 1}:")

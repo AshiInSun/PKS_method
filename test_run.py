@@ -10,22 +10,23 @@ def test_run():
     toy_file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ego_dataset',
-        'a939a651c53a358ca918c69445c8db22.gml'
+        'ucidata-zachary',
+        'out.ucidata-zachary'
     )
 
     graph = Graph(directed=False)
-    graph.read_gml(toy_file)
+    graph.read_ssv(toy_file)
+    N_swap = graph.M * 5
 
     mc = MarkovChain(
         graph,
-        N_swap=10000,
+        N_swap=N_swap,
         gamma=2.0,
-        use_assortativity=True,
+        use_triangles=True,
         use_fixed_triangle=True,
         verbose=True
     )
-
+    print("N_swap :",N_swap)
     print("Starting run...")
     window = mc.run()
     print("Run finished")

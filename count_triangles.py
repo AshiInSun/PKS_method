@@ -11,7 +11,7 @@ def count_triangles_in_graph(file_path):
     return triangles
 
 def main():
-    out_dir = 'out'
+    out_dir = 'data/ego_dataset'
     triangle_counts = {}
 
     for filename in os.listdir(out_dir):
