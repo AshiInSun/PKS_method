@@ -11,11 +11,11 @@ def count_triangles_in_graph(file_path):
     return triangles
 
 def main():
-    out_dir = 'data/ego_dataset'
+    out_dir = 'out'
     triangle_counts = {}
 
     for filename in os.listdir(out_dir):
-        if filename.startswith('karateclub'):
+        if filename.startswith('testt'):
             file_path = os.path.join(out_dir, filename)
             try:
                 count = count_triangles_in_graph(file_path)
