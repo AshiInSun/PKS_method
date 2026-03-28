@@ -16,7 +16,7 @@ from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
 # Load toyexample.out
-toy_file = os.path.join(os.path.dirname(__file__), 'data', 'ucidata-zachary', 'toyexample.out')
+toy_file = os.path.join(os.path.dirname(__file__), 'data', 'ucidata-zachary', 'out.ucidata-zachary')
 print(f"Loading graph from: {toy_file}")
 
 # Create undirected graph
@@ -40,7 +40,27 @@ edge_to_swap, permutation, e_idx = mc.find_swap(2)
 goal_edges = []
 checks_passed = False
 set_3chain = True
-mc.count_triangles()
+
+def count_paths_length_3(graph):
+    count = 0
+    set_chains = set()
+
+    for u in graph.neighbors:
+        nu = graph.neighbors[u]
+
+        for v in nu:
+            nv = graph.neighbors[v]
+            for w in nv:
+                if w == u:
+                    continue  # éviter les boucles
+                nw = graph.neighbors[w]
+                for x in nw:
+                    if x == v or u >= x:
+                        continue  # éviter les boucles et les chaines symétriques
+                    chain = (u, v, w, x)
+                    set_chains.add(chain)
+                    count += 1
+    return count, set_chains
 
 def check_swap_validity(edges, permutations):
     for ((u, v), (x, y)) in zip(edges, permutations):
@@ -60,8 +80,8 @@ def check_swap_validity(edges, permutations):
             return False
 
         if set_3chain:
-            local_graph, dico = mc.create_partial_local_graph(edges, 2)
-            mc.perform_local_swap(local_graph, edge_to_swap, permutation, e_idx, dico)
+            local_graph = mc.create_partial_local_graph(edges, 2)
+            mc.perform_local_swap(local_graph, edge_to_swap, permutation)
             delta = mc.delta_local_3path(local_graph, edge_to_swap, permutation)
             if delta != 0:
                 return False
@@ -77,55 +97,53 @@ edges_to_include = edge_to_swap
 print(f"\n=== Creating Local Graph with edges: {edges_to_include} ===")
 
 # Create partial local graph
-local_graph = mc.create_partial_local_graph(edges_to_include, 2)
+local_g = mc.create_partial_local_graph(edges_to_include, 2)
+init_count_3chain, set3chain = count_paths_length_3(local_g)
 
-tempmc = MarkovChain(local_graph)
-tempmc.count_triangles()
-initial_count_triangles = len(tempmc.triangles2edges)
 
 print(f"\nLocal Graph Stats:")
-print(f"Nodes: {local_graph.N}")
-print(f"Edges: {local_graph.M}")
+print(f"Nodes: {local_g.N}")
+print(f"Edges: {local_g.M}")
 print(f"\nLocal Graph Adjacency List:")
-for node in sorted(local_graph.neighbors.keys()):
-    print(f"  {node}: {sorted(local_graph.neighbors[node])}")
+for node in sorted(local_g.neighbors.keys()):
+    print(f"  {node}: {sorted(local_g.neighbors[node])}")
 
 print(f"\nLocal Graph Unique Edges:")
-for edge in sorted(local_graph.unique_edges):
+for edge in sorted(local_g.unique_edges):
     print(f"  {edge}")
 
 print(f"\nLocal Graph Unique Edges:")
-for edge in sorted(local_graph.edges):
+for edge in sorted(local_g.edges):
     print(f"  {edge}")
 
-print(f"\nLocal Graph Triangles:")
-for triangle in tempmc.triangles2edges:
-    print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")
+print(f"\nLocal Graph 3chain:{init_count_3chain}")
+
 
 print(f"\n=== Performing one edge swap in local graph ===")
 
-before_swap_graph = local_graph.copy()
-mc.perform_local_swap(local_graph, edge_to_swap, permutation)
+before_swap_graph = local_g.copy()
+mc.perform_local_swap(local_g, edge_to_swap, permutation)
 
 print(f"\nAfter Swap Graph Stats:")
-print(f"Nodes: {local_graph.N}")
-print(f"Edges: {local_graph.M}")
+print(f"Nodes: {local_g.N}")
+print(f"Edges: {local_g.M}")
 print(f"\nAfter Swap Graph Adjacency List:")
-for node in sorted(local_graph.neighbors.keys()):
-    print(f"  {node}: {sorted(local_graph.neighbors[node])}")
+for node in sorted(local_g.neighbors.keys()):
+    print(f"  {node}: {sorted(local_g.neighbors[node])}")
 
 print(f"\nLocal Graph Unique Edges:")
-for edge in sorted(local_graph.unique_edges):
+for edge in sorted(local_g.unique_edges):
     print(f"  {edge}")
 
 print(f"\nLocal Graph Edges:")
-for edge in sorted(local_graph.edges):
+for edge in sorted(local_g.edges):
     print(f"  {edge}")
 
-tempmc.update_triangles(edge_to_swap, permutation)
-new_count_triangles = len(tempmc.triangles2edges)
-delta = mc.delta_local_3path(local_graph, edge_to_swap, permutation)
-print(f"\nDelta in number of 3path after swap (computed): {delta}")
+new_count_3chain, set3chain = count_paths_length_3(local_g)
+delta = mc.delta_local_3path(local_g, edge_to_swap, permutation)
+print(f"\nOld 3 chain count: {init_count_3chain}")
+print(f"\nNew 3 chain count: {new_count_3chain}")
+print(f"\nestimated Delta in number of 3path after swap (computed): {delta}")
 # print(f"\nLocal Graph Triangles:")
 # for triangle in tempmc.triangles2edges:
 #     print(f"  {triangle} : {tempmc.triangles2edges[triangle]}")
@@ -142,8 +160,9 @@ fig, axes = plt.subplots(1, 3, figsize=(20, 6))
 # Original graph
 ax1 = axes[0]
 G_original = nx.Graph()
+
 G_original.add_nodes_from(range(mygraph.N))
-for edge in mygraph.unique_edges:
+for edge in mygraph.edges:
     G_original.add_edge(edge[0], edge[1])
 
 pos_original = nx.spring_layout(G_original, seed=42)
@@ -165,15 +184,15 @@ ax1.axis('off')
 ax2 = axes[1]
 G_local = nx.Graph()
 G_local.add_nodes_from(sorted(before_swap_graph.neighbors.keys()))
-for edge in before_swap_graph.unique_edges:
+for edge in before_swap_graph.edges:
     G_local.add_edge(edge[0], edge[1])
 
 # After swap graph
 ax3 = axes[2]
 G_after = nx.Graph()
-G_after.add_nodes_from(sorted(local_graph.neighbors.keys()))
+G_after.add_nodes_from(sorted(local_g.neighbors.keys()))
 
-for edge in local_graph.unique_edges:
+for edge in local_g.unique_edges:
     G_after.add_edge(edge[0], edge[1])
 
 if G_after.number_of_nodes() > 0:

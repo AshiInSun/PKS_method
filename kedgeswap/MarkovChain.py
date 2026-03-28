@@ -209,6 +209,7 @@ class MarkovChain:
 
         Parameters
         ----------
+        frontier
         edges : list of tuple
             Liste des arêtes impliquées dans le swap
 
@@ -407,8 +408,6 @@ class MarkovChain:
             permutation: list(tuples)
                 list of the edges with which we should swap the\
                 edges in edge_to_swap
-            edge_to_swap_idx: list(int)
-                index of the edges in graph.unique_edges (useful when undirected)
 
             Returns
             -------

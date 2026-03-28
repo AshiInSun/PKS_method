@@ -16,14 +16,14 @@ def test_run():
 
     graph = Graph(directed=False)
     graph.read_ssv(toy_file)
-    N_swap = graph.M * 5
+    N_swap = graph.M * 1000
 
     mc = MarkovChain(
         graph,
-        N_swap=N_swap,
+        N_swap=1000000,
         gamma=2.0,
-        use_triangles=True,
-        use_fixed_triangle=True,
+        use_assortativity=True,
+        use_fixed_threechains=True,
         verbose=True
     )
     print("N_swap :",N_swap)
