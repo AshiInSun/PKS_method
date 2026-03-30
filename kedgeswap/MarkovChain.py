@@ -23,7 +23,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False, use_fixed_threechains=False):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False, use_fixed_threechains=False, use_fixed_triangle_range=0):
         """
             Class to handle k-edge random swap
 
@@ -99,6 +99,8 @@ class MarkovChain:
         self.use_jd = use_jd
         self.use_fixed_triangle = use_fixed_triangle # use_triangle and use_fixed_triangle are mutually exclusive,
                                                      # as fixed one is a generation constraint while the other is a convergence constraint.
+        self.use_fixed_triangle_range = use_fixed_triangle_range
+        self.buffer_triangle = 0
         self.use_triangles = use_triangles
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
         self.use_mutualdiades = use_mutualdiades
@@ -421,6 +423,7 @@ class MarkovChain:
 
         # using the number of triangles as a constraint on generation,
         # check if the number of triangles change
+        delta_triangle = 0
         if self.use_fixed_triangle:
             #we do a copy of the sub-graph changed by the swap, i.e. the nodes implied in the swap and their neighboors.
 
@@ -437,8 +440,12 @@ class MarkovChain:
             # new_number_of_triangles = len(temp_mc.triangles2edges)
 
             delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
-            if delta_triangle != 0:
-                return False
+            if self.use_fixed_triangle_range!=0:
+                if abs(self.buffer_triangle + delta_triangle) > self.use_fixed_triangle_range:
+                    return False
+            else:
+                if delta_triangle != 0:
+                    return False
 
         # check if total number of mutual diades changes
         #if self.graph.directed and self.use_mutualdiades:
@@ -451,7 +458,7 @@ class MarkovChain:
             if len(old_dyads) != len(new_dyads):
                 return False
 
-
+        self.buffer_triangle += delta_triangle
         return True
 
     def check_dyads(self,edge_to_swap, permutation):

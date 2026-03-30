@@ -10,20 +10,21 @@ def test_run():
     toy_file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ucidata-zachary',
-        'out.ucidata-zachary'
+        'ego_dataset',
+        '4a614391ef27b94d336a410bec2aa934.gml'
     )
 
     graph = Graph(directed=False)
-    graph.read_ssv(toy_file)
-    N_swap = graph.M * 5
+    graph.read_gml(toy_file)
+    N_swap = graph.M
 
     mc = MarkovChain(
         graph,
-        N_swap=N_swap,
-        gamma=2.0,
+        N_swap=100000,
+        gamma=3.0,
         use_triangles=True,
         use_fixed_triangle=True,
+        use_fixed_triangle_range=75,
         verbose=True
     )
     print("N_swap :",N_swap)
