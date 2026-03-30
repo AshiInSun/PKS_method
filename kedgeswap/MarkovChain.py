@@ -96,6 +96,11 @@ class MarkovChain:
         self.triangles2edges = defaultdict(list)
         self.initial_trianglenumber = 0
 
+        # 3-chain
+        # in the code we refer to 3-chain oftently as tchains.
+        self.edges2tchains = defaultdict(list)
+        self.tchains2edges = defaultdict(list)
+
 
         # constraints
         self.use_jd = use_jd
@@ -389,14 +394,170 @@ class MarkovChain:
                     number_of_involved +=1
         return number_of_involved
 
-    def delta_local_3path(self,local_graph, edge_to_swap, permutation):
+    def delta_local_3path(self, local_graph, edge_to_swap, permutation):
         delta = 0
+
         for (u, v), (x, y) in zip(edge_to_swap, permutation):
-            #destroyed paths : paths where the edge to swap is involved in the graph before swap
-            delta -= self.count_involved_3path(self.graph, (u, v))
-            #created paths : paths where the goal edge is involved in the graph after swap
-            delta += self.count_involved_3path(local_graph, (u, y))
+            e_old = (min(u, v), max(u, v))
+
+            #destroyed
+            destroyed_chain_set = set()
+            if (u, v) in self.edges2tchains:
+                destroyed_chains = self.edges2tchains[(u, v)].copy()
+                for tchain in destroyed_chains:
+                    destroyed_chain_set.add(tchain)
+
+            if (not self.graph.directed) and (v, u) in self.edges2tchains:
+                destroyed_tchains = self.edges2tchains[(v, u)].copy()
+                for tchain in destroyed_tchains:
+                    destroyed_chain_set.add(tchain)
+
+            # Created : énumération dans local_graph (déjà modifié par perform_local_swap)
+            created = set()
+
+            # Cas 1 : {u,y} est l'arête du milieu → a-u-y-b
+            for a in local_graph.neighbors[u]:
+                if a == y:
+                    continue
+                for b in local_graph.neighbors[y]:
+                    if b == u or b == a:
+                        continue
+                    chain = (a, u, y, b) if a < b else (b, y, u, a)
+                    created.add(chain)
+
+            # Cas 2 : u est une extrémité → u-y-a-b
+            for a in local_graph.neighbors[y]:
+                if a == u:
+                    continue
+                for b in local_graph.neighbors[a]:
+                    if b == y or b == u:
+                        continue
+                    chain = (u, y, a, b) if u < b else (b, a, y, u)
+                    created.add(chain)
+
+            # Cas 3 : y est une extrémité → y-u-a-b
+            for a in local_graph.neighbors[u]:
+                if a == y:
+                    continue
+                for b in local_graph.neighbors[a]:
+                    if b == u or b == y:
+                        continue
+                    chain = (y, u, a, b) if y < b else (b, a, u, y)
+                    created.add(chain)
+
+            delta += len(created)
+            delta -= len(destroyed_chain_set)
+
         return delta
+
+    def update_tchains(self, edge_to_swap, permutation):
+        """
+        Update the sets of 3-chains by looking at each edge swap:
+        - if the initial edge was involved in a 3-chain, remove it
+        - if the goal edge creates new 3-chains, add them
+        """
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
+            if self.graph.directed:
+                goal_edge = (u, y)
+            else:
+                goal_edge = (u, y) if u < y else (y, u)
+
+            # destroyed triangles
+            if (u, v) in self.edges2tchains:
+
+                # get all destroyed triangles
+                destroyed_chains = self.edges2tchains[(u, v)].copy()
+
+                # for each triangle in destroyed, remove it and remove its edges
+                for current_chain in destroyed_chains:
+                    for edge in self.tchains2edges[current_chain]:
+                        self.edges2tchains[edge].remove(current_chain)
+                        if len(self.edges2tchains[edge]) == 0:
+                            del self.edges2tchains[edge]
+                    del self.tchains2edges[current_chain]
+
+                # destroyed triangles for undirected graphs, check other directions of each edge
+                if (not self.graph.directed) and (v, u) in self.edges2tchains:
+                    destroyed_chains = self.edges2tchains[(v, u)].copy()
+
+                    for current_chain in destroyed_chains:
+                        for edge in self.tchains2edges[current_chain]:
+                            # try:
+                            self.edges2tchains[edge].remove(current_chain)
+                            if len(self.edges2tchains[edge]) == 0:
+                                del self.edges2tchains[edge]
+                        del self.tchains2edges[current_chain]
+
+            #created chains
+            created = set()
+            for nu in self.graph.neighbors[u]:
+                if nu == y:
+                    continue
+                for nnu in self.graph.neighbors[nu]:
+                    if nnu == y or nnu == u:
+                        continue
+                    else:
+                        #on a une chaine y, u, nu, nnu
+                        tempchain = (y, u, nu, nnu) if y < nnu else (nnu, nu, u, y)
+                        created.add(tempchain)
+            for ny in self.graph.neighbors[y]:
+                if ny == u:
+                    continue
+                for nny in self.graph.neighbors[ny]:
+                    if nny == u or nny == y:
+                        continue
+                    else:
+                        #on a une chaine y, u, nu, nnu
+                        tempchain = (u, y, ny, nny) if u < nny else (nny, ny, y, u)
+                        created.add(tempchain)
+            for nu in self.graph.neighbors[u]:
+                if nu == y:
+                    continue
+                for ny in self.graph.neighbors[y]:
+                    if ny == u or nu == ny:
+                        continue
+                    else:
+                        tempchain = (ny, y, u, nu) if ny < nu else (nu, u, y, ny)
+                        created.add(tempchain)
+
+            for current_chain in created:
+                a, b, c, d = current_chain
+                for e in ((a, b), (b, a), (b, c), (c, b), (c, d), (d, c)):
+                    self.edges2tchains[e].append(current_chain)
+                    self.tchains2edges[current_chain].append(e)
+
+
+    def init_tchain_undirected(self):
+        for u in self.graph.neighbors:
+            nu = self.graph.neighbors[u]
+
+            for v in nu:
+                nv = self.graph.neighbors[v]
+                for w in nv:
+                    if w == u:
+                        continue  # éviter les boucles
+                    nw = self.graph.neighbors[w]
+                    for x in nw:
+                        if x == v or u >= x:
+                            continue  # éviter les boucles et les chaines symétriques
+                        chain = (u, v, w, x)
+                        self.edges2tchains[(u, v)].append(chain)
+                        self.edges2tchains[(v, u)].append(chain)
+                        self.edges2tchains[(v, w)].append(chain)
+                        self.edges2tchains[(w, v)].append(chain)
+                        self.edges2tchains[(w, x)].append(chain)
+                        self.edges2tchains[(x, w)].append(chain)
+
+                        self.tchains2edges[chain].append((u, v))
+                        self.tchains2edges[chain].append((v, u))
+                        self.tchains2edges[chain].append((v, w))
+                        self.tchains2edges[chain].append((w, v))
+                        self.tchains2edges[chain].append((w, x))
+                        self.tchains2edges[chain].append((x, w))
+
+
+
+
     def check_swap(self, edge_to_swap, permutation):
         """
             Verify constraints to see if swap can be accepted or not
@@ -987,6 +1148,8 @@ class MarkovChain:
         if self.use_fixed_triangle or self.use_triangles:
             self.count_triangles()
             self.initial_trianglenumber = len(self.triangles2edges)
+        if self.use_fixed_threechains:
+            self.init_tchain_undirected()
 
         if self.use_assortativity:
             self.init_assortativity()
@@ -1037,6 +1200,9 @@ class MarkovChain:
                 # we need to keep triangles also when it's a generative constraint
                 if self.use_triangles or self.use_fixed_triangle:
                     self.update_triangles(edge_to_swap, permutation)
+                if self.use_fixed_threechains:
+                    self.update_tchains(edge_to_swap, permutation)
+
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
                 #write_swap(edge_to_swap, permutation) 
@@ -1059,6 +1225,8 @@ class MarkovChain:
                 window.append(self.assortativity)
             elif self.use_triangles:
                 window.append(len(self.triangles2edges))
+            elif self.use_fixed_threechains:
+                window.append(len(self.tchains2edges))
 
         # store accept rate and refusal rate
         self.accept_rate = accept_rate

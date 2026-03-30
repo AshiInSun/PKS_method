@@ -53,7 +53,7 @@ def main():
 
     g = Graph(directed=False)
 
-    input_file = "data/ucidata-zachary/toyexample.out"
+    input_file = "data/ucidata-zachary/out.ucidata-zachary"
     g.read_ssv(input_file)
 
     print("Nombre de sommets :", g.N)
@@ -69,6 +69,7 @@ def main():
         print(chain)
 
     draw_graph(g)
+    print("Nombre de chaînes de taille 3 :", len(chains))
 
 
 if __name__ == "__main__":

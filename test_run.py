@@ -20,9 +20,9 @@ def test_run():
 
     mc = MarkovChain(
         graph,
-        N_swap=1000000,
+        N_swap=100000,
         gamma=2.0,
-        use_assortativity=True,
+        #use_assortativity=True,
         use_fixed_threechains=True,
         verbose=True
     )
