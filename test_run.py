@@ -9,12 +9,12 @@ def test_run():
     toy_file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ego_dataset',
-        '4a614391ef27b94d336a410bec2aa934.gml'
+        'ucidata-zachary',
+        'out.ucidata-zachary'
     )
 
     graph = Graph(directed=False)
-    graph.read_gml(toy_file)
+    graph.read_ssv(toy_file)
     N_swap = graph.M
 
     mc = MarkovChain(
