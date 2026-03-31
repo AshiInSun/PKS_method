@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
-
 def test_run():
 
     toy_file = os.path.join(
@@ -21,10 +20,10 @@ def test_run():
     mc = MarkovChain(
         graph,
         N_swap=100000,
-        gamma=3.0,
+        gamma=2.0,
         use_triangles=True,
         use_fixed_triangle=True,
-        use_fixed_triangle_range=75,
+        use_fixed_triangle_range=1,
         verbose=True
     )
     print("N_swap :",N_swap)
@@ -42,7 +41,6 @@ def test_run():
     plt.ylabel("Assortativity")
     plt.title("Evolution of assortativity during edge swaps")
     plt.show()
-
 
 if __name__ == "__main__":
     test_run()
