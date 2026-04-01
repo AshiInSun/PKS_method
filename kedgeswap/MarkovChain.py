@@ -154,7 +154,6 @@ class MarkovChain:
         k = np.random.choice(a=self.possible_ks ,p=1/sum(self.k_distrib) * self.k_distrib)
 
         return k
-
     def find_swap(self, k):
         """ 
             Randomly pick k edges to swap, and randomly pick a permutation
@@ -220,25 +219,22 @@ class MarkovChain:
             - TOUTES les arêtes entre nœuds impliqués
             - Les arêtes "actives" du swap pour la modification
         """
-
-        graph = self.graph
-
         nodes = set()
         for u, v in edges:
             nodes.add(u)
             nodes.add(v)
 
         for node in list(nodes):
-            nodes.update(graph.neighbors[node])
+            nodes.update(self.graph.neighbors[node])
 
-        local_graph = Graph(directed=graph.directed)
+        local_graph = Graph(directed=self.graph.directed)
 
         for u in nodes:
-            for v in graph.neighbors[u]:
+            for v in self.graph.neighbors[u]:
                 if v not in nodes:
                     continue
 
-                if graph.directed:
+                if self.graph.directed:
                     local_graph.neighbors[u].append(v)
                     local_graph.edges[(u, v)] = len(local_graph.neighbors[u]) - 1
 
@@ -273,11 +269,6 @@ class MarkovChain:
         for (u, v), (x, y) in zip(edge_to_swap, permutation):
 
             if local_graph.directed:
-                goal_edge = (u, y)
-            else:
-                goal_edge = (u, y) if u < y else (y, u)
-
-            if local_graph.directed:
                 v_idx, u_idx, v_out_idx, u_in_idx = local_graph.edges[(u, v)]
                 y_idx, x_idx, y_out_idx, x_in_idx = local_graph.edges[(x, y)]
                 local_graph.out_neighbors[u][v_out_idx] = y
@@ -286,8 +277,6 @@ class MarkovChain:
                 local_graph.edges[(u, y)] = (v_idx, x_idx, v_out_idx, x_in_idx)
             else:
                 v_idx = local_graph.edges[(u, v)]
-                u_idx = local_graph.edges[(v, u)]
-                y_idx = local_graph.edges[(x, y)]
                 x_idx = local_graph.edges[(y, x)]
 
                 local_graph.edges[(u, y)] = v_idx
@@ -421,6 +410,17 @@ class MarkovChain:
         else:
             updated_jd1 = None
 
+        # check if total number of mutual diades changes
+        #if self.graph.directed and self.use_mutualdiades:
+        #    if len(broken_diades) != len(created_diades):
+        #        return False
+        
+        #if len(broken_diades) != 0 or len(created_diades) != 0 :
+        if self.graph.directed and self.use_mutualdiades:
+            old_dyads, new_dyads = self.check_dyads(edge_to_swap, permutation)
+            if len(old_dyads) != len(new_dyads):
+                return False
+
         # using the number of triangles as a constraint on generation,
         # check if the number of triangles change
         delta_triangle = 0
@@ -446,17 +446,6 @@ class MarkovChain:
             else:
                 if delta_triangle != 0:
                     return False
-
-        # check if total number of mutual diades changes
-        #if self.graph.directed and self.use_mutualdiades:
-        #    if len(broken_diades) != len(created_diades):
-        #        return False
-        
-        #if len(broken_diades) != 0 or len(created_diades) != 0 :
-        if self.graph.directed and self.use_mutualdiades:
-            old_dyads, new_dyads = self.check_dyads(edge_to_swap, permutation)
-            if len(old_dyads) != len(new_dyads):
-                return False
 
         self.buffer_triangle += delta_triangle
         return True
