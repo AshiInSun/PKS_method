@@ -36,6 +36,7 @@ for edge in sorted(mygraph.unique_edges):
 
 # Create MarkovChain to access local graph methods
 mc = MarkovChain(mygraph, 10, 2, False)
+mc.init_tchain_undirected()
 edge_to_swap, permutation, e_idx = mc.find_swap(2)
 goal_edges = []
 checks_passed = False
