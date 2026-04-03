@@ -7,15 +7,15 @@ from kedgeswap.MarkovChain import MarkovChain
 
 def test_run():
 
-    toy_file = os.path.join(
+    file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ego_dataset',
-        '4a614391ef27b94d336a410bec2aa934.gml'
+        'ucidata-zachary',
+        'out.ucidata-zachary'
     )
 
     graph = Graph(directed=False)
-    graph.read_gml(toy_file)
+    graph.read_ssv(file)
     N_swap = graph.M * 1000
 
     mc = MarkovChain(
@@ -23,7 +23,7 @@ def test_run():
         N_swap=100000,
         gamma=2.0,
         use_assortativity=True,
-        use_fixed_triangle=True,
+        use_fixed_threechains=True,
         verbose=True
     )
     print("N_swap :",N_swap)

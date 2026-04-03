@@ -1240,8 +1240,6 @@ class MarkovChain:
                 window.append(self.assortativity)
             elif self.use_triangles:
                 window.append(len(self.triangles2edges))
-            elif self.use_fixed_threechains:
-                window.append(len(self.tchains2edges))
 
         # store accept rate and refusal rate
         self.accept_rate = accept_rate
