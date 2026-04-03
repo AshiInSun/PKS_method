@@ -668,8 +668,6 @@ class MarkovChain:
             else:
                 if delta_triangle != 0:
                     return False
-            if delta_triangle != 0:
-                return False
 
         if self.use_fixed_threechains:
             local_graph = self.create_partial_local_graph(edge_to_swap, 2)
@@ -1237,6 +1235,8 @@ class MarkovChain:
                 window.append(self.assortativity)
             elif self.use_triangles:
                 window.append(len(self.triangles2edges))
+            elif self.use_fixed_threechains:
+                window.append(len(self.tchains2edges))
 
         # store accept rate and refusal rate
         self.accept_rate = accept_rate

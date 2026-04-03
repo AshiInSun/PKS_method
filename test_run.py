@@ -21,9 +21,8 @@ def test_run():
         graph,
         N_swap=100000,
         gamma=2.0,
-        use_triangles=True,
-        use_fixed_triangle=True,
-        use_fixed_triangle_range=1,
+        use_triangles=False,
+        use_fixed_threechains=True,
         verbose=True
     )
     print("N_swap :",N_swap)
