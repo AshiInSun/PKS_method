@@ -14,6 +14,7 @@ def main():
     out_dir = 'out'
     triangle_counts = {}
 
+
     for filename in os.listdir(out_dir):
         if filename.startswith('testt'):
             file_path = os.path.join(out_dir, filename)

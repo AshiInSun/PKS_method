@@ -14,6 +14,8 @@ import gzip
 import copy
 import argparse
 import numpy as np
+from scipy.stats.sampling import DiscreteAliasUrn
+from networkx.classes import neighbors
 from numpy.f2py.auxfuncs import throw_error
 
 from kedgeswap.Graph import Graph
@@ -84,7 +86,10 @@ class MarkovChain:
         self.gamma = gamma
         self.possible_ks = range(2, graph.M)
         self.k_distrib = np.array([1/(k**self.gamma) for k in self.possible_ks])
+        self.normalized_k_distrib = self.k_distrib/np.sum(self.k_distrib)
         self.force_k = False
+        urng = np.random.default_rng()
+        self.rng = DiscreteAliasUrn(self.normalized_k_distrib, domain=(2, graph.M+1))
 
         # assortativity
         self.assortativity = 0
@@ -94,6 +99,12 @@ class MarkovChain:
         self.edges2triangles = defaultdict(list)
         self.triangles2edges = defaultdict(list)
         self.initial_trianglenumber = 0
+
+        # 3-chain
+        # in the code we refer to 3-chain oftently as tchains.
+        self.edges2tchains = defaultdict(set)
+        self.tchains2edges = defaultdict(set)
+
 
         # constraints
         self.use_jd = use_jd
@@ -140,6 +151,9 @@ class MarkovChain:
                 fout.write(f'{(u,v)}, {(x,y)}\n'.encode())
             fout.write(f'number of cycle {n_cycle}, number of edges swapped {n_swapped}\n'.encode())
 
+    def alias_urn_pick_k(self):
+        k = self.rng.rvs()
+        return int(k)
     def pick_k(self):
         """
             Pick k value using powerlaw distribution. The exponent of the powerlaw can be fixed by the
@@ -154,6 +168,7 @@ class MarkovChain:
         k = np.random.choice(a=self.possible_ks ,p=1/sum(self.k_distrib) * self.k_distrib)
 
         return k
+
     def find_swap(self, k):
         """ 
             Randomly pick k edges to swap, and randomly pick a permutation
@@ -201,13 +216,14 @@ class MarkovChain:
 
         return edge_to_swap, permutation, _edge_to_swap
 
-    def create_partial_local_graph(self, edges):
+    def create_partial_local_graph(self, edges, frontier):
         """
         Crée un sous-graphe local pour un ensemble d'arêtes,
         en gardant les voisins originaux des nœuds impliqués.
 
         Parameters
         ----------
+        frontier
         edges : list of tuple
             Liste des arêtes impliquées dans le swap
 
@@ -224,8 +240,9 @@ class MarkovChain:
             nodes.add(u)
             nodes.add(v)
 
-        for node in list(nodes):
-            nodes.update(self.graph.neighbors[node])
+        for _ in range(frontier):
+            for node in list(nodes):
+                nodes.update(self.graph.neighbors[node])
 
         local_graph = Graph(directed=self.graph.directed)
 
@@ -340,20 +357,225 @@ class MarkovChain:
         delta -= len(destroyed_triangles_set)
 
         return delta
+
+    def count_involved_3path(self, graph, edge_involved):
+        number_of_involved = 0
+        (u, v) = edge_involved
+
+        #number of path
+        #where u is an extremity
+        for nu in graph.neighbors[u]:
+            if nu == v:
+                continue
+            for nnu in graph.neighbors[nu]:
+                if nnu == v or nnu == u:
+                    continue
+                else:
+                    number_of_involved += 1
+
+        #where v is an extremity
+        for nv in graph.neighbors[v]:
+            if nv == u:
+                continue
+            for nnv in graph.neighbors[nv]:
+                if nnv == u or nnv == v:
+                    continue
+                else:
+                    number_of_involved += 1
+        #where u nor v are extremity
+        for nu in graph.neighbors[u]:
+            if nu == v:
+                continue
+            for nv in graph.neighbors[v]:
+                if nv == u or nu == nv:
+                    continue
+                else:
+                    number_of_involved +=1
+        return number_of_involved
+
+    def delta_local_3path(self, local_graph, edge_to_swap, permutation):
+        delta = 0
+        destroyed_chain_set = set()
+        created = set()
+        for (u, v), (x, y) in zip(edge_to_swap, permutation):
+            e_old = (min(u, v), max(u, v))
+
+            #destroyed
+            if (u, v) in self.edges2tchains:
+                destroyed_chains = self.edges2tchains[(u, v)].copy()
+                for tchain in destroyed_chains:
+                    destroyed_chain_set.add(tchain)
+
+            if (not self.graph.directed) and (v, u) in self.edges2tchains:
+                destroyed_tchains = self.edges2tchains[(v, u)].copy()
+                for tchain in destroyed_tchains:
+                    destroyed_chain_set.add(tchain)
+
+            # Created : énumération dans local_graph (déjà modifié par perform_local_swap)
+
+
+            # Cas 1 : {u,y} est l'arête du milieu → a-u-y-b
+            for a in local_graph.neighbors[u]:
+                if a == y:
+                    continue
+                else:
+                    for b in local_graph.neighbors[y]:
+                        if b == u or b == a:
+                            continue
+                        else:
+                            chain = (a, u, y, b) if a < b else (b, y, u, a)
+                            created.add(chain)
+            # Cas 2 : u est une extrémité → u-y-a-b
+            for a in local_graph.neighbors[y]:
+                if a == u:
+                    continue
+                else:
+                    for b in local_graph.neighbors[a]:
+                        if b == y or b == u:
+                            continue
+                        else:
+                            chain = (u, y, a, b) if u < b else (b, a, y, u)
+                            created.add(chain)
+
+            # Cas 3 : y est une extrémité → y-u-a-b
+            for a in local_graph.neighbors[u]:
+                if a == y:
+                    continue
+                else:
+                    for b in local_graph.neighbors[a]:
+                        if b == u or b == y:
+                            continue
+                        else:
+                            chain = (y, u, a, b) if y < b else (b, a, u, y)
+                            created.add(chain)
+
+        delta += len(created)
+        delta -= len(destroyed_chain_set)
+
+        return delta
+
+    def update_tchains(self, edge_to_swap, permutation):
+        """
+        Update the sets of 3-chains by looking at each edge swap:
+        - if the initial edge was involved in a 3-chain, remove it
+        - if the goal edge creates new 3-chains, add them
+        """
+        for (u, v), (x,y) in zip(edge_to_swap, permutation):
+            if self.graph.directed:
+                goal_edge = (u, y)
+            else:
+                goal_edge = (u, y) if u < y else (y, u)
+
+            # destroyed chains
+            if (u, v) in self.edges2tchains:
+
+                # get all destroyed triangles
+                destroyed_chains = self.edges2tchains[(u, v)].copy()
+
+                # for each triangle in destroyed, remove it and remove its edges
+                for current_chain in destroyed_chains:
+                    for edge in self.tchains2edges[current_chain]:
+                        self.edges2tchains[edge].remove(current_chain)
+                        if len(self.edges2tchains[edge]) == 0:
+                            del self.edges2tchains[edge]
+                    del self.tchains2edges[current_chain]
+
+                # destroyed triangles for undirected graphs, check other directions of each edge
+                if (not self.graph.directed) and (v, u) in self.edges2tchains:
+                    destroyed_chains = self.edges2tchains[(v, u)].copy()
+
+                    for current_chain in destroyed_chains:
+                        for edge in self.tchains2edges[current_chain]:
+                            # try:
+                            self.edges2tchains[edge].remove(current_chain)
+                            if len(self.edges2tchains[edge]) == 0:
+                                del self.edges2tchains[edge]
+                        del self.tchains2edges[current_chain]
+
+            #created chains
+            created = set()
+            for nu in self.graph.neighbors[u]:
+                if nu == y:
+                    continue
+                else:
+                    for nnu in self.graph.neighbors[nu]:
+                        if nnu == y or nnu == u:
+                            continue
+                        else:
+                            #on a une chaine y, u, nu, nnu
+                            tempchain = (y, u, nu, nnu) if y < nnu else (nnu, nu, u, y)
+                            created.add(tempchain)
+            for ny in self.graph.neighbors[y]:
+                if ny == u:
+                    continue
+                else:
+                    for nny in self.graph.neighbors[ny]:
+                        if nny == u or nny == y:
+                            continue
+                        else:
+                            #on a une chaine y, u, nu, nnu
+                            tempchain = (u, y, ny, nny) if u < nny else (nny, ny, y, u)
+                            created.add(tempchain)
+            for nu in self.graph.neighbors[u]:
+                if nu == y:
+                    continue
+                else:
+                    for ny in self.graph.neighbors[y]:
+                        if ny == u or nu == ny:
+                            continue
+                        else:
+                            tempchain = (ny, y, u, nu) if ny < nu else (nu, u, y, ny)
+                            created.add(tempchain)
+
+            for current_chain in created:
+                a, b, c, d = current_chain
+                for e in ((a, b), (b, a), (b, c), (c, b), (c, d), (d, c)):
+                    self.edges2tchains[e].add(current_chain)
+                    self.tchains2edges[current_chain].add(e)
+
+
+    def init_tchain_undirected(self):
+        for u in self.graph.neighbors:
+            nu = self.graph.neighbors[u]
+
+            for v in nu:
+                nv = self.graph.neighbors[v]
+                for w in nv:
+                    if w == u:
+                        continue  # éviter les boucles
+                    nw = self.graph.neighbors[w]
+                    for x in nw:
+                        if x == v or u >= x:
+                            continue  # éviter les boucles et les chaines symétriques
+                        chain = (u, v, w, x)
+                        self.edges2tchains[(u, v)].add(chain)
+                        self.edges2tchains[(v, u)].add(chain)
+                        self.edges2tchains[(v, w)].add(chain)
+                        self.edges2tchains[(w, v)].add(chain)
+                        self.edges2tchains[(w, x)].add(chain)
+                        self.edges2tchains[(x, w)].add(chain)
+
+                        self.tchains2edges[chain].add((u, v))
+                        self.tchains2edges[chain].add((v, u))
+                        self.tchains2edges[chain].add((v, w))
+                        self.tchains2edges[chain].add((w, v))
+                        self.tchains2edges[chain].add((w, x))
+                        self.tchains2edges[chain].add((x, w))
+
+
+
+
     def check_swap(self, edge_to_swap, permutation):
         """
             Verify constraints to see if swap can be accepted or not
 
             Parameters
             ----------
-            ----------
             edge_to_swap: list(tuples)
                 list of the edges to swap
             permutation: list(tuples)
                 list of the edges with which we should swap the\
                 edges in edge_to_swap
-            edge_to_swap_idx: list(int)
-                index of the edges in graph.unique_edges (useful when undirected)
 
             Returns
             -------
@@ -414,7 +636,7 @@ class MarkovChain:
         #if self.graph.directed and self.use_mutualdiades:
         #    if len(broken_diades) != len(created_diades):
         #        return False
-        
+
         #if len(broken_diades) != 0 or len(created_diades) != 0 :
         if self.graph.directed and self.use_mutualdiades:
             old_dyads, new_dyads = self.check_dyads(edge_to_swap, permutation)
@@ -429,7 +651,7 @@ class MarkovChain:
 
             #we check the delta of the number of triangle which need to be equal to zero
 
-            local_graph = self.create_partial_local_graph(edge_to_swap)
+            local_graph = self.create_partial_local_graph(edge_to_swap, 1)
             # temp_mc = MarkovChain(local_graph)
             # temp_mc.count_triangles()
             # init_number_triangle = len(temp_mc.triangles2edges)
@@ -446,6 +668,15 @@ class MarkovChain:
             else:
                 if delta_triangle != 0:
                     return False
+            if delta_triangle != 0:
+                return False
+
+        if self.use_fixed_threechains:
+            local_graph = self.create_partial_local_graph(edge_to_swap, 2)
+            self.perform_local_swap(local_graph, edge_to_swap, permutation)
+            delta_3path = self.delta_local_3path(local_graph, edge_to_swap, permutation)
+            if delta_3path != 0:
+                return False
 
         self.buffer_triangle += delta_triangle
         return True
@@ -585,7 +816,6 @@ class MarkovChain:
         self.D = S1 * S3 - S2 * S2 # denominator does not change when edges are swapped
         self.assortativity = N/self.D
 
-
     def update_assortativity(self, edge_to_swap, permutation):
         """ 
             Given a K-edge swap, update assortativy value using generalised formual from
@@ -618,7 +848,6 @@ class MarkovChain:
         else:
             self.edges2triangles[(v, u)].append(triangle)
             self.triangles2edges[triangle].append((v,u))
-
 
     def count_triangles(self):
         """ 
@@ -931,6 +1160,8 @@ class MarkovChain:
         if self.use_fixed_triangle or self.use_triangles:
             self.count_triangles()
             self.initial_trianglenumber = len(self.triangles2edges)
+        if self.use_fixed_threechains:
+            self.init_tchain_undirected()
 
         if self.use_assortativity:
             self.init_assortativity()
@@ -944,7 +1175,7 @@ class MarkovChain:
             #    print('.', end='')
 
             # pick k, permutation, and check if swap can be accepted
-            k = self.pick_k()
+            k = self.alias_urn_pick_k()
             edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
             accept_permutation = self.check_swap(edge_to_swap, permutation)
 
@@ -981,6 +1212,9 @@ class MarkovChain:
                 # we need to keep triangles also when it's a generative constraint
                 if self.use_triangles or self.use_fixed_triangle:
                     self.update_triangles(edge_to_swap, permutation)
+                if self.use_fixed_threechains:
+                    self.update_tchains(edge_to_swap, permutation)
+
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
                 #write_swap(edge_to_swap, permutation) 
