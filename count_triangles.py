@@ -16,7 +16,7 @@ def main():
 
 
     for filename in os.listdir(out_dir):
-        if filename.startswith('testt'):
+        if filename.startswith('test'):
             file_path = os.path.join(out_dir, filename)
             try:
                 count = count_triangles_in_graph(file_path)

@@ -21,13 +21,32 @@ def test_run():
         graph,
         N_swap=100000,
         gamma=2.0,
-        use_triangles=False,
-        use_fixed_threechains=True,
+        use_triangles=True,
+        use_fixed_triangle=True,
+        use_fixed_triangle_range=1,
         verbose=True
     )
     print("N_swap :",N_swap)
     print("Starting run...")
     window = mc.run()
+    print("Run finished")
+
+    print("Accept rate :", mc.accept_rate)
+    print("Refusal rate :", mc.refusal_rate)
+
+    # plot
+    plt.figure()
+    plt.plot(window)
+    plt.xlabel("Swap step")
+    plt.ylabel("Assortativity")
+    plt.title("Evolution of assortativity during edge swaps")
+    plt.show()
+
+    new_mc = MarkovChain(graph = mc.graph, N_swap =mc.N_swap, gamma= mc.gamma,use_triangles= mc.use_triangles, use_fixed_triangle = mc.use_fixed_triangle, verbose=mc.verbose, use_fixed_triangle_range=mc.use_fixed_triangle_range)
+
+    print("N_swap :", N_swap)
+    print("Starting run...")
+    window = new_mc.run()
     print("Run finished")
 
     print("Accept rate :", mc.accept_rate)

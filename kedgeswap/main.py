@@ -129,6 +129,9 @@ def main():
         parser.print_help()
         sys.exit()
 
+    if args.fixed_triangle_range > 0:
+        args.fixed_triangle = True
+
     # some sanity checks
     ## check coherence of parameters
     if (args.assortativity and args.jointdegree):

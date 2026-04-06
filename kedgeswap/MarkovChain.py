@@ -25,7 +25,7 @@ from collections import defaultdict
 class MarkovChain:
     """ make swaps """
 
-    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False, use_fixed_threechains=False, use_fixed_triangle_range=0):
+    def __init__(self, graph, N_swap = 0, gamma=0, use_jd=False, use_fixed_triangle=False, use_triangles=False, use_assortativity=False, use_mutualdiades=False, verbose=False, keep_record=False, log_dir = None, debug=False, use_fixed_threechains=False, use_fixed_triangle_range=0, initial_trianglenumber=0):
         """
             Class to handle k-edge random swap
 
@@ -98,7 +98,7 @@ class MarkovChain:
         # triangles
         self.edges2triangles = defaultdict(list)
         self.triangles2edges = defaultdict(list)
-        self.initial_trianglenumber = 0
+        self.initial_trianglenumber = initial_trianglenumber
 
         # 3-chain
         # in the code we refer to 3-chain oftently as tchains.
