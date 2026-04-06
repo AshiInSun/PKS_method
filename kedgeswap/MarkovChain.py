@@ -522,28 +522,37 @@ class MarkovChain:
                     continue
                 else:
                     for nny in self.graph.neighbors[ny]:
-                        if nny == u or nny == y:
+                        #if nny == u or nny == y:
+                        if nny == y:
                             continue
                         else:
                             #on a une chaine y, u, nu, nnu
-                            tempchain = (u, y, ny, nny) if u < nny else (nny, ny, y, u)
+                            if nny == u:
+                                tempchain = (u, y, ny, nny) if y < ny else (nny, ny, y, u)
+                            else:
+                                tempchain = (u, y, ny, nny) if u < nny else (nny, ny, y, u)
                             created.add(tempchain)
             for nu in self.graph.neighbors[u]:
                 if nu == y:
                     continue
                 else:
                     for ny in self.graph.neighbors[y]:
-                        if ny == u or nu == ny:
+                        #if ny == u or nu == ny:
+                        if ny == u:
                             continue
                         else:
-                            tempchain = (ny, y, u, nu) if ny < nu else (nu, u, y, ny)
+                            if nu == ny:
+                                tempchain = (ny, y, u, nu) if y < u else (nu, u, y, ny)
+                            else:
+                                tempchain = (ny, y, u, nu) if ny < nu else (nu, u, y, ny)
                             created.add(tempchain)
 
             for current_chain in created:
                 a, b, c, d = current_chain
                 for e in ((a, b), (b, a), (b, c), (c, b), (c, d), (d, c)):
-                    self.edges2tchains[e].add(current_chain)
-                    self.tchains2edges[current_chain].add(e)
+                    if e[0] != e[1]:
+                        self.edges2tchains[e].add(current_chain)
+                        self.tchains2edges[current_chain].add(e)
 
 
     def init_tchain_undirected(self):
@@ -557,24 +566,26 @@ class MarkovChain:
                         continue  # éviter les boucles
                     nw = self.graph.neighbors[w]
                     for x in nw:
-                        if x == v or u >= x:
+                        if x == v or u > x:
                             continue  # éviter les boucles et les chaines symétriques
-                        chain = (u, v, w, x)
-                        self.edges2tchains[(u, v)].add(chain)
-                        self.edges2tchains[(v, u)].add(chain)
-                        self.edges2tchains[(v, w)].add(chain)
-                        self.edges2tchains[(w, v)].add(chain)
-                        self.edges2tchains[(w, x)].add(chain)
-                        self.edges2tchains[(x, w)].add(chain)
+                        else:
+                            if u == x and v > w:
+                                continue
+                            else:
+                                chain = (u, v, w, x)
 
-                        self.tchains2edges[chain].add((u, v))
-                        self.tchains2edges[chain].add((v, u))
-                        self.tchains2edges[chain].add((v, w))
-                        self.tchains2edges[chain].add((w, v))
-                        self.tchains2edges[chain].add((w, x))
-                        self.tchains2edges[chain].add((x, w))
+                                pairs = [(u, v), (v, w), (w, x)]
 
+                                for a, b in pairs:
+                                    if a != b:
+                                        e1 = (a, b)
+                                        e2 = (b, a)
 
+                                        self.edges2tchains[e1].add(chain)
+                                        self.edges2tchains[e2].add(chain)
+
+                                        self.tchains2edges[chain].add(e1)
+                                        self.tchains2edges[chain].add(e2)
 
 
     def check_swap(self, edge_to_swap, permutation):
@@ -682,9 +693,9 @@ class MarkovChain:
                     return False
 
         if self.use_fixed_threechains:
-            local_graph = self.create_partial_local_graph(edge_to_swap, 2)
-            self.perform_local_swap(local_graph, edge_to_swap, permutation)
-            delta_3path = self.delta_local_3path(local_graph, edge_to_swap, permutation)
+            #local_graph = self.create_partial_local_graph(edge_to_swap, 2)
+            #self.perform_local_swap(local_graph, edge_to_swap, permutation)
+            delta_3path = self.delta_local_3closedpath( edge_to_swap, permutation)
             if delta_3path != 0:
                 return False
 
