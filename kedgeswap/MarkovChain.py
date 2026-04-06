@@ -454,6 +454,14 @@ class MarkovChain:
 
         return delta
 
+    def delta_local_3closedpath(self, edge_to_swap, permutation):
+        delta = 0
+        for (u, v), (x, y) in zip(edge_to_swap, permutation):
+            destroyed = (len(self.graph.neighbors[u])-1) * (len(self.graph.neighbors[v])-1)
+            created = (len(self.graph.neighbors[u])-1) * (len(self.graph.neighbors[y])-1)
+            delta += destroyed - created
+        return delta
+
     def update_tchains(self, edge_to_swap, permutation):
         """
         Update the sets of 3-chains by looking at each edge swap:
@@ -499,11 +507,15 @@ class MarkovChain:
                     continue
                 else:
                     for nnu in self.graph.neighbors[nu]:
-                        if nnu == y or nnu == u:
+                        #if nnu == y or nnu == u:
+                        if nnu == u:
                             continue
                         else:
                             #on a une chaine y, u, nu, nnu
-                            tempchain = (y, u, nu, nnu) if y < nnu else (nnu, nu, u, y)
+                            if y == nnu:
+                                tempchain = (y, u, nu, nnu) if u < nu else (nnu, nu, u, y)
+                            else:
+                                tempchain = (y, u, nu, nnu) if y < nnu else (nnu, nu, u, y)
                             created.add(tempchain)
             for ny in self.graph.neighbors[y]:
                 if ny == u:

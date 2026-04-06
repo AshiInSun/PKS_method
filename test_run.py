@@ -41,5 +41,23 @@ def test_run():
     plt.title("Evolution of assortativity during edge swaps")
     plt.show()
 
+    new_mc = MarkovChain(mc.graph, mc.N_swap, mc.gamma, mc.use_triangles, mc.use_fixed_threechains, mc.verbose)
+
+    print("N_swap :", N_swap)
+    print("Starting run...")
+    window = new_mc.run()
+    print("Run finished")
+
+    print("Accept rate :", mc.accept_rate)
+    print("Refusal rate :", mc.refusal_rate)
+
+    # plot
+    plt.figure()
+    plt.plot(window)
+    plt.xlabel("Swap step")
+    plt.ylabel("Assortativity")
+    plt.title("Evolution of assortativity during edge swaps")
+    plt.show()
+
 if __name__ == "__main__":
     test_run()
