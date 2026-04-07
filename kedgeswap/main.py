@@ -33,7 +33,8 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
     mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, 
             use_fixed_triangle=use_fixed_triangle, use_triangles=use_triangles, use_assortativity=use_assortativity, use_mutualdiades=mutualdiades,
             verbose=verbose,
-            keep_record=keep_record, log_dir=log_dir, debug=debug, use_fixed_threechains=use_fixed_threechains, use_fixed_triangle_range=use_fixed_triangle_range)
+            keep_record=keep_record, log_dir=log_dir, debug=debug, use_fixed_threechains=use_fixed_threechains,
+            use_fixed_triangle_range=use_fixed_triangle_range)
 
     # initialize metrics
     stat = Stat(mc, eta, turbo, verbose, njobs)
