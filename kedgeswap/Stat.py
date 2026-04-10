@@ -11,6 +11,7 @@ import time
 import scipy
 import argparse
 import numpy as np
+import copy
 
 from scipy.stats import kstest
 from arch.unitroot import DFGLS
@@ -328,6 +329,147 @@ class Stat():
 
         return eta
 
+    def estimate_sampling_gap_monothread(self, graph, gamma):
+        """ Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of
+        Dutta, U. (2022). Sampling random graphs with specified degree sequences
+
+        """
+
+        # run 1 Markov chain to get the S_T timeserie - used to parallelize.
+        def run_chain(c):
+            S_T = []
+            n_swap = int(np.round(eta))
+            for t in range(T):
+                mc[c].run(n_swap)
+                if mc[c].use_assortativity:
+                    S_T.append(mc[c].assortativity)
+                else:
+                    S_T.append(len(mc[c].triangles2edges))
+            return S_T
+
+        N_swap = 1000 * self.mc.graph.M  # burn in
+        C = 10
+        T = 500
+        # S_T = [] # list of degree assortativity of size T
+        u = 1  # lower bound on number of mcmc chains that have significant lag-1 autocorrelation
+        mc = []  # list of C MCMC
+        alpha = 0.04  # significance level for each test
+
+        if self.verbose:
+            print(f'eta estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
+            print(f'burn in...')
+        # for c in range(C):
+        #    if self.verbose:
+        #        print(f'MCMC {c}/{C}')
+        #    mc.append(MarkovChain(graph, N_swap, gamma))
+        #    mc[c].run()
+
+        # run long burn in to reach convergence of the markov chain
+
+        burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles,
+                              use_fixed_triangle=self.mc.use_fixed_triangle,
+                              use_assortativity=self.mc.use_assortativity,
+                              use_mutualdiades=self.mc.use_mutualdiades,
+                              verbose=self.mc.verbose, keep_record=False, log_dir=None,
+                              use_fixed_threechains=self.mc.use_fixed_threechains,
+                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range)
+        burn_in.run()
+
+        # estimate the acceptation rate of the markov chain
+        burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
+
+        if self.verbose:
+            print('Burn In : acceptation/refusals by k')
+            print(burn_in.accept_rate_byk)
+            print(burn_in.refusal_rate_byk)
+
+        # Measure sampling gap
+        if self.verbose:
+            print(f'measuring sampling gap...')
+
+        # first eta is estimated from the accept/refuse rate of the burn in
+        # then dichotomic search to get better eta
+        # eta = 10 * self.mc.graph.M
+        eta = math.ceil(1 / burn_in_rate * self.mc.graph.M)
+        d_eta = C
+        prev_d_eta = C
+        prev_eta = eta
+        tuned = False
+        while (not tuned):
+
+            if self.verbose:
+                print(f'considering eta {eta}...')
+
+            d_eta = 0
+            for c in range(C):
+                S_T = []
+                if d_eta > u:
+                    continue
+
+                if len(mc) <= c:
+
+                    mc.append(MarkovChain(copy.deepcopy(burn_in.graph), N_swap, gamma, use_jd=self.mc.use_jd,
+                                          use_triangles=self.mc.use_triangles,
+                                          use_fixed_triangle=self.mc.use_fixed_triangle,
+                                          use_assortativity=self.mc.use_assortativity,
+                                          use_mutualdiades=self.mc.use_mutualdiades,
+                                          verbose=self.mc.verbose, keep_record=False, log_dir=None,
+                                          use_fixed_threechains=self.mc.use_fixed_threechains,
+                                          use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
+                                          triangle_buffer=burn_in.buffer_triangle))
+                else:
+                    mc[c] = MarkovChain(copy.deepcopy(burn_in.graph), N_swap, gamma, use_jd=self.mc.use_jd,
+                                        use_triangles=self.mc.use_triangles,
+                                        use_fixed_triangle=self.mc.use_fixed_triangle,
+                                        use_assortativity=self.mc.use_assortativity,
+                                        use_mutualdiades=self.mc.use_mutualdiades,
+                                        verbose=self.mc.verbose, keep_record=False, log_dir=None,
+                                        use_fixed_threechains=self.mc.use_fixed_threechains,
+                                        use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
+                                        triangle_buffer=burn_in.buffer_triangle)
+
+                # mc[c].run()
+            if self.verbose:
+                print("running chains...monothread...")
+            S_Ts = []
+            for c in range(C):
+                S_Ts.append(run_chain(c))
+
+            for c in range(C):
+                d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
+                d_eta += d_c
+
+            # check if eta value is accepted - if a most u chains show no correlation
+            # on the S_T timeserie with lag 1, the value of eta is considered valid.
+            if d_eta <= u:
+                if self.verbose:
+                    print('eta {eta} accepted (d_eta={d_eta} <= u={u})')
+                prev_d_eta = d_eta
+                if int(prev_eta) == int(eta / 2):
+                    # don't check eta/2 again
+                    tuned = True
+                else:
+                    print('trying eta=eta/2...')
+                    eta = eta // 2
+                prev_eta = eta
+                # tuned = True
+            elif d_eta > u and prev_d_eta <= u:
+                prev_d_eta = d_eta
+                tuned = True
+                if self.verbose:
+                    print('eta {eta} refused (d_eta={d_eta} <= u={u}), using eta={prev_eta}.')
+                eta = prev_eta
+
+            elif d_eta > u and prev_d_eta > u:
+                prev_d_eta = d_eta
+                prev_eta = eta
+                eta = 2 * eta
+                if self.verbose:
+                    print('eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
+
+        return eta
+
+
 
     def run_dfgls(self, output):
         """
@@ -345,7 +487,10 @@ class Stat():
                 eta = self.guesstimate_sampling_gap(self.mc.graph, self.mc.gamma)
             else:
                 # dichotomic estimation
-                eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+                if self.njobs==1:
+                    eta = self.estimate_sampling_gap_monothread(self.mc.graph, self.mc.gamma)
+                else:
+                    eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
             eta_time = t1 - t0

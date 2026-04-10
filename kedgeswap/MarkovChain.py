@@ -137,6 +137,10 @@ class MarkovChain:
         self.accept_rate_byk = defaultdict(int)
         self.refusal_rate_byk = defaultdict(int)
 
+        #opti
+        self.edge_indices = np.arange(graph.M)
+        self.unique_edges_array = np.array(graph.unique_edges, dtype=object)
+
     def __dump__(self, edge_to_swap, permutation, n_cycle, n_swapped, output_file):
         """Write graph and permutation, useful for debugging"""
         with gzip.open(output_file, 'wb') as fout:
@@ -255,7 +259,7 @@ class MarkovChain:
         """
         #valid_permutation = False
         # pick edge indexes
-        _edge_to_swap = np.random.choice(len(self.graph.unique_edges), k, replace=False)
+        _edge_to_swap = np.random.choice(self.graph.M, k, replace=False)
 
         if self.graph.directed:
             edge_to_swap = [self.graph.unique_edges[e_idx] for e_idx in _edge_to_swap]
@@ -274,6 +278,63 @@ class MarkovChain:
         else:
             # if !force_k, permutation is of k edges or less, can "swap" an edge with itself.
             np.random.shuffle(permutation) 
+
+        return edge_to_swap, permutation, _edge_to_swap
+
+    def find_swap_opti(self, k):
+        """
+            Randomly pick k edges to swap, and randomly pick a permutation
+            When self.force_k == True, permutation is a cyclic permutation,
+            else it is a random permutation, with possible identity for some edges.
+
+
+            Parameters
+            ----------
+            k: int
+                number of edges to swap
+
+            Return
+            ------
+            edge_to_swap: list(tuples)
+                list of the edges to swap
+            permutation: list(tuples)
+                list of the edges with which we should swap the\
+                edges in edge_to_swap
+            _edge_to_swap: list(int)
+                indexes in unique_edges of the edges in edge_to_swap
+
+        """
+        M = self.graph.M
+        rng = np.random
+        #valid_permutation = False
+        # pick edge indexes
+        chosen = set()
+        while len(chosen) < k:
+            chosen.add(rng.randint(M))
+        _edge_to_swap = list(chosen)
+
+        edges = self.graph.unique_edges
+
+        if self.graph.directed:
+            edge_to_swap = [edges[i] for i in _edge_to_swap]
+        else:
+            edge_to_swap = []
+            for i in _edge_to_swap:
+                u, v = edges[i]
+                if rng.randint(2):
+                    edge_to_swap.append((v, u))
+                else:
+                    edge_to_swap.append((u, v))
+
+        permutation = edge_to_swap.copy() # find permutation by shuffling list of edges to swap
+
+        if self.force_k:
+            # if force_k, permutation is cyclic, to force the swap to be of exactly k edges
+            cycle = rng.randint(1,k)
+            permutation = [edge_to_swap[idx - cycle] for idx in range(k)]
+        else:
+            # if !force_k, permutation is of k edges or less, can "swap" an edge with itself.
+            rng.shuffle(permutation)
 
         return edge_to_swap, permutation, _edge_to_swap
 
@@ -1217,7 +1278,7 @@ class MarkovChain:
 
             # pick k, permutation, and check if swap can be accepted
             k = self.alias_urn_pick_k()
-            edge_to_swap, permutation, edge_to_swap_idx = self.find_swap(k)
+            edge_to_swap, permutation, edge_to_swap_idx = self.find_swap_opti(k)
             accept_permutation = self.check_swap(edge_to_swap, permutation)
 
 
