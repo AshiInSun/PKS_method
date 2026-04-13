@@ -1,4 +1,7 @@
 import os
+
+from pandas.core.interchange.from_dataframe import primitive_column_to_ndarray
+
 from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
@@ -6,12 +9,11 @@ def count_triangles_in_graph(file_path):
     graph = Graph(directed=False)
     graph.read_ssv(file_path)
     mc = MarkovChain(graph)
-    mc.count_triangles()
-    triangles = len(mc.triangles2edges)
+    triangles = graph.M
     return triangles
 
 def main():
-    out_dir = 'out'
+    out_dir = '../out'
     triangle_counts = {}
 
 
@@ -21,6 +23,7 @@ def main():
             try:
                 count = count_triangles_in_graph(file_path)
                 triangle_counts[filename] = count
+
             except Exception as e:
                 print(f"Error processing {filename}: {e}")
 

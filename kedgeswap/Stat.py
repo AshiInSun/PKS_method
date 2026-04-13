@@ -93,7 +93,7 @@ class Stat():
         burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_fixed_triangle=self.mc.use_fixed_triangle,
                               use_assortativity=self.mc.use_assortativity, use_mutualdiades=self.mc.use_mutualdiades, 
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
-                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range)
+                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count)
         burn_in.run()
         
         # estimate the acceptation rate of the Markov Chain
@@ -240,7 +240,7 @@ class Stat():
                               use_assortativity=self.mc.use_assortativity,
                               use_mutualdiades=self.mc.use_mutualdiades,
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
-                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range)
+                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count)
         burn_in.run()
 
 
@@ -281,13 +281,13 @@ class Stat():
                             use_triangles=self.mc.use_triangles, use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
                             use_mutualdiades=self.mc.use_mutualdiades,
                             verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
-                            use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle))
+                            use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count))
                 else:
                     mc[c] = MarkovChain(burn_in.graph.copy(), N_swap, gamma, use_jd=self.mc.use_jd,
                                 use_triangles=self.mc.use_triangles,use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
                                 use_mutualdiades=self.mc.use_mutualdiades,
                                 verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
-                                use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle)
+                                use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count)
 
 
                 #mc[c].run()
@@ -372,7 +372,7 @@ class Stat():
                               use_mutualdiades=self.mc.use_mutualdiades,
                               verbose=self.mc.verbose, keep_record=False, log_dir=None,
                               use_fixed_threechains=self.mc.use_fixed_threechains,
-                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range)
+                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count)
         burn_in.run()
 
         # estimate the acceptation rate of the markov chain
@@ -416,7 +416,7 @@ class Stat():
                                           verbose=self.mc.verbose, keep_record=False, log_dir=None,
                                           use_fixed_threechains=self.mc.use_fixed_threechains,
                                           use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
-                                          triangle_buffer=burn_in.buffer_triangle))
+                                          triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count))
                 else:
                     mc[c] = MarkovChain(copy.deepcopy(burn_in.graph), N_swap, gamma, use_jd=self.mc.use_jd,
                                         use_triangles=self.mc.use_triangles,
@@ -426,7 +426,7 @@ class Stat():
                                         verbose=self.mc.verbose, keep_record=False, log_dir=None,
                                         use_fixed_threechains=self.mc.use_fixed_threechains,
                                         use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
-                                        triangle_buffer=burn_in.buffer_triangle)
+                                        triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count)
 
                 # mc[c].run()
             if self.verbose:

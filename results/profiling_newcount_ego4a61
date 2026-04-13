@@ -1,0 +1,373 @@
+Timer unit: 1e-07 s
+
+Total time: 17.7534 s
+File: C:\Users\shaim\Desktop\STAGE\CODE\PKS_method\kedgeswap\MarkovChain.py
+Function: MarkovChain.find_swap_opti at line 285
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   285                                               def find_swap_opti(self, k):
+   286                                                   """
+   287                                                       Randomly pick k edges to swap, and randomly pick a permutation
+   288                                                       When self.force_k == True, permutation is a cyclic permutation,
+   289                                                       else it is a random permutation, with possible identity for some edges.
+   290
+   291
+   292                                                       Parameters
+   293                                                       ----------
+   294                                                       k: int
+   295                                                           number of edges to swap
+   296
+   297                                                       Return
+   298                                                       ------
+   299                                                       edge_to_swap: list(tuples)
+   300                                                           list of the edges to swap
+   301                                                       permutation: list(tuples)
+   302                                                           list of the edges with which we should swap the\
+   303                                                           edges in edge_to_swap
+   304                                                       _edge_to_swap: list(int)
+   305                                                           indexes in unique_edges of the edges in edge_to_swap
+   306
+   307                                                   """
+   308    100000     876061.0      8.8      0.5          M = self.graph.M
+   309    100000     555720.0      5.6      0.3          rng = np.random
+   310                                                   #valid_permutation = False
+   311                                                   # pick edge indexes
+   312    100000     553984.0      5.5      0.3          chosen = set()
+   313   1738973    7733395.0      4.4      4.4          while len(chosen) < k:
+   314   1638973   79288580.0     48.4     44.7              chosen.add(rng.randint(M))
+   315    100000    1397181.0     14.0      0.8          _edge_to_swap = list(chosen)
+   316
+   317    100000     490111.0      4.9      0.3          edges = self.graph.unique_edges
+   318
+   319    100000     269915.0      2.7      0.2          if self.graph.directed:
+   320                                                       edge_to_swap = [edges[i] for i in _edge_to_swap]
+   321                                                   else:
+   322    100000     291488.0      2.9      0.2              edge_to_swap = []
+   323   1550548    3029294.0      2.0      1.7              for i in _edge_to_swap:
+   324   1450548    9381064.0      6.5      5.3                  u, v = edges[i]
+   325   1450548   58433160.0     40.3     32.9                  if rng.randint(2):
+   326    724848    4664602.0      6.4      2.6                      edge_to_swap.append((v, u))
+   327                                                           else:
+   328    725700    4681345.0      6.5      2.6                      edge_to_swap.append((u, v))
+   329
+   330    100000     597050.0      6.0      0.3          permutation = edge_to_swap.copy() # find permutation by shuffling list of edges to swap
+   331
+   332    100000     289748.0      2.9      0.2          if self.force_k:
+   333                                                       # if force_k, permutation is cyclic, to force the swap to be of exactly k edges
+   334                                                       cycle = rng.randint(1,k)
+   335                                                       permutation = [edge_to_swap[idx - cycle] for idx in range(k)]
+   336                                                   else:
+   337                                                       # if !force_k, permutation is of k edges or less, can "swap" an edge with itself.
+   338    100000    4712959.0     47.1      2.7              rng.shuffle(permutation)
+   339
+   340    100000     287858.0      2.9      0.2          return edge_to_swap, permutation, _edge_to_swap
+
+Total time: 493.683 s
+File: C:\Users\shaim\Desktop\STAGE\CODE\PKS_method\kedgeswap\MarkovChain.py
+Function: MarkovChain.check_swap at line 462
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   462                                               def check_swap(self, edge_to_swap, permutation):
+   463                                                   """
+   464                                                       Verify constraints to see if swap can be accepted or not
+   465
+   466                                                       Parameters
+   467                                                       ----------
+   468                                                       edge_to_swap: list(tuples)
+   469                                                           list of the edges to swap
+   470                                                       permutation: list(tuples)
+   471                                                           list of the edges with which we should swap the\
+   472                                                           edges in edge_to_swap
+   473
+   474                                                       Returns
+   475                                                       -------
+   476                                                       swap_accepted: bool
+   477                                                           true if swap can be accepted
+   478
+   479                                                   """
+   480
+   481                                                   # list of the edges after permutation
+   482    100000     515978.0      5.2      0.0          goal_edges = []
+   483
+   484                                                   # sets of broken and created dyads, to check if the
+   485                                                   # swap keeps the number of dyads fixed. (only if -md option is enabled)
+   486    100000     526819.0      5.3      0.0          broken_diades = set()
+   487    100000     315412.0      3.2      0.0          created_diades = set()
+   488    280805    2031889.0      7.2      0.0          for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
+   489                                                       # goal edge is the result of permutation between (u,v) and (x,y)
+   490    257229     744303.0      2.9      0.0              if self.graph.directed:
+   491                                                           goal_edge = (u, y)
+   492                                                       else:
+   493    257229    1099014.0      4.3      0.0                  goal_edge = (u, y) if u < y else (y ,u)
+   494    257229    1112514.0      4.3      0.0              goal_edges.append(goal_edge)
+   495
+   496                                                       # avoid loops
+   497    257229     621448.0      2.4      0.0              if u == y:
+   498       445       1822.0      4.1      0.0                  return False
+   499
+   500                                                       # avoid multiple edges
+   501    256784    2051772.0      8.0      0.0              if goal_edge in self.graph.edges:
+   502     75979     308618.0      4.1      0.0                  return False
+   503
+   504                                                   # check that we don't create multi-edges
+   505     23576     389900.0     16.5      0.0          if not len(set(goal_edges)) == len(goal_edges):
+   506         2          4.0      2.0      0.0              return False
+   507
+   508                                                   # check if joint degree matrix changes
+   509     23574     117395.0      5.0      0.0          if self.use_jd:
+   510                                                       # check if joint degree matrix changed
+   511
+   512                                                       updated_jd = self.update_joint_degree(edge_to_swap, permutation)
+   513                                                       jd_changed = False
+   514                                                       for _, val in updated_jd.items():
+   515                                                           if val != 0:
+   516                                                               jd_changed = True
+   517                                                               break
+   518
+   519                                                       if jd_changed:
+   520                                                           return False
+   521                                                       #if not (updated_jd1 == self.joint_degree).all():
+   522                                                       #    return False, None
+   523                                                       #else:
+   524                                                       #    for key in updated_jd2:
+   525                                                       #        assert updated_jd2[key] == 0
+   526                                                   else:
+   527     23574      47972.0      2.0      0.0              updated_jd1 = None
+   528
+   529                                                   # check if total number of mutual diades changes
+   530                                                   #if self.graph.directed and self.use_mutualdiades:
+   531                                                   #    if len(broken_diades) != len(created_diades):
+   532                                                   #        return False
+   533
+   534                                                   #if len(broken_diades) != 0 or len(created_diades) != 0 :
+   535     23574      98792.0      4.2      0.0          if self.graph.directed and self.use_mutualdiades:
+   536                                                       old_dyads, new_dyads = self.check_dyads(edge_to_swap, permutation)
+   537                                                       if len(old_dyads) != len(new_dyads):
+   538                                                           return False
+   539
+   540                                                   # using the number of triangles as a constraint on generation,
+   541                                                   # check if the number of triangles change
+   542     23574      36046.0      1.5      0.0          delta_triangle = 0
+   543     23574     112624.0      4.8      0.0          if self.use_fixed_triangle:
+   544                                                       #we do a copy of the sub-graph changed by the swap, i.e. the nodes implied in the swap and their neighboors.
+   545                                                       #we check the delta of the number of triangle which need to be equal to zero
+   546     23574      80262.0      3.4      0.0              if self.old_count:
+   547     23574 4862433440.0 206262.6     98.5                  local_graph = self.create_partial_local_graph(edge_to_swap, 1)
+   548     23574    6075630.0    257.7      0.1                  self.perform_local_swap(local_graph, edge_to_swap, permutation)
+   549     23574   57277192.0   2429.7      1.2                  delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
+   550                                                       else:
+   551                                                           local_n = self.test_local_neighboorhood(edge_to_swap, 1)
+   552                                                           delta_triangle -= self.nb_triangle_neighboor(local_n, edge_to_swap)
+   553                                                           self.perform_neighboor_swap(local_n, edge_to_swap, permutation)
+   554                                                           delta_triangle += self.nb_triangle_neighboor(local_n, goal_edges)
+   555
+   556                                                       # we can have a flexibility on the number of triangles that can be destroyed or created
+   557     23574     211557.0      9.0      0.0              if self.use_fixed_triangle_range!=0:
+   558     23574     514880.0     21.8      0.0                  if abs(self.buffer_triangle + delta_triangle) > self.use_fixed_triangle_range:
+   559     19660      43651.0      2.2      0.0                      return False
+   560                                                       else:
+   561                                                           if delta_triangle != 0:
+   562                                                               return False
+   563
+   564
+   565                                                   #using the number of 3-chains as a constraint on generation,
+   566                                                   #check if the number of 3-chains change
+   567      3914      21579.0      5.5      0.0          if self.use_fixed_threechains:
+   568                                                       local_graph = self.create_partial_local_graph(edge_to_swap, 2)
+   569                                                       self.perform_local_swap(local_graph, edge_to_swap, permutation)
+   570                                                       delta_3path = self.delta_local_3path(local_graph, edge_to_swap, permutation)
+   571                                                       if delta_3path != 0:
+   572                                                           return False
+   573
+   574      3914      34117.0      8.7      0.0          self.buffer_triangle += delta_triangle
+   575      3914       6816.0      1.7      0.0          return True
+
+   #######################################################
+   NEW
+   #######################################################
+
+Total time: 15.6529 s
+File: C:\Users\shaim\Desktop\STAGE\CODE\PKS_method\kedgeswap\MarkovChain.py
+Function: MarkovChain.find_swap_opti at line 285
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   285                                               def find_swap_opti(self, k):
+   286                                                   """
+   287                                                       Randomly pick k edges to swap, and randomly pick a permutation
+   288                                                       When self.force_k == True, permutation is a cyclic permutation,
+   289                                                       else it is a random permutation, with possible identity for some edges.
+   290
+   291
+   292                                                       Parameters
+   293                                                       ----------
+   294                                                       k: int
+   295                                                           number of edges to swap
+   296
+   297                                                       Return
+   298                                                       ------
+   299                                                       edge_to_swap: list(tuples)
+   300                                                           list of the edges to swap
+   301                                                       permutation: list(tuples)
+   302                                                           list of the edges with which we should swap the\
+   303                                                           edges in edge_to_swap
+   304                                                       _edge_to_swap: list(int)
+   305                                                           indexes in unique_edges of the edges in edge_to_swap
+   306
+   307                                                   """
+   308    100000     590145.0      5.9      0.4          M = self.graph.M
+   309    100000     395443.0      4.0      0.3          rng = np.random
+   310                                                   #valid_permutation = False
+   311                                                   # pick edge indexes
+   312    100000     394310.0      3.9      0.3          chosen = set()
+   313   1578279    6407090.0      4.1      4.1          while len(chosen) < k:
+   314   1478279   65962191.0     44.6     42.1              chosen.add(rng.randint(M))
+   315    100000    1109764.0     11.1      0.7          _edge_to_swap = list(chosen)
+   316
+   317    100000     380330.0      3.8      0.2          edges = self.graph.unique_edges
+   318
+   319    100000     262652.0      2.6      0.2          if self.graph.directed:
+   320                                                       edge_to_swap = [edges[i] for i in _edge_to_swap]
+   321                                                   else:
+   322    100000     233730.0      2.3      0.1              edge_to_swap = []
+   323   1479933    2856790.0      1.9      1.8              for i in _edge_to_swap:
+   324   1379933    8460593.0      6.1      5.4                  u, v = edges[i]
+   325   1379933   56149284.0     40.7     35.9                  if rng.randint(2):
+   326    690751    4402131.0      6.4      2.8                      edge_to_swap.append((v, u))
+   327                                                           else:
+   328    689182    4405027.0      6.4      2.8                      edge_to_swap.append((u, v))
+   329
+   330    100000     572330.0      5.7      0.4          permutation = edge_to_swap.copy() # find permutation by shuffling list of edges to swap
+   331
+   332    100000     272949.0      2.7      0.2          if self.force_k:
+   333                                                       # if force_k, permutation is cyclic, to force the swap to be of exactly k edges
+   334                                                       cycle = rng.randint(1,k)
+   335                                                       permutation = [edge_to_swap[idx - cycle] for idx in range(k)]
+   336                                                   else:
+   337                                                       # if !force_k, permutation is of k edges or less, can "swap" an edge with itself.
+   338    100000    3393983.0     33.9      2.2              rng.shuffle(permutation)
+   339
+   340    100000     280709.0      2.8      0.2          return edge_to_swap, permutation, _edge_to_swap
+
+Total time: 37.8242 s
+File: C:\Users\shaim\Desktop\STAGE\CODE\PKS_method\kedgeswap\MarkovChain.py
+Function: MarkovChain.check_swap at line 462
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   462                                               def check_swap(self, edge_to_swap, permutation):
+   463                                                   """
+   464                                                       Verify constraints to see if swap can be accepted or not
+   465
+   466                                                       Parameters
+   467                                                       ----------
+   468                                                       edge_to_swap: list(tuples)
+   469                                                           list of the edges to swap
+   470                                                       permutation: list(tuples)
+   471                                                           list of the edges with which we should swap the\
+   472                                                           edges in edge_to_swap
+   473
+   474                                                       Returns
+   475                                                       -------
+   476                                                       swap_accepted: bool
+   477                                                           true if swap can be accepted
+   478
+   479                                                   """
+   480
+   481                                                   # list of the edges after permutation
+   482    100000     404760.0      4.0      0.1          goal_edges = []
+   483
+   484                                                   # sets of broken and created dyads, to check if the
+   485                                                   # swap keeps the number of dyads fixed. (only if -md option is enabled)
+   486    100000     406653.0      4.1      0.1          broken_diades = set()
+   487    100000     253872.0      2.5      0.1          created_diades = set()
+   488    281457    1905830.0      6.8      0.5          for ((u,v), (x,y)) in zip(edge_to_swap, permutation):
+   489                                                       # goal edge is the result of permutation between (u,v) and (x,y)
+   490    257880     766194.0      3.0      0.2              if self.graph.directed:
+   491                                                           goal_edge = (u, y)
+   492                                                       else:
+   493    257880    1013318.0      3.9      0.3                  goal_edge = (u, y) if u < y else (y ,u)
+   494    257880    1079055.0      4.2      0.3              goal_edges.append(goal_edge)
+   495
+   496                                                       # avoid loops
+   497    257880     629208.0      2.4      0.2              if u == y:
+   498       441       1577.0      3.6      0.0                  return False
+   499
+   500                                                       # avoid multiple edges
+   501    257439    1807177.0      7.0      0.5              if goal_edge in self.graph.edges:
+   502     75982     268238.0      3.5      0.1                  return False
+   503
+   504                                                   # check that we don't create multi-edges
+   505     23577     287760.0     12.2      0.1          if not len(set(goal_edges)) == len(goal_edges):
+   506         2          3.0      1.5      0.0              return False
+   507
+   508                                                   # check if joint degree matrix changes
+   509     23575      66657.0      2.8      0.0          if self.use_jd:
+   510                                                       # check if joint degree matrix changed
+   511
+   512                                                       updated_jd = self.update_joint_degree(edge_to_swap, permutation)
+   513                                                       jd_changed = False
+   514                                                       for _, val in updated_jd.items():
+   515                                                           if val != 0:
+   516                                                               jd_changed = True
+   517                                                               break
+   518
+   519                                                       if jd_changed:
+   520                                                           return False
+   521                                                       #if not (updated_jd1 == self.joint_degree).all():
+   522                                                       #    return False, None
+   523                                                       #else:
+   524                                                       #    for key in updated_jd2:
+   525                                                       #        assert updated_jd2[key] == 0
+   526                                                   else:
+   527     23575      45884.0      1.9      0.0              updated_jd1 = None
+   528
+   529                                                   # check if total number of mutual diades changes
+   530                                                   #if self.graph.directed and self.use_mutualdiades:
+   531                                                   #    if len(broken_diades) != len(created_diades):
+   532                                                   #        return False
+   533
+   534                                                   #if len(broken_diades) != 0 or len(created_diades) != 0 :
+   535     23575      68456.0      2.9      0.0          if self.graph.directed and self.use_mutualdiades:
+   536                                                       old_dyads, new_dyads = self.check_dyads(edge_to_swap, permutation)
+   537                                                       if len(old_dyads) != len(new_dyads):
+   538                                                           return False
+   539
+   540                                                   # using the number of triangles as a constraint on generation,
+   541                                                   # check if the number of triangles change
+   542     23575      45149.0      1.9      0.0          delta_triangle = 0
+   543     23575      72736.0      3.1      0.0          if self.use_fixed_triangle:
+   544                                                       #we do a copy of the sub-graph changed by the swap, i.e. the nodes implied in the swap and their neighboors.
+   545                                                       #we check the delta of the number of triangle which need to be equal to zero
+   546     23575      59829.0      2.5      0.0              if self.old_count:
+   547                                                           local_graph = self.create_partial_local_graph(edge_to_swap, 1)
+   548                                                           self.perform_local_swap(local_graph, edge_to_swap, permutation)
+   549                                                           delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
+   550                                                       else:
+   551     23575  345495638.0  14655.2     91.3                  local_n = self.test_local_neighboorhood(edge_to_swap, 1)
+   552     23575   14787892.0    627.3      3.9                  delta_triangle -= self.nb_triangle_neighboor(local_n, edge_to_swap)
+   553     23575    2308599.0     97.9      0.6                  self.perform_neighboor_swap(local_n, edge_to_swap, permutation)
+   554     23575    5951725.0    252.5      1.6                  delta_triangle += self.nb_triangle_neighboor(local_n, goal_edges)
+   555
+   556                                                       # we can have a flexibility on the number of triangles that can be destroyed or created
+   557     23575     145338.0      6.2      0.0              if self.use_fixed_triangle_range!=0:
+   558     23575     273893.0     11.6      0.1                  if abs(self.buffer_triangle + delta_triangle) > self.use_fixed_triangle_range:
+   559     19580      32863.0      1.7      0.0                      return False
+   560                                                       else:
+   561                                                           if delta_triangle != 0:
+   562                                                               return False
+   563
+   564
+   565                                                   #using the number of 3-chains as a constraint on generation,
+   566                                                   #check if the number of 3-chains change
+   567      3995      16090.0      4.0      0.0          if self.use_fixed_threechains:
+   568                                                       local_graph = self.create_partial_local_graph(edge_to_swap, 2)
+   569                                                       self.perform_local_swap(local_graph, edge_to_swap, permutation)
+   570                                                       delta_3path = self.delta_local_3path(local_graph, edge_to_swap, permutation)
+   571                                                       if delta_3path != 0:
+   572                                                           return False
+   573
+   574      3995      40745.0     10.2      0.0          self.buffer_triangle += delta_triangle
+   575      3995       6780.0      1.7      0.0          return True

@@ -23,18 +23,17 @@ def test_run():
 
     mc = MarkovChain(
         graph,
-        N_swap=30000,
+        N_swap=100000,
         gamma=2.0,
         use_triangles=True,
         use_fixed_triangle=True,
         use_fixed_triangle_range=75,
-        verbose=True
+        verbose=True,
+        old_count=False
     )
     lp = LineProfiler()
     lp.add_function(mc.find_swap_opti)
     lp.add_function(mc.check_swap)
-    lp.add_function(mc.perform_swap)
-    lp.add_function(mc.create_partial_local_graph)
 
     print("N_swap :",N_swap)
     print("Starting run...")
@@ -44,33 +43,6 @@ def test_run():
 
     print("Accept rate :", mc.accept_rate)
     print("Refusal rate :", mc.refusal_rate)
-
-    # plot
-    plt.figure()
-    plt.plot(window)
-    plt.xlabel("Swap step")
-    plt.ylabel("Assortativity")
-    plt.title("Evolution of assortativity during edge swaps")
-    plt.show()
-
-    nmc = MarkovChain(
-        mc.graph.copy(),
-        N_swap=100000,
-        gamma=2.0,
-        use_triangles=True,
-        use_fixed_triangle=True,
-        use_fixed_triangle_range=1,
-        verbose=True,
-        triangle_buffer= mc.buffer_triangle
-    )
-
-    print("buffer :", mc.buffer_triangle)
-    print("Starting run...")
-    window = nmc.run()
-    print("Run finished")
-
-    print("Accept rate :", nmc.accept_rate)
-    print("Refusal rate :", nmc.refusal_rate)
 
     # plot
     plt.figure()

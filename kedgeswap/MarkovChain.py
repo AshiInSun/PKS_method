@@ -30,7 +30,7 @@ class MarkovChain:
                  use_assortativity=False, use_mutualdiades=False,
                  verbose=False, keep_record=False, log_dir = None, debug=False,
                  use_fixed_threechains=False, use_fixed_triangle_range=0,
-                 triangle_buffer=0
+                 triangle_buffer=0, old_count=False
                  ):
         """
             Class to handle k-edge random swap
@@ -105,6 +105,7 @@ class MarkovChain:
         self.edges2triangles = defaultdict(list)
         self.triangles2edges = defaultdict(list)
         self.initial_trianglenumber = 0
+        self.old_count = old_count
 
         # 3-chain
         # in the code we refer to 3-chain oftently as tchains.
@@ -389,6 +390,77 @@ class MarkovChain:
 
         return local_graph
 
+    def create_local_neighboorhood(self, edges, frontier):
+        """
+        Create a local neighboorhood containing the edges involved in the swap,
+        their neighboor to the frontier degree.
+        frontier = 0 return a graph with only the edges, = 1 their neighboor etc
+
+        Parameters
+        ----------
+        frontier : int
+        edges : list of tuple
+            List of edges involved in the swap
+
+        Returns
+        -------
+        local_neighboor : dict(set)
+            a local copy
+        """
+        nodes = set()
+        for u, v in edges:
+            nodes.add(u)
+            nodes.add(v)
+
+        for _ in range(frontier):
+            for node in list(nodes):
+                nodes.update(self.graph.neighbors[node])
+
+        local_neighbors = {u: set() for u in nodes}
+
+        for u in nodes:
+            local_neighbors[u] = set(self.graph.neighbors[u]) & nodes
+
+        return local_neighbors
+
+    def perform_neighboor_swap(self, local_neighboor, edge_to_swap, permutation):
+        """
+        Perform a swap inside the local neighboorhood.
+
+        Parameters
+        ----------
+        local_neighboor: dict(set)
+        edge_to_swap: list(tuples)
+        permutation: list(tuples)
+        """
+        for (u, v), (x, y) in zip(edge_to_swap, permutation):
+            local_neighboor[u].remove(v)
+            local_neighboor[v].remove(u)
+            local_neighboor[u].add(y)
+            local_neighboor[y].add(u)
+
+    def nb_triangle_neighboor(self, local_neighboor, edge_involved):
+        """
+        Compute the number of triangles in which the edges are involved inside a local neighborhood.
+
+        Parameters
+        ----------
+        local_neighboor: dict(set)
+        edge_involved: list(tuples)
+
+        Returns
+        --------
+        nb_triangle: int
+            number of triangles in which the edges are involved inside a local neighborhood
+        """
+        tr = set()
+        for (u, v) in edge_involved:
+            inter = local_neighboor[u] & local_neighboor[v]
+            for x in inter:
+                tr.add(tuple(sorted((u,v,x))))
+        return len(tr)
+
+
     def perform_local_swap(self, local_graph, edge_to_swap, permutation):
         """
         We perform a swap on a local graph.
@@ -509,10 +581,16 @@ class MarkovChain:
         if self.use_fixed_triangle:
             #we do a copy of the sub-graph changed by the swap, i.e. the nodes implied in the swap and their neighboors.
             #we check the delta of the number of triangle which need to be equal to zero
-
-            local_graph = self.create_partial_local_graph(edge_to_swap, 1)
-            self.perform_local_swap(local_graph, edge_to_swap, permutation)
-            delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
+            #we are allowing to use the old_count for testing purpose (and if you like to wait longer)
+            if self.old_count:
+                local_graph = self.create_partial_local_graph(edge_to_swap, 1)
+                self.perform_local_swap(local_graph, edge_to_swap, permutation)
+                delta_triangle = self.delta_local_triangle(local_graph, edge_to_swap, permutation)
+            else:
+                local_n = self.create_local_neighboorhood(edge_to_swap, 1)
+                delta_triangle -= self.nb_triangle_neighboor(local_n, edge_to_swap)
+                self.perform_neighboor_swap(local_n, edge_to_swap, permutation)
+                delta_triangle += self.nb_triangle_neighboor(local_n, goal_edges)
 
             # we can have a flexibility on the number of triangles that can be destroyed or created
             if self.use_fixed_triangle_range!=0:

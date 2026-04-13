@@ -53,7 +53,7 @@ def main():
 
     g = Graph(directed=False)
 
-    input_file = "data/ucidata-zachary/out.ucidata-zachary"
+    input_file = "../data/ucidata-zachary/out.ucidata-zachary"
     g.read_ssv(input_file)
 
     print("Nombre de sommets :", g.N)
