@@ -10,12 +10,12 @@ def test_run():
     file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ego_dataset',
-        '4a614391ef27b94d336a410bec2aa934.gml'
+        'ucidata-zachary',
+        'out.ucidata-zachary'
     )
 
     graph = Graph(directed=False)
-    graph.read_gml(file)
+    graph.read_ssv(file)
     N_swap = graph.M * 1000
 
     def run_mc():
@@ -24,10 +24,9 @@ def test_run():
     mc = MarkovChain(
         graph,
         N_swap=100000,
-        gamma=2.0,
-        use_triangles=True,
-        use_fixed_triangle=True,
-        use_fixed_triangle_range=75,
+        gamma=3.0,
+        use_assortativity=False,
+        use_fixed_threechains=True,
         verbose=True,
         old_count=False
     )

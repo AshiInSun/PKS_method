@@ -242,7 +242,8 @@ class Stat():
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                               use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count)
         burn_in.run()
-
+        #we need to make the buffer of triangle consistant with the graph.
+        self.mc.buffer_triangle = burn_in.buffer_triangle
 
         # estimate the acceptation rate of the markov chain
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)

@@ -1389,8 +1389,7 @@ class MarkovChain:
                 # compute value of interest (assortativity/triangles) to follow convergence
                 if self.use_assortativity:
                     self.update_assortativity(edge_to_swap, permutation)
-                # we need to keep triangles also when it's a generative constraint
-                if self.use_triangles or self.use_fixed_triangle:
+                if self.use_triangles:
                     self.update_triangles(edge_to_swap, permutation)
                 if self.use_fixed_threechains:
                     self.update_tchains(edge_to_swap, permutation)

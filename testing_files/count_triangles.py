@@ -1,4 +1,7 @@
+import sys
 import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
@@ -11,7 +14,7 @@ def count_triangles_in_graph(file_path):
     return triangles
 
 def main():
-    out_dir = '../out'
+    out_dir = './out'
     triangle_counts = {}
 
 
