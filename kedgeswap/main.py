@@ -20,7 +20,7 @@ from kedgeswap.MarkovChain import MarkovChain
 
 def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use_assortativity, mutualdiades, turbo, eta,
         output, verbose, keep_record, log_dir, output_number, debug, njobs, use_fixed_threechains,
-        read_gml, use_fixed_triangle_range, old_triangle):
+        read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path):
 
     # read graph
     print('Reading graph...')
@@ -36,7 +36,7 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
             use_fixed_triangle=use_fixed_triangle, use_triangles=use_triangles, use_assortativity=use_assortativity, use_mutualdiades=mutualdiades,
             verbose=verbose,
             keep_record=keep_record, log_dir=log_dir, debug=debug, use_fixed_threechains=use_fixed_threechains,
-            use_fixed_triangle_range=use_fixed_triangle_range, old_count=old_triangle)
+            use_fixed_triangle_range=use_fixed_triangle_range, old_count=old_triangle, use_fixed_tclosedpath=use_fixed_three_closed_path)
 
     # initialize metrics
     stat = Stat(mc, eta, turbo, verbose, njobs)
@@ -95,6 +95,10 @@ def main():
 
     parser.add_argument('-f3c', '--fixed_three_chains', action='store_true', default=False,
                         help='enable to keep the number of 3 chains during swaps')
+
+    parser.add_argument('-f3cc', '--fixed_three_closed_path', action='store_true', default=False,
+                        help='enable to keep the number of 3 chains, including triangle, during swaps')
+
     parser.add_argument('--output_number', type=int, default=1000,
             help='set the number of graph to generate after Markov Chain convergence.'
             ' Default to 1000')
@@ -160,7 +164,8 @@ def main():
     run(args.dataset, args.directed, args.gamma, args.jointdegree, args.fixed_triangle, args.triangles,
             args.assortativity, args.mutualdiades, args.turbo,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
-            args.output_number, args.debug, args.njobs, args.fixed_three_chains, args.read_gml, args.fixed_triangle_range, args.old_triangle)
+            args.output_number, args.debug, args.njobs, args.fixed_three_chains, args.read_gml, args.fixed_triangle_range,
+            args.old_triangle, args.fixed_three_closed_path)
 
 
 if __name__ == "__main__":

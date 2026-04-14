@@ -30,7 +30,7 @@ class MarkovChain:
                  use_assortativity=False, use_mutualdiades=False,
                  verbose=False, keep_record=False, log_dir = None, debug=False,
                  use_fixed_threechains=False, use_fixed_triangle_range=0,
-                 triangle_buffer=0, old_count=False
+                 triangle_buffer=0, old_count=False, use_fixed_tclosedpath=False
                  ):
         """
             Class to handle k-edge random swap
@@ -124,6 +124,7 @@ class MarkovChain:
         self.use_mutualdiades = use_mutualdiades
         self.joint_degree = np.zeros(0)
         self.use_fixed_threechains = use_fixed_threechains
+        self.use_fixed_tclosedpath = use_fixed_tclosedpath
 
         # debug
         self.verbose = verbose
@@ -607,6 +608,13 @@ class MarkovChain:
             local_graph = self.create_partial_local_graph(edge_to_swap, 2)
             self.perform_local_swap(local_graph, edge_to_swap, permutation)
             delta_3path = self.delta_local_3path(local_graph, edge_to_swap, permutation)
+            if delta_3path != 0:
+                return False
+
+        #using the number of 3-chains, including triangle, as a constraint on generation,
+        #check if the number of 3-closed-chains change.
+        if self.use_fixed_tclosedpath:
+            delta_3path = self.delta_local_3closedpath(edge_to_swap, permutation)
             if delta_3path != 0:
                 return False
 
@@ -1288,6 +1296,13 @@ class MarkovChain:
 
         return delta
 
+    def delta_local_3closedpath(self, edge_to_swap, permutation):
+        delta = 0
+        for (u, v), (x, y) in zip(edge_to_swap, permutation):
+            destroyed = (len(self.graph.neighbors[u]) - 1) * (len(self.graph.neighbors[v]) - 1)
+            created = (len(self.graph.neighbors[u]) - 1) * (len(self.graph.neighbors[y]) - 1)
+            delta += destroyed - created
+        return delta
 
     def run(self, N_swap=None):
         """

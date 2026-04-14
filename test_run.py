@@ -23,10 +23,10 @@ def test_run():
 
     mc = MarkovChain(
         graph,
-        N_swap=100000,
+        N_swap=10000000,
         gamma=3.0,
-        use_assortativity=False,
-        use_fixed_threechains=True,
+        use_triangles=True,
+        use_fixed_tclosedpath=True,
         verbose=True,
         old_count=False
     )
