@@ -1,4 +1,7 @@
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -7,13 +10,13 @@ from kedgeswap.MarkovChain import MarkovChain
 
 toy_file = os.path.join(
     os.path.dirname(__file__),
-    'data',
-    'ego_dataset',
-    '4a614391ef27b94d336a410bec2aa934.gml'
+    '../data',
+    'ucidata-zachary',
+    'egograph_edges.txt'
 )
 
 graph = Graph(directed=False)
-graph.read_gml(toy_file)
+graph.read_ssv(toy_file)
 
 fig, axes = plt.subplots(1, 1, figsize=(20, 6))
 
