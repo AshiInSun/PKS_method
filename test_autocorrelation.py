@@ -94,7 +94,7 @@ def run():
     S_Ts = []
     mc = []
     alpha = 0.04
-    flag = 4
+    flag = 10
     second_flag = 1
 
     while ((second_flag > 0) and (flag > 0)):
@@ -129,6 +129,7 @@ def run():
                                       use_fixed_tclosedpath=burn_in.use_fixed_tclosedpath)
 
         S_T = []
+        print(f"Running Markov chains with eta={eta}...")
         S_Ts = Parallel(n_jobs=4)(delayed(run_chain)(c) for c in range(10))
         for c in range(10):
             d_c = CheckAutocorrLag1_modified(temp, S_Ts[c], alpha)
@@ -163,7 +164,8 @@ def run():
     plt.xlabel("Itération")
     plt.ylabel("A")
     plt.grid(True)
-    plt.show()
+    plt.savefig("eta_vs_A.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 if __name__ == "__main__":
     run()
