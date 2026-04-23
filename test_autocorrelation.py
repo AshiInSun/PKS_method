@@ -47,9 +47,10 @@ def CheckAutocorrLag1_modified(temp, S_T, alpha):
         return 0
 
 def run():
-    def run_chain(c):
+    def run_chain(c, eta_temp):
         S_T = []
-        n_swap = int(np.round(eta))
+        n_swap = int(np.round(eta_temp))
+        print(f"Running Markov chain {c} with eta={n_swap}...")
         for t in range(500):
             mc[c].run(n_swap)
             if mc[c].use_assortativity:
@@ -61,12 +62,12 @@ def run():
     file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ucidata-zachary',
-        'egograph_edges.txt'
+        'ego_dataset',
+        '4a614391ef27b94d336a410bec2aa934.gml'
     )
 
     graph = Graph(directed=False)
-    graph.read_ssv(file)
+    graph.read_gml(file)
     N_swap = 1000 * graph.M
 
     burn_in = MarkovChain(
@@ -75,7 +76,7 @@ def run():
         gamma=3.0,
         use_assortativity=True,
         use_fixed_triangle=True,
-        use_fixed_triangle_range=9,
+        use_fixed_triangle_range=75,
         verbose=True,
         old_count=False
     )
@@ -85,11 +86,12 @@ def run():
 
     burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
     eta = math.ceil(1 / burn_in_rate * graph.M)
-
+    base = eta
     prev_eta = eta
     tuned = False
     plot_a = []
     eta_list = []
+    list_of_eta = [20000, 40000, 80000, 120000, 160000]
     plot_std = []
     S_Ts = []
     mc = []
@@ -97,9 +99,7 @@ def run():
     flag = 10
     second_flag = 1
 
-    while ((second_flag > 0) and (flag > 0)):
-        if eta > 250000:
-            break
+    for eta_current in list_of_eta:
         flag -= 1
         d_eta = 0
         temp = []
@@ -130,7 +130,7 @@ def run():
 
         S_T = []
         print(f"Running Markov chains with eta={eta}...")
-        S_Ts = Parallel(n_jobs=4)(delayed(run_chain)(c) for c in range(10))
+        S_Ts = Parallel(n_jobs=4)(delayed(run_chain)(c, eta_current) for c in range(10))
         for c in range(10):
             d_c = CheckAutocorrLag1_modified(temp, S_Ts[c], alpha)
             d_eta += d_c
@@ -143,10 +143,8 @@ def run():
             print(f"Autocorrelation test passed with eta={eta}")
             tuned = True
             second_flag -= 1
-            eta = eta*2
         else:
             print(f"Autocorrelation test failed with eta={eta}")
-            eta = eta*2
 
 
 
@@ -164,7 +162,7 @@ def run():
     plt.xlabel("Itération")
     plt.ylabel("A")
     plt.grid(True)
-    plt.savefig("eta_vs_A.png", dpi=300, bbox_inches="tight")
+    plt.savefig("acf_eta20kto160k_4a61_ftr75_a_g3", dpi=300, bbox_inches="tight")
     plt.close()
 
 if __name__ == "__main__":
