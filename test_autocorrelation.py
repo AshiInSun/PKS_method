@@ -91,7 +91,7 @@ def run():
     tuned = False
     plot_a = []
     eta_list = []
-    list_of_eta = [20000, 40000, 80000, 120000, 160000]
+    list_of_eta = [20000, 100000, 160000, 200000, 250000, 350000]
     plot_std = []
     S_Ts = []
     mc = []
@@ -129,30 +129,30 @@ def run():
                                       use_fixed_tclosedpath=burn_in.use_fixed_tclosedpath)
 
         S_T = []
-        print(f"Running Markov chains with eta={eta}...")
-        S_Ts = Parallel(n_jobs=4)(delayed(run_chain)(c, eta_current) for c in range(10))
+        print(f"Running Markov chains with eta={eta_current}...")
+        S_Ts = Parallel(n_jobs=5)(delayed(run_chain)(c, eta_current) for c in range(10))
         for c in range(10):
             d_c = CheckAutocorrLag1_modified(temp, S_Ts[c], alpha)
             d_eta += d_c
         plot_a.append(np.mean(temp))
         plot_std.append(np.std(temp))
-        eta_list.append(eta)
+        eta_list.append(eta_current)
 
 
         if d_eta <= 1:
-            print(f"Autocorrelation test passed with eta={eta}")
+            print(f"Autocorrelation test passed with eta={eta_current}...")
             tuned = True
             second_flag -= 1
         else:
-            print(f"Autocorrelation test failed with eta={eta}")
+            print(f"Autocorrelation test failed with eta={eta_current}...")
 
 
 
     print(f"Autocorrelation test passed with eta={eta}")
     plt.figure()
-    plt.plot(eta_list, plot_a, marker='o')
+    plt.plot(list_of_eta, plot_a, marker='o')
     plt.fill_between(
-        eta_list,
+        list_of_eta,
         np.array(plot_a) - np.array(plot_std),
         np.array(plot_a) + np.array(plot_std),
         alpha=0.2,
