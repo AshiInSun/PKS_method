@@ -396,7 +396,7 @@ class Stat():
 
 
 
-    def estimate_iat_sokal(self, S_T, C=6):
+    def estimate_iat_sokal(self, S_T, C=10):
         """
         Estime le temps d'autocorrélation intégré (IAT, τ) d'une série temporelle
         selon la méthode de fenêtrage de Sokal (1997) / Madras & Sokal (1988).
@@ -449,7 +449,7 @@ class Stat():
         # Si on arrive ici, la série est trop courte
         return None
 
-    def estimate_iat(self, graph, gamma, C=5, max_batches=20):
+    def estimate_iat(self, graph, gamma, C=10, max_batches=20):
         """
         Estime le temps d'autocorrélation intégré (IAT, τ) après le burn-in,
         en accumulant des batches de swaps jusqu'à ce que la série soit assez
@@ -524,10 +524,17 @@ class Stat():
 
         # boucle d'accumulation
         for batch_idx in range(max_batches):
-            print(f'Batch {batch_idx + 1}/{max_batches} ({batch_size} swaps)...')
 
-            window = mc_iat.run(batch_size)
-            S_T.extend(window)
+
+            thin = max(1, math.ceil(1 / burn_in_rate)) * 2
+            effective_batch = batch_size * thin
+            print(f'Batch {batch_idx + 1}/{max_batches} ({effective_batch} swaps) with thinning {thin}...')
+
+            window = mc_iat.run(effective_batch)
+
+            # ton échantillonnage
+            window_echantillone = window[::thin]
+            S_T.extend(window_echantillone)
 
             print(f'  Série accumulée : {len(S_T)} valeurs')
 
@@ -535,8 +542,9 @@ class Stat():
 
             if tau is not None:
                 print(f'  τ estimé : {tau:.1f} — critère satisfait après {batch_idx + 1} batch(es)')
+                print(f'  τ pris : {tau*thin*10:.1f} — critère satisfait après {batch_idx + 1} batch(es)')
                 self.mc.buffer_triangle = mc_iat.buffer_triangle
-                return 10 * tau
+                return 10 * thin * tau
             else:
                 print(f'  Série trop courte, batch supplémentaire nécessaire')
 
