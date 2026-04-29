@@ -334,31 +334,28 @@ class Stat():
 
     def run_dfgls(self, output):
         """
-            If no sampling gap eta specified, run estimation of eta.
-            Run Markov Chain for eta steps, retrieve list of assortativity values (or number of triangles)
-            and estimate the convergence of this time serie, to decide if the Markov Chain is
-            converged.
+            Si aucun sampling gap eta n'est spécifié, estime l'IAT via la méthode
+            de Sokal. Lance ensuite la chaîne de Markov par blocs de eta pas et
+            vérifie la convergence via le test DFGLS.
         """
 
         # Get sampling gap value
         if self.eta is None:
             t0 = time.time()
             if self.turbo:
-                # turbo estimation
+                # turbo estimation (inchangé)
                 eta = self.guesstimate_sampling_gap(self.mc.graph, self.mc.gamma)
             else:
-                # dichotomic estimation
-                eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
+                # nouvelle estimation via IAT de Sokal
+                eta = self.estimate_iat(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
             eta_time = t1 - t0
-            #print(f'eta estimation {t1 - t0} seconds')
         else:
-            # use eta given in input
             eta = self.eta
             eta_time = 0
 
-        # Run the markov chain, and check its convergence using the DFGLS test
+        # Run the markov chain, et vérification convergence via DFGLS (inchangé)
         has_converged = False
         if self.verbose:
             print('running markov chain and checking convergence...')
@@ -368,13 +365,10 @@ class Stat():
             window = self.mc.run(int(np.round(eta)))
             test = DFGLS(window)
 
-            try: 
-                # in some very rare cases, usually when very few swaps are accepted, the DFGLS
-                # doesn't have enough different values to run, so it raises an error. Catch that error and
-                # run the markov chain some more.
+            try:
                 if self.verbose:
-                    print(f'test statistic : {test.stat},\n Markov chain is stationnary if test statistic < {test.critical_values["1%"]}')
-                    #print(test.summary)
+                    print(
+                        f'test statistic : {test.stat},\n Markov chain is stationnary if test statistic < {test.critical_values["1%"]}')
 
                 if test.stat < test.critical_values["1%"]:
                     has_converged = True
@@ -383,18 +377,176 @@ class Stat():
                 print("Warning, dfgls doesn't have enough unique observations to compute.")
                 continue
 
-        # some verbose output
         if self.verbose:
             print('Convergence : acceptation by k')
             for k in self.mc.accept_rate_byk:
                 print(f'({k}: {self.mc.accept_rate_byk[k]})', end=', ')
-
             print('\nConvergence : refusal by k')
             for k in self.mc.refusal_rate_byk:
                 print(f'({k}: {self.mc.refusal_rate_byk[k]})', end=', ')
             print('')
+
         t1 = time.time()
         conv_time = t1 - t0
         print(f'eta estimation took {eta_time} seconds')
         print(f'convergence took {conv_time} seconds')
 
+
+
+
+
+
+    def estimate_iat_sokal(self, S_T, C=6):
+        """
+        Estime le temps d'autocorrélation intégré (IAT, τ) d'une série temporelle
+        selon la méthode de fenêtrage de Sokal (1997) / Madras & Sokal (1988).
+
+        La méthode :
+        1. Calcule la fonction d'autocorrélation normalisée ρ(k)
+        2. Somme ρ(k) jusqu'à la fenêtre M, définie comme
+           le plus petit M tel que M >= C * τ_hat(M)
+           (critère de Sokal, C ~ 5 recommandé)
+
+        Paramètres
+        ----------
+        S_T : list ou np.array
+            Série temporelle des valeurs (assortativity, nb triangles, etc.)
+        C : float
+            Constante de fenêtrage de Sokal (défaut : 5)
+
+        Retourne
+        --------
+        tau : float
+            Estimation du temps d'autocorrélation intégré.
+            Si la série est trop courte pour satisfaire le critère,
+            retourne None pour signaler qu'il faut plus de données.
+        """
+        S = np.array(S_T, dtype=float)
+        N = len(S)
+
+        # Centrage
+        S -= np.mean(S)
+
+        # Calcul de l'ACF via FFT (plus efficace que la sommation directe)
+        # on zero-pad à 2N pour éviter les effets circulaires
+        f = np.fft.rfft(S, n=2 * N)
+        acf_raw = np.fft.irfft(f * np.conj(f))[:N]
+
+        # Normalisation par rho(0) pour obtenir rho(k) in [-1, 1]
+        acf = acf_raw / acf_raw[0]
+
+        # Sommation avec fenêtrage de Sokal :
+        # on accumule tau_hat(M) = 1 + 2*sum_{k=1}^{M} rho(k)
+        # et on s'arrête au premier M où M >= C * tau_hat(M)
+        tau_hat = 1.0
+        for M in range(1, N):
+            tau_hat += 2.0 * acf[M]
+
+            # critère de Sokal
+            if M >= C * tau_hat:
+                return tau_hat  # bonne estimation
+
+        # Si on arrive ici, la série est trop courte
+        return None
+
+    def estimate_iat(self, graph, gamma, C=5, max_batches=20):
+        """
+        Estime le temps d'autocorrélation intégré (IAT, τ) après le burn-in,
+        en accumulant des batches de swaps jusqu'à ce que la série soit assez
+        longue pour satisfaire le critère de fenêtrage de Sokal (M >= C * τ).
+
+        La taille des batches est déterminée par le taux d'acceptation du
+        burn-in : batch_size = ceil(1 / burn_in_rate * m)
+
+        Paramètres
+        ----------
+        graph : Graph
+            Le graphe sur lequel estimer l'IAT
+        gamma : int
+            Paramètre de la distribution de k
+        C : float
+            Constante de fenêtrage de Sokal. Défaut : 5
+        max_batches : int
+            Nombre maximum de batches avant d'abandonner. Défaut : 20
+
+        Retourne
+        --------
+        tau : float
+            Estimation de l'IAT.
+        """
+        m = graph.M
+        S_T = []
+
+        # Burn-in
+        print('Burn-in...')
+        N_burnin = 1000 * m
+        burn_in = MarkovChain(
+            graph, N_burnin, gamma,
+            use_jd=self.mc.use_jd,
+            use_triangles=self.mc.use_triangles,
+            use_fixed_triangle=self.mc.use_fixed_triangle,
+            use_assortativity=self.mc.use_assortativity,
+            use_mutualdiades=self.mc.use_mutualdiades,
+            verbose=self.mc.verbose,
+            keep_record=False,
+            log_dir=None,
+            use_fixed_threechains=self.mc.use_fixed_threechains,
+            use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
+            old_count=self.mc.old_count,
+            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath
+        )
+        burn_in.run()
+        self.mc.buffer_triangle = burn_in.buffer_triangle
+
+        # taille de batch adaptative selon le taux d'acceptation du burn-in
+        burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
+        batch_size = math.ceil(1 / burn_in_rate * m)
+        print(f'Taux d\'acceptation burn-in : {burn_in_rate:.3f} → batch_size = {batch_size}')
+
+        # chaîne unique qui continue depuis l'état post burn-in
+        mc_iat = MarkovChain(
+            burn_in.graph,
+            0, gamma,
+            use_jd=self.mc.use_jd,
+            use_triangles=self.mc.use_triangles,
+            use_fixed_triangle=self.mc.use_fixed_triangle,
+            use_assortativity=self.mc.use_assortativity,
+            use_mutualdiades=self.mc.use_mutualdiades,
+            verbose=self.mc.verbose,
+            keep_record=False,
+            log_dir=None,
+            use_fixed_threechains=self.mc.use_fixed_threechains,
+            use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
+            triangle_buffer=burn_in.buffer_triangle,
+            old_count=self.mc.old_count,
+            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath
+        )
+
+        # boucle d'accumulation
+        for batch_idx in range(max_batches):
+            print(f'Batch {batch_idx + 1}/{max_batches} ({batch_size} swaps)...')
+
+            window = mc_iat.run(batch_size)
+            S_T.extend(window)
+
+            print(f'  Série accumulée : {len(S_T)} valeurs')
+
+            tau = self.estimate_iat_sokal(S_T, C=C)
+
+            if tau is not None:
+                print(f'  τ estimé : {tau:.1f} — critère satisfait après {batch_idx + 1} batch(es)')
+                self.mc.buffer_triangle = mc_iat.buffer_triangle
+                return 10 * tau
+            else:
+                print(f'  Série trop courte, batch supplémentaire nécessaire')
+
+        # fallback si max_batches atteint
+        tau_fallback = self.estimate_iat_sokal(S_T, C=1)
+        if tau_fallback is None:
+            # estimation brute sans fenêtrage
+            tau_fallback = len(S_T) / 2
+            print(f'Warning : estimation de secours τ = {tau_fallback:.1f}')
+        else:
+            print(f'Warning : max_batches atteint. Meilleure estimation de τ : {tau_fallback:.1f}')
+        self.mc.buffer_triangle = mc_iat.buffer_triangle
+        return 10 * tau_fallback
