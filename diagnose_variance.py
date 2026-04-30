@@ -5,31 +5,38 @@ qui passent le critère de Dutta et al. (karate club) et ceux qui ne passent pas
 (ego-graphes).
 
 Usage:
-    python diagnose_variance.py -f <dataset> -a [-ftr <range>] [-ft] [-n 8] [-T 200]
+    python diagnose_variance.py -f <dataset> -a [-ftr <range>] [-ft] [-n 8] [-T 200] [-j 5]
 
 Options:
-    -f / --dataset      : chemin vers le fichier graphe
-    -t / --triangles    : utiliser le nombre de triangles comme statistique de convergence
-    -a / --assortativity: utiliser l'assortativity comme statistique de convergence
-    -ft                 : fixer exactement le nombre de triangles (contrainte de génération)
-    -ftr / --fixed_triangle_range : marge autorisée sur le nombre de triangles (contrainte souple)
-    -gml                : lire un fichier GML
-    -d / --directed     : graphe dirigé
-    -n / --n_steps      : nombre de valeurs de eta à tester (défaut: 8)
-    -T / --T_obs        : nombre d'observations par valeur de eta (défaut: 200)
-    -g / --gamma        : exposant de la loi de Zipf pour le choix de k (défaut: 2)
+    -f / --dataset             : chemin vers le fichier graphe
+    -t / --triangles           : utiliser le nombre de triangles comme statistique de convergence
+    -a / --assortativity       : utiliser l'assortativity comme statistique de convergence
+    -ft                        : fixer exactement le nombre de triangles (contrainte de génération)
+    -ftr / --fixed_triangle_range : marge autorisée sur le nombre de triangles (ex: -ftr 5)
+    -gml                       : lire un fichier GML
+    -d / --directed            : graphe dirigé
+    -n / --n_steps             : nombre de valeurs de eta à tester (défaut: 8)
+    -T / --T_obs               : nombre d'observations par valeur de eta (défaut: 200)
+    -g / --gamma               : exposant de la loi de Zipf pour le choix de k (défaut: 2)
+    -j / --njobs               : nombre de jobs parallèles (défaut: 5)
 """
 
 import argparse
 import sys
+import os
 import numpy as np
 import copy
 import scipy.stats
 import matplotlib.pyplot as plt
+from joblib import Parallel, delayed
 
 from kedgeswap.Graph import Graph
 from kedgeswap.MarkovChain import MarkovChain
 
+
+# ---------------------------------------------------------------------------
+# Fonctions statistiques
+# ---------------------------------------------------------------------------
 
 def autocorr_lag1(series):
     """Calcule l'autocorrélation au lag 1 d'une série."""
@@ -89,6 +96,10 @@ def check_autocorr_lag1_significant(series, alpha=0.04):
     return 1 if A > z else 0
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
 def make_mc(graph, gamma, use_triangles, use_assortativity,
             use_fixed_triangle, use_fixed_triangle_range, triangle_buffer=0):
     """Instancie un MarkovChain avec les bonnes contraintes."""
@@ -106,9 +117,29 @@ def make_mc(graph, gamma, use_triangles, use_assortativity,
     )
 
 
+def run_chain(mc, eta, T_obs):
+    """
+    Fait tourner une chaîne de Markov pendant T_obs * eta pas
+    et retourne la série de la statistique observée.
+    Fonction top-level pour être picklable par joblib.
+    """
+    series = []
+    for _ in range(T_obs):
+        mc.run(int(eta))
+        if mc.use_assortativity:
+            series.append(mc.assortativity)
+        else:
+            series.append(len(mc.triangles2edges))
+    return series
+
+
+# ---------------------------------------------------------------------------
+# Diagnostic principal
+# ---------------------------------------------------------------------------
+
 def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
                   use_fixed_triangle, use_fixed_triangle_range,
-                  eta_fixed, read_gml, n_steps, T_obs, gamma=2):
+                  eta_fixed, read_gml, n_steps, T_obs, gamma=2, njobs=5):
 
     # --- lecture du graphe ---
     print(f"\n{'='*60}")
@@ -149,39 +180,37 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
     if eta_fixed is not None:
         eta_values = [int(eta_fixed)]
     else:
-        # grille log centrée autour de eta_min_empirical
         eta_values = [max(1, int(eta_min_empirical * (2**i) / 4)) for i in range(n_steps)]
-
-    print(f"\nValeurs de eta testées : {eta_values}")
-    print(f"T_obs (observations par eta) : {T_obs}")
-    print(f"C (chaînes parallèles) : 10\n")
 
     C = 10
     alpha = 0.04
+    print(f"\nValeurs de eta testées : {eta_values}")
+    print(f"T_obs={T_obs}, C={C} chaînes parallèles, njobs={njobs}\n")
+
     results = []
 
     for eta in eta_values:
-        variances = []
-        autocorrs = []
-        iats = []
-        d_eta_count = 0
 
-        for c in range(C):
-            mc = make_mc(
+        # prépare C copies indépendantes du graphe après burn-in
+        chains = [
+            make_mc(
                 copy.deepcopy(mc_burnin.graph), gamma,
                 use_triangles, use_assortativity,
                 use_fixed_triangle, use_fixed_triangle_range,
                 triangle_buffer=buffer_after_burnin
             )
+            for _ in range(C)
+        ]
 
-            series = []
-            for _ in range(T_obs):
-                mc.run(int(eta))
-                if use_assortativity:
-                    series.append(mc.assortativity)
-                else:
-                    series.append(len(mc.triangles2edges))
+        # lance les C chaînes en parallèle — même pattern que Stat.py
+        series_list = Parallel(n_jobs=njobs)(
+            delayed(run_chain)(chains[c], eta, T_obs) for c in range(C)
+        )
 
+        # agrège les résultats
+        variances, autocorrs, iats = [], [], []
+        d_eta_count = 0
+        for series in series_list:
             variances.append(np.var(series))
             autocorrs.append(autocorr_lag1(series))
             iats.append(integrated_autocorr_time(series))
@@ -274,7 +303,6 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
     axes[2].set_title("Variance de la statistique (moy ± std sur C=10)")
 
     plt.tight_layout()
-    import os
     out_name = os.path.splitext(os.path.basename(dataset))[0] + '_diagnosis.png'
     plt.savefig(out_name, dpi=150)
     print(f"\nFigure sauvegardée : {out_name}")
@@ -283,6 +311,10 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
     return results
 
 
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
 def main():
     parser = argparse.ArgumentParser(description='Diagnostic variance/autocorrélation pour k-edge-swap')
     parser.add_argument('-f', '--dataset', type=str, required=True)
@@ -290,24 +322,17 @@ def main():
     parser.add_argument('-d', '--directed', action='store_true', default=False)
     parser.add_argument('-g', '--gamma', type=int, default=2)
 
-    # statistique de convergence
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-t', '--triangles', action='store_true', default=False)
     group.add_argument('-a', '--assortativity', action='store_true', default=False)
 
-    # contraintes sur les triangles
-    parser.add_argument('-ft', '--fixed_triangle', action='store_true', default=False,
-                        help='Fixer exactement le nombre de triangles')
-    parser.add_argument('-ftr', '--fixed_triangle_range', type=int, default=0,
-                        help='Marge autorisée sur le nombre de triangles (ex: -ftr 5)')
+    parser.add_argument('-ft', '--fixed_triangle', action='store_true', default=False)
+    parser.add_argument('-ftr', '--fixed_triangle_range', type=int, default=0)
 
-    # paramètres du diagnostic
-    parser.add_argument('-e', '--eta', type=float, default=None,
-                        help='Valeur fixe de eta (si non spécifié, teste une grille)')
-    parser.add_argument('-n', '--n_steps', type=int, default=8,
-                        help='Nombre de valeurs de eta à tester')
-    parser.add_argument('-T', '--T_obs', type=int, default=200,
-                        help='Nombre d\'observations par valeur de eta')
+    parser.add_argument('-e', '--eta', type=float, default=None)
+    parser.add_argument('-n', '--n_steps', type=int, default=8)
+    parser.add_argument('-T', '--T_obs', type=int, default=200)
+    parser.add_argument('-j', '--njobs', type=int, default=5)
 
     args = parser.parse_args()
 
@@ -325,6 +350,7 @@ def main():
         n_steps=args.n_steps,
         T_obs=args.T_obs,
         gamma=args.gamma,
+        njobs=args.njobs,
     )
 
 
