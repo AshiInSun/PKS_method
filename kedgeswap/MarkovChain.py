@@ -95,7 +95,12 @@ class MarkovChain:
         self.normalized_k_distrib = self.k_distrib/np.sum(self.k_distrib)
         self.force_k = False
         urng = np.random.default_rng()
-        self.rng = DiscreteAliasUrn(self.normalized_k_distrib, domain=(2, graph.M+1))
+        self.distrib = True
+        if len(self.normalized_k_distrib) == 0:
+            distrib = False
+            self.rng = None
+        else:
+            self.rng = DiscreteAliasUrn(self.normalized_k_distrib, domain=(2, graph.M+1))
 
         # assortativity
         self.assortativity = 0
@@ -218,6 +223,8 @@ class MarkovChain:
             k: int
                 number of edges to swap
         """
+        if not self.rng:
+            return 2
         k = self.rng.rvs()
         return int(k)
 
@@ -754,7 +761,10 @@ class MarkovChain:
                 Sl += deg_u * deg_v
         N = S1 * Sl - S2*S2
         self.D = S1 * S3 - S2 * S2 # denominator does not change when edges are swapped
-        self.assortativity = N/self.D
+        if self.D != 0:
+            self.assortativity = N/self.D
+        else:
+            self.assortativity = np.nan
 
     def update_assortativity(self, edge_to_swap, permutation):
         """ 
@@ -778,7 +788,10 @@ class MarkovChain:
 
             N += deg_u * deg_y - deg_u * deg_v
         N = N * 4 * self.graph.M
-        delta_r = N / self.D # difference in assortativity
+        if self.D != 0:
+            delta_r = N / self.D # difference in assortativity
+        else :
+            delta_r = np.nan
         self.assortativity += delta_r
 
     def _add_directed_triangle(self, u, v, triangle):
