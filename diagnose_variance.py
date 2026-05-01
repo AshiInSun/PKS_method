@@ -1,24 +1,9 @@
 """
 Diagnostic script: analyse la variance de la statistique de convergence
-(assortativity ou triangles) en fonction de eta, pour comparer des graphes
-qui passent le critère de Dutta et al. (karate club) et ceux qui ne passent pas
-(ego-graphes).
+(assortativity ou triangles) en fonction de eta.
 
 Usage:
     python diagnose_variance.py -f <dataset> -a [-ftr <range>] [-ft] [-n 8] [-T 200] [-j 5]
-
-Options:
-    -f / --dataset             : chemin vers le fichier graphe
-    -t / --triangles           : utiliser le nombre de triangles comme statistique de convergence
-    -a / --assortativity       : utiliser l'assortativity comme statistique de convergence
-    -ft                        : fixer exactement le nombre de triangles (contrainte de génération)
-    -ftr / --fixed_triangle_range : marge autorisée sur le nombre de triangles (ex: -ftr 5)
-    -gml                       : lire un fichier GML
-    -d / --directed            : graphe dirigé
-    -n / --n_steps             : nombre de valeurs de eta à tester (défaut: 8)
-    -T / --T_obs               : nombre d'observations par valeur de eta (défaut: 200)
-    -g / --gamma               : exposant de la loi de Zipf pour le choix de k (défaut: 2)
-    -j / --njobs               : nombre de jobs parallèles (défaut: 5)
 """
 
 import argparse
@@ -39,7 +24,6 @@ from kedgeswap.MarkovChain import MarkovChain
 # ---------------------------------------------------------------------------
 
 def autocorr_lag1(series):
-    """Calcule l'autocorrélation au lag 1 d'une série."""
     series = np.array(series)
     T = len(series)
     mean = np.mean(series)
@@ -51,11 +35,6 @@ def autocorr_lag1(series):
 
 
 def integrated_autocorr_time(series, max_lag=None):
-    """
-    Estime le temps d'autocorrélation intégré (IAT) de Sokal.
-    IAT = 1 + 2 * sum_{k=1}^{inf} rho(k)
-    Fenêtrage : on coupe quand rho(k) <= 0 ou k > 5 * IAT (règle de Sokal).
-    """
     series = np.array(series, dtype=float)
     T = len(series)
     mean = np.mean(series)
@@ -77,10 +56,6 @@ def integrated_autocorr_time(series, max_lag=None):
 
 
 def check_autocorr_lag1_significant(series, alpha=0.04):
-    """
-    Reproduit exactement le test CheckAutocorrLag1 de Stat.py.
-    Retourne 1 si l'autocorrélation lag-1 est significativement > 0.
-    """
     S_T = np.array(series)
     T = len(S_T)
     mean_st = np.mean(S_T)
@@ -102,7 +77,6 @@ def check_autocorr_lag1_significant(series, alpha=0.04):
 
 def make_mc(graph, gamma, use_triangles, use_assortativity,
             use_fixed_triangle, use_fixed_triangle_range, triangle_buffer=0):
-    """Instancie un MarkovChain avec les bonnes contraintes."""
     return MarkovChain(
         graph=graph,
         N_swap=0,
@@ -119,9 +93,8 @@ def make_mc(graph, gamma, use_triangles, use_assortativity,
 
 def run_chain(mc, eta, T_obs):
     """
-    Fait tourner une chaîne de Markov pendant T_obs * eta pas
-    et retourne la série de la statistique observée.
-    Fonction top-level pour être picklable par joblib.
+    Fonction top-level (picklable par joblib).
+    Retourne la série de la statistique observée sur T_obs observations.
     """
     series = []
     for _ in range(T_obs):
@@ -139,7 +112,8 @@ def run_chain(mc, eta, T_obs):
 
 def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
                   use_fixed_triangle, use_fixed_triangle_range,
-                  eta_fixed, read_gml, n_steps, T_obs, gamma=2, njobs=5):
+                  eta_fixed, read_gml, n_steps, T_obs, gamma=2, njobs=5,
+                  n_burnin=500000, n_burnin_blocks=10000):
 
     # --- lecture du graphe ---
     print(f"\n{'='*60}")
@@ -159,14 +133,24 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
     else:
         print("aucune")
 
-    # --- burn-in ---
-    N_burnin = 1000 * graph.M
-    print(f"\nBurn-in ({N_burnin} swaps)...")
+    # --- burn-in par blocs pour éviter une window trop grande en mémoire ---
+    # On fait le burn-in en N_burnin_blocks blocs, et on ne garde
+    # que la dernière valeur de chaque bloc → N_burnin_blocks points au total.
+    N_burnin = n_burnin
+    N_burnin_blocks = n_burnin_blocks
+    block_size = max(1, N_burnin // N_burnin_blocks)
+    print(f"\nBurn-in ({N_burnin} swaps, collecte 1 point tous les {block_size} swaps)...")
+
     mc_burnin = make_mc(
         graph, gamma, use_triangles, use_assortativity,
         use_fixed_triangle, use_fixed_triangle_range
     )
-    mc_burnin.run(N_burnin)
+    burnin_window = []
+    for _ in range(N_burnin_blocks):
+        block_window = mc_burnin.run(block_size)
+        # on garde uniquement la dernière valeur du bloc
+        if block_window:
+            burnin_window.append(block_window[-1])
 
     accept_rate = mc_burnin.accept_rate / (mc_burnin.accept_rate + mc_burnin.refusal_rate)
     buffer_after_burnin = mc_burnin.buffer_triangle
@@ -191,7 +175,6 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
 
     for eta in eta_values:
 
-        # prépare C copies indépendantes du graphe après burn-in
         chains = [
             make_mc(
                 copy.deepcopy(mc_burnin.graph), gamma,
@@ -202,12 +185,10 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
             for _ in range(C)
         ]
 
-        # lance les C chaînes en parallèle — même pattern que Stat.py
         series_list = Parallel(n_jobs=njobs)(
             delayed(run_chain)(chains[c], eta, T_obs) for c in range(C)
         )
 
-        # agrège les résultats
         variances, autocorrs, iats = [], [], []
         d_eta_count = 0
         for series in series_list:
@@ -243,14 +224,9 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
         variance_range = max(variances_all) / min(variances_all)
         print(f"Ratio variance(max)/variance(min) : {variance_range:.2f}")
         if variance_range < 3:
-            print("→ Variance STABLE quelle que soit eta.")
-            print("  La faible variance semble intrinsèque à l'espace cible,")
-            print("  pas un artefact de mauvais mixing.")
-            print("  Le critère d'autocorrélation lag-1 est inadapté pour ce graphe.")
+            print("→ Variance STABLE : faible variance intrinsèque à l'espace cible.")
         else:
-            print("→ Variance croissante avec eta.")
-            print("  La chaîne explore mieux avec des eta plus grands.")
-            print("  Le problème est probablement le mixing, pas la statistique.")
+            print("→ Variance croissante : la chaîne explore encore, mixing insuffisant.")
 
     # --- tableau récap ---
     print(f"\n{'eta':>12} | {'variance':>12} | {'autocorr_lag1':>14} | {'IAT':>8} | {'d_eta/10':>9}")
@@ -260,16 +236,29 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
         print(f"{r['eta']:>12} | {r['mean_variance']:>12.3e} | {r['mean_autocorr_lag1']:>14.3f}"
               f" | {r['mean_iat']:>8.1f} | {r['d_eta']:>4}/10{flag}")
 
-    # --- figure ---
-    etas = [r['eta'] for r in results]
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
-
+    # --- figures ---
     constraint_str = f"ftr={use_fixed_triangle_range}" if use_fixed_triangle_range > 0 \
         else ("ft" if use_fixed_triangle else "no constraint")
-    fig.suptitle(
-        f"{dataset} | N={graph.N}, M={graph.M}, accept_rate={accept_rate:.3f} | {constraint_str}",
-        fontsize=9
-    )
+    stat_label = "assortativity" if use_assortativity else "nb triangles"
+    title_base = f"{os.path.basename(dataset)} | N={graph.N}, M={graph.M}, " \
+                 f"accept_rate={accept_rate:.3f} | {constraint_str}"
+
+    etas = [r['eta'] for r in results]
+
+    # Figure 1 : burn-in
+    fig1, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(burnin_window, linewidth=0.6, color='steelblue')
+    ax.set_xlabel("pas MCMC (swaps tentés)")
+    ax.set_ylabel(stat_label)
+    ax.set_title(f"Burn-in — {title_base}")
+    plt.tight_layout()
+    out_burnin = os.path.splitext(os.path.basename(dataset))[0] + '_burnin.png'
+    fig1.savefig(out_burnin, dpi=150)
+    print(f"\nFigure burn-in sauvegardée : {out_burnin}")
+
+    # Figure 2 : diagnostic eta
+    fig2, axes = plt.subplots(1, 3, figsize=(15, 4))
+    fig2.suptitle(title_base, fontsize=9)
 
     axes[0].semilogx(etas, [r['d_eta'] for r in results], 'o-', color='steelblue')
     axes[0].axhline(y=1, color='red', linestyle='--', label='seuil Dutta (u=1)')
@@ -299,15 +288,15 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
         alpha=0.2, color='seagreen'
     )
     axes[2].set_xlabel('eta')
-    axes[2].set_ylabel('variance de la statistique')
+    axes[2].set_ylabel(f'variance ({stat_label})')
     axes[2].set_title("Variance de la statistique (moy ± std sur C=10)")
 
     plt.tight_layout()
-    out_name = os.path.splitext(os.path.basename(dataset))[0] + '_diagnosis.png'
-    plt.savefig(out_name, dpi=150)
-    print(f"\nFigure sauvegardée : {out_name}")
-    plt.show()
+    out_diag = os.path.splitext(os.path.basename(dataset))[0] + '_diagnosis.png'
+    fig2.savefig(out_diag, dpi=150)
+    print(f"Figure diagnostic sauvegardée : {out_diag}")
 
+    plt.show()
     return results
 
 
@@ -333,6 +322,10 @@ def main():
     parser.add_argument('-n', '--n_steps', type=int, default=8)
     parser.add_argument('-T', '--T_obs', type=int, default=200)
     parser.add_argument('-j', '--njobs', type=int, default=5)
+    parser.add_argument('--burnin', type=int, default=500000,
+                        help='Nombre total de swaps du burn-in (défaut: 500000).')
+    parser.add_argument('--burnin_blocks', type=int, default=10000,
+                        help='Nombre de points collectés pendant le burn-in (défaut: 10000).')
 
     args = parser.parse_args()
 
@@ -351,6 +344,8 @@ def main():
         T_obs=args.T_obs,
         gamma=args.gamma,
         njobs=args.njobs,
+        n_burnin=args.burnin,
+        n_burnin_blocks=args.burnin_blocks,
     )
 
 
