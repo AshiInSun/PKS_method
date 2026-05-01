@@ -12,6 +12,8 @@ import os
 import numpy as np
 import copy
 import scipy.stats
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
 
@@ -296,7 +298,6 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
     fig2.savefig(out_diag, dpi=150)
     print(f"Figure diagnostic sauvegardée : {out_diag}")
 
-    plt.show()
     return results
 
 
