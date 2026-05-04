@@ -29,21 +29,21 @@ def test_run():
         os.path.dirname(__file__),
         'data',
         'ucidata-zachary',
-        'egograph_edges.txt'
+        'out.ucidata-zachary'
     )
 
     graph = Graph(directed=False)
     graph.read_ssv(file)
-    N_swap = graph.M
+    N_swap = graph.M * 10000
 
     def run_mc():
         return mc.run()
 
     mc = MarkovChain(
         graph,
-        N_swap=5000000,
+        N_swap=N_swap,
         gamma=3.0,
-        use_assortativity=True,
+        use_squares=True,
         use_fixed_triangle=True,
         use_fixed_triangle_range=0,
         verbose=True,

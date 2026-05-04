@@ -93,7 +93,8 @@ class Stat():
         burn_in = MarkovChain(graph, N_swap, gamma, use_jd=self.mc.use_jd, use_triangles=self.mc.use_triangles, use_fixed_triangle=self.mc.use_fixed_triangle,
                               use_assortativity=self.mc.use_assortativity, use_mutualdiades=self.mc.use_mutualdiades, 
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
-                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count, use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath)
+                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count,
+                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares)
         burn_in.run()
         
         # estimate the acceptation rate of the Markov Chain
@@ -240,7 +241,8 @@ class Stat():
                               use_assortativity=self.mc.use_assortativity,
                               use_mutualdiades=self.mc.use_mutualdiades,
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
-                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count, use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath)
+                              use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count,
+                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares)
         burn_in.run()
         #we need to make the buffer of triangle consistant with the graph.
         self.mc.buffer_triangle = burn_in.buffer_triangle
@@ -283,14 +285,14 @@ class Stat():
                             use_mutualdiades=self.mc.use_mutualdiades,
                             verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                             use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count,
-                            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath))
+                            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares))
                 else:
                     mc[c] = MarkovChain(copy.deepcopy(burn_in.graph), N_swap, gamma, use_jd=self.mc.use_jd,
-                                use_triangles=self.mc.use_triangles,use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
-                                use_mutualdiades=self.mc.use_mutualdiades,
-                                verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
-                                use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count,
-                                        use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath)
+                            use_triangles=self.mc.use_triangles,use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
+                            use_mutualdiades=self.mc.use_mutualdiades,
+                            verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
+                            use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count,
+                            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares)
 
 
                 #mc[c].run()
@@ -347,7 +349,7 @@ class Stat():
                 eta = self.guesstimate_sampling_gap(self.mc.graph, self.mc.gamma)
             else:
                 # nouvelle estimation via IAT de Sokal
-                eta = self.estimate_iat(self.mc.graph, self.mc.gamma)
+                eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
             eta_time = t1 - t0

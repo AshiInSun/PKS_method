@@ -21,6 +21,21 @@ from numpy.f2py.auxfuncs import throw_error
 from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
 from collections import defaultdict
+from itertools import combinations
+
+
+def _canonical_square(u, v, x, w):
+    """
+    Retourne la forme canonique d'un carré formant le cycle u-v-x-w-u.
+    On prend le noeud minimum comme point de départ, puis on choisit
+    le sens (forward ou backward) qui donne le tuple lexicographiquement
+    le plus petit.
+    """
+    nodes = [u, v, x, w]
+    idx = nodes.index(min(nodes))
+    forward = (nodes[idx], nodes[(idx + 1) % 4], nodes[(idx + 2) % 4], nodes[(idx + 3) % 4])
+    backward = (nodes[idx], nodes[(idx - 1) % 4], nodes[(idx - 2) % 4], nodes[(idx - 3) % 4])
+    return min(forward, backward)
 
 class MarkovChain:
     """ make swaps """
@@ -30,7 +45,8 @@ class MarkovChain:
                  use_assortativity=False, use_mutualdiades=False,
                  verbose=False, keep_record=False, log_dir = None, debug=False,
                  use_fixed_threechains=False, use_fixed_triangle_range=0,
-                 triangle_buffer=0, old_count=False, use_fixed_tclosedpath=False
+                 triangle_buffer=0, old_count=False, use_fixed_tclosedpath=False,
+                 use_squares=False
                  ):
         """
             Class to handle k-edge random swap
@@ -112,6 +128,11 @@ class MarkovChain:
         self.initial_trianglenumber = 0
         self.old_count = old_count
 
+        # square
+        self.edges2squares = defaultdict(list)
+        self.squares2edges = defaultdict(list)
+        self.use_squares = use_squares
+
         # 3-chain
         # in the code we refer to 3-chain oftently as tchains.
         self.edges2tchains = defaultdict(set)
@@ -188,7 +209,8 @@ class MarkovChain:
             keep_record=self.keep_record,
             log_dir=self.log_dir,
             debug=self.debug,
-            use_fixed_threechains=self.use_fixed_threechains
+            use_fixed_threechains=self.use_fixed_threechains,
+            use_squares = self.use_squares
         )
 
         # copy runtime attributes
@@ -921,6 +943,114 @@ class MarkovChain:
                             self.edges2triangles[(node_2, node_1)].append(current_triangle)
                             self.triangles2edges[current_triangle].append((node_2, node_1))
 
+    def count_squares(self):
+        """
+        Enumère et stocke tous les carrés (4-cycles) du graphe non orienté.
+
+        Pour chaque noeud u, on considère toutes les paires (v, w) de voisins de u.
+        Si v et w ont un voisin commun x != u, alors u-v-x-w-u est un carré.
+
+        On stocke :
+          - squares2edges[carré] → liste des 4 arêtes dans les 2 sens (8 entrées)
+          - edges2squares[(a,b)] → liste des carrés contenant l'arête (a,b)
+
+        Complexité : O(sum_u deg(u)^2 * d_max)
+        """
+        for u in self.graph.neighbors:
+            nu = self.graph.neighbors[u]
+            if len(nu) < 2:
+                continue
+            for v, w in combinations(nu, 2):
+                nv = set(self.graph.neighbors[v])
+                nw = set(self.graph.neighbors[w])
+                for x in nv & nw:
+                    if x <= u:
+                        continue
+                    sq = _canonical_square(u, v, x, w)
+                    if sq in self.squares2edges:
+                        continue
+                    # les 4 arêtes du cycle sq[0]-sq[1]-sq[2]-sq[3]-sq[0]
+                    sq_edges = [
+                        (sq[0], sq[1]), (sq[1], sq[0]),
+                        (sq[1], sq[2]), (sq[2], sq[1]),
+                        (sq[2], sq[3]), (sq[3], sq[2]),
+                        (sq[3], sq[0]), (sq[0], sq[3]),
+                    ]
+                    for e in sq_edges:
+                        self.edges2squares[e].append(sq)
+                        self.squares2edges[sq].append(e)
+
+    def update_squares(self, edge_to_swap, permutation):
+        """
+        Met à jour edges2squares / squares2edges après un swap.
+
+        Pour chaque swap (u,v) → (u,y) :
+          - supprime les carrés contenant (u,v)
+          - ajoute les carrés créés par la nouvelle arête (u,y)
+
+        Un nouveau carré u-a-b-y-u existe si :
+          a ∈ neighbors(u), a != y
+          b ∈ neighbors(y), b != u, b != a
+          (a,b) est une arête du graphe
+
+        graph.neighbors est déjà mis à jour par perform_swap quand cette
+        méthode est appelée.
+        """
+        for (u, v), (x, y) in zip(edge_to_swap, permutation):
+
+            if (u, v) in self.edges2squares:
+
+            # --- carrés détruits : ceux qui contiennent (u,v) ou (v,u) ---
+                destroyed_squares = self.edges2squares[(u, v)].copy()
+
+                # for each triangle in destroyed, remove it and remove its edges
+                for current_square in destroyed_squares:
+                    for edge in self.squares2edges[current_square]:
+                        self.edges2squares[edge].remove(current_square)
+                        if len(self.edges2squares[edge]) == 0:
+                            del self.edges2squares[edge]
+                    del self.squares2edges[current_square]
+
+            if (not self.graph.directed) and (v, u) in self.edges2squares:
+                destroyed_squares = self.edges2squares[(v,u)].copy()
+
+                for current_square in destroyed_squares:
+                    for edge in self.triangles2edges[current_square]:
+                        self.edges2squares[edge].remove(current_square)
+                        if len(self.edges2squares[edge]) == 0:
+                            del self.edges2squares[edge]
+                    del self.squares2edges[current_square]
+
+            # --- carrés créés : chemins de longueur 3 entre u et y ---
+            # cycle u-a-b-y-u : a voisin de u, b voisin de y, (a,b) arête
+            nu = set(self.graph.neighbors[u])
+            ny = set(self.graph.neighbors[y])
+            created = set()
+
+            for a in nu:
+                if a == y:
+                    continue
+                for b in ny:
+                    if b == u or b == a:
+                        continue
+                    if a not in self.graph.neighbors[b]:
+                        continue
+                    sq = _canonical_square(u, a, b, y)
+                    created.add(sq)
+
+            for sq in created:
+                if sq in self.squares2edges:
+                    continue
+                sq_edges = [
+                    (sq[0], sq[1]), (sq[1], sq[0]),
+                    (sq[1], sq[2]), (sq[2], sq[1]),
+                    (sq[2], sq[3]), (sq[3], sq[2]),
+                    (sq[3], sq[0]), (sq[0], sq[3]),
+                ]
+                for e in sq_edges:
+                    self.edges2squares[e].append(sq)
+                    self.squares2edges[sq].append(e)
+
     def update_tchains(self, edge_to_swap, permutation):
         """
         Update the sets of 3-chains by looking at each edge swap:
@@ -1371,6 +1501,8 @@ class MarkovChain:
         if self.use_fixed_threechains:
             self.init_tchain_undirected()
 
+        if self.use_squares:
+            self.count_squares()
         if self.use_assortativity:
             self.init_assortativity()
 
@@ -1421,6 +1553,8 @@ class MarkovChain:
                     self.update_triangles(edge_to_swap, permutation)
                 if self.use_fixed_threechains:
                     self.update_tchains(edge_to_swap, permutation)
+                if self.use_squares:
+                    self.update_squares(edge_to_swap, permutation)
 
                 #if self.use_jd:
                 #    self.joint_degree = updated_jd
@@ -1444,6 +1578,8 @@ class MarkovChain:
                 window.append(self.assortativity)
             elif self.use_triangles:
                 window.append(len(self.triangles2edges))
+            elif self.use_squares:
+                window.append(len(self.squares2edges))
             #elif self.use_fixed_threechains:
             #    window.append(len(self.tchains2edges))
 

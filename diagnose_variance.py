@@ -77,7 +77,7 @@ def check_autocorr_lag1_significant(series, alpha=0.04):
 # Helpers
 # ---------------------------------------------------------------------------
 
-def make_mc(graph, gamma, use_triangles, use_assortativity,
+def make_mc(graph, gamma, use_triangles, use_assortativity,use_squares,
             use_fixed_triangle, use_fixed_triangle_range, triangle_buffer=0):
     return MarkovChain(
         graph=graph,
@@ -85,6 +85,7 @@ def make_mc(graph, gamma, use_triangles, use_assortativity,
         gamma=gamma,
         use_triangles=use_triangles,
         use_assortativity=use_assortativity,
+        use_squares=use_squares,
         use_fixed_triangle=use_fixed_triangle or (use_fixed_triangle_range > 0),
         use_fixed_triangle_range=use_fixed_triangle_range,
         triangle_buffer=triangle_buffer,
@@ -112,7 +113,7 @@ def run_chain(mc, eta, T_obs):
 # Diagnostic principal
 # ---------------------------------------------------------------------------
 
-def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
+def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squares,
                   use_fixed_triangle, use_fixed_triangle_range,
                   eta_fixed, read_gml, n_steps, T_obs, gamma=2, njobs=5,
                   n_burnin=500000, n_burnin_blocks=10000):
@@ -138,13 +139,13 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
     # --- burn-in par blocs pour éviter une window trop grande en mémoire ---
     # On fait le burn-in en N_burnin_blocks blocs, et on ne garde
     # que la dernière valeur de chaque bloc → N_burnin_blocks points au total.
-    N_burnin = n_burnin
-    N_burnin_blocks = n_burnin_blocks
+    N_burnin = graph.M * 1000
+    N_burnin_blocks = 10000
     block_size = max(1, N_burnin // N_burnin_blocks)
     print(f"\nBurn-in ({N_burnin} swaps, collecte 1 point tous les {block_size} swaps)...")
 
     mc_burnin = make_mc(
-        graph, gamma, use_triangles, use_assortativity,
+        graph, gamma, use_triangles, use_assortativity, use_squares,
         use_fixed_triangle, use_fixed_triangle_range
     )
     burnin_window = []
@@ -162,7 +163,7 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
         print(f"Buffer triangle après burn-in : {buffer_after_burnin}")
 
     # --- grille de eta ---
-    eta_min_empirical = max(1, int(1 / accept_rate * graph.M))
+    eta_min_empirical = max(1, int(1/accept_rate * graph.M))
     if eta_fixed is not None:
         eta_values = [int(eta_fixed)]
     else:
@@ -180,7 +181,7 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity,
         chains = [
             make_mc(
                 copy.deepcopy(mc_burnin.graph), gamma,
-                use_triangles, use_assortativity,
+                use_triangles, use_assortativity, use_squares,
                 use_fixed_triangle, use_fixed_triangle_range,
                 triangle_buffer=buffer_after_burnin
             )
@@ -315,6 +316,7 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-t', '--triangles', action='store_true', default=False)
     group.add_argument('-a', '--assortativity', action='store_true', default=False)
+    group.add_argument('-s', '--squares', action='store_true', default=False)
 
     parser.add_argument('-ft', '--fixed_triangle', action='store_true', default=False)
     parser.add_argument('-ftr', '--fixed_triangle_range', type=int, default=0)
@@ -337,6 +339,7 @@ def main():
         directed=args.directed,
         use_triangles=args.triangles,
         use_assortativity=args.assortativity,
+        use_squares=args.squares,
         use_fixed_triangle=use_fixed_triangle,
         use_fixed_triangle_range=args.fixed_triangle_range,
         eta_fixed=args.eta,

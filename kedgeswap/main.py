@@ -20,7 +20,7 @@ from kedgeswap.MarkovChain import MarkovChain
 
 def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use_assortativity, mutualdiades, turbo, eta,
         output, verbose, keep_record, log_dir, output_number, debug, njobs, use_fixed_threechains,
-        read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path):
+        read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path, use_squares):
 
     # read graph
     print('Reading graph...')
@@ -36,7 +36,8 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
             use_fixed_triangle=use_fixed_triangle, use_triangles=use_triangles, use_assortativity=use_assortativity, use_mutualdiades=mutualdiades,
             verbose=verbose,
             keep_record=keep_record, log_dir=log_dir, debug=debug, use_fixed_threechains=use_fixed_threechains,
-            use_fixed_triangle_range=use_fixed_triangle_range, old_count=old_triangle, use_fixed_tclosedpath=use_fixed_three_closed_path)
+            use_fixed_triangle_range=use_fixed_triangle_range, old_count=old_triangle,
+            use_fixed_tclosedpath=use_fixed_three_closed_path, use_squares=use_squares)
 
     # initialize metrics
     stat = Stat(mc, eta, turbo, verbose, njobs)
@@ -119,6 +120,11 @@ def main():
             'Use this count to estimate the convergence of the Markov Chain.'
             '-a and -t are mutually excluseive. If --jd is chosen, use -t.')
 
+    group.add_argument('-s', '--squares', action='store_true', default=False,
+                       help='enable to count the squares in the graph at each step of the markov chain.'
+                            'Use this count to estimate the convergence of the Markov Chain.'
+                            '-a and -t and -s are mutually exclusive. If --jd is chosen, use -t.')
+
     # logging parameters
     parser.add_argument('-v', '--verbose', action='store_true', default=False,
             help='increase verbosity')
@@ -152,7 +158,7 @@ def main():
         print("Error: can't follow number of mutual diades when graph is not directed (reciprocal links can only exist in directed graphs)")
         sys.exit()
 
-    if (not args.assortativity) and (not args.triangles):
+    if (not args.assortativity) and (not args.triangles) and (not args.squares):
         print('Error: no value selected to estimate convergence. Please select -a for assortativity, or -t for the number of triangles.\n We recommend -a for the fixed degree sequence condition, and -t for the fixed joint degree matrix condition')
         sys.exit()
 
@@ -165,7 +171,7 @@ def main():
             args.assortativity, args.mutualdiades, args.turbo,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
             args.output_number, args.debug, args.njobs, args.fixed_three_chains, args.read_gml, args.fixed_triangle_range,
-            args.old_triangle, args.fixed_three_closed_path)
+            args.old_triangle, args.fixed_three_closed_path, args.squares)
 
 
 if __name__ == "__main__":
