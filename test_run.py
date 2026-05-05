@@ -28,24 +28,24 @@ def test_run():
     file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ucidata-zachary',
-        'egograph_edges.txt'
+        'ego_dataset',
+        '5852c4ce83d5140a41ce61118b1306b0.gml'
     )
 
     graph = Graph(directed=False)
-    graph.read_ssv(file)
-    N_swap = graph.M
+    graph.read_gml(file)
+    N_swap = graph.M * 1000
 
     def run_mc():
         return mc.run()
 
     mc = MarkovChain(
         graph,
-        N_swap=5000000,
+        N_swap=N_swap,
         gamma=3.0,
         use_assortativity=True,
         use_fixed_triangle=True,
-        use_fixed_triangle_range=0,
+        use_fixed_triangle_range=6,
         verbose=True,
         old_count=False
     )
