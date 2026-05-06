@@ -20,7 +20,8 @@ from kedgeswap.MarkovChain import MarkovChain
 
 def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use_assortativity, mutualdiades, turbo, eta,
         output, verbose, keep_record, log_dir, output_number, debug, njobs, use_fixed_threechains,
-        read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path, use_squares, acf_stability):
+        read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path, use_squares, acf_stability,
+        forced_burnin):
 
     # read graph
     print('Reading graph...')
@@ -40,7 +41,7 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
             use_fixed_tclosedpath=use_fixed_three_closed_path, use_squares=use_squares)
 
     # initialize metrics
-    stat = Stat(mc, eta, turbo, verbose, njobs, acf_stability=acf_stability)
+    stat = Stat(mc, eta, turbo, verbose, njobs, acf_stability=acf_stability, forced_burnin=forced_burnin)
 
     # start run
     print('Starting Markov Chain convergence...')
@@ -142,6 +143,9 @@ def main():
     parser.add_argument('-acfs', '--acf_stability', action='store_true', default=False,
                         help='the eta is chosen by the stability of the ACF. This method is supposed to end on more Graphs, but could over-estimate eta.')
 
+    parser.add_argument('--forced_burnin', default=0, type=int,
+                        help='Set the size of the burnin.')
+
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help()
@@ -173,7 +177,7 @@ def main():
             args.assortativity, args.mutualdiades, args.turbo,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
             args.output_number, args.debug, args.njobs, args.fixed_three_chains, args.read_gml, args.fixed_triangle_range,
-            args.old_triangle, args.fixed_three_closed_path, args.squares, args.acf_stability)
+            args.old_triangle, args.fixed_three_closed_path, args.squares, args.acf_stability, args.forced_burnin)
 
 
 if __name__ == "__main__":

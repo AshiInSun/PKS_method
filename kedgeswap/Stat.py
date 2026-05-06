@@ -41,7 +41,7 @@ class Stat():
             Enable to add information to the logs
         
     """
-    def __init__(self, mc, eta=None, turbo=False, verbose=False, njobs=1, acf_stability=False):
+    def __init__(self, mc, eta=None, turbo=False, verbose=False, njobs=1, acf_stability=False, forced_burnin=0):
         #self.use_ks = use_ks
         self.mc = mc # markov chain
         self.eta = eta
@@ -49,6 +49,7 @@ class Stat():
         self.verbose = verbose
         self.njobs = njobs
         self.acf_stability = acf_stability
+        self.forced_burnin = forced_burnin
 
     @staticmethod
     def CheckAutocorrLag1(S_T, alpha):
@@ -219,8 +220,10 @@ class Stat():
                 else:
                     S_T.append(len(mc[c].triangles2edges))
             return S_T
-
-        N_swap = 1000 * self.mc.graph.M # burn in 
+        if self.forced_burnin == 0:
+            N_swap = 1000 * self.mc.graph.M # burn in
+        else:
+            N_swap = self.forced_burnin
         C = 10
         T = 500
         #S_T = [] # list of degree assortativity of size T
