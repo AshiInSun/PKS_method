@@ -140,20 +140,13 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squar
     # On fait le burn-in en N_burnin_blocks blocs, et on ne garde
     # que la dernière valeur de chaque bloc → N_burnin_blocks points au total.
     N_burnin = graph.M * 1000
-    N_burnin_blocks = 10000
-    block_size = max(1, N_burnin // N_burnin_blocks)
-    print(f"\nBurn-in ({N_burnin} swaps, collecte 1 point tous les {block_size} swaps)...")
 
     mc_burnin = make_mc(
         graph, gamma, use_triangles, use_assortativity, use_squares,
         use_fixed_triangle, use_fixed_triangle_range
     )
     burnin_window = []
-    for _ in range(N_burnin_blocks):
-        block_window = mc_burnin.run(block_size)
-        # on garde uniquement la dernière valeur du bloc
-        if block_window:
-            burnin_window.append(block_window[-1])
+    burnin_window = mc_burnin.run(N_burnin)
 
     accept_rate = mc_burnin.accept_rate / (mc_burnin.accept_rate + mc_burnin.refusal_rate)
     buffer_after_burnin = mc_burnin.buffer_triangle

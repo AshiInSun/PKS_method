@@ -20,7 +20,7 @@ from kedgeswap.MarkovChain import MarkovChain
 
 def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use_assortativity, mutualdiades, turbo, eta,
         output, verbose, keep_record, log_dir, output_number, debug, njobs, use_fixed_threechains,
-        read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path, use_squares):
+        read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path, use_squares, acf_stability):
 
     # read graph
     print('Reading graph...')
@@ -40,7 +40,7 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
             use_fixed_tclosedpath=use_fixed_three_closed_path, use_squares=use_squares)
 
     # initialize metrics
-    stat = Stat(mc, eta, turbo, verbose, njobs)
+    stat = Stat(mc, eta, turbo, verbose, njobs, acf_stability=acf_stability)
 
     # start run
     print('Starting Markov Chain convergence...')
@@ -139,6 +139,8 @@ def main():
     parser.add_argument('--njobs', default=5, type=int,
             help='Parallelisation : Number of CPU to use during eta estimation step. By default <= 5, can be set to 1 if no parallelisation is wanted.')
 
+    parser.add_argument('-acfs', '--acf_stability', action='store_true', default=False,
+                        help='the eta is chosen by the stability of the ACF. This method is supposed to end on more Graphs, but could over-estimate eta.')
 
     args = parser.parse_args()
     if len(sys.argv) == 1:
@@ -171,7 +173,7 @@ def main():
             args.assortativity, args.mutualdiades, args.turbo,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
             args.output_number, args.debug, args.njobs, args.fixed_three_chains, args.read_gml, args.fixed_triangle_range,
-            args.old_triangle, args.fixed_three_closed_path, args.squares)
+            args.old_triangle, args.fixed_three_closed_path, args.squares, args.acf_stability)
 
 
 if __name__ == "__main__":

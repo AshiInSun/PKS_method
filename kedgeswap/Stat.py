@@ -13,6 +13,7 @@ import argparse
 import numpy as np
 import copy
 
+from fontTools.misc.bezierTools import epsilon
 from scipy.stats import kstest
 from arch.unitroot import DFGLS
 from kedgeswap.Graph import Graph
@@ -40,13 +41,14 @@ class Stat():
             Enable to add information to the logs
         
     """
-    def __init__(self, mc, eta=None, turbo=False, verbose=False, njobs=1):
+    def __init__(self, mc, eta=None, turbo=False, verbose=False, njobs=1, acf_stability=False):
         #self.use_ks = use_ks
         self.mc = mc # markov chain
         self.eta = eta
         self.turbo = turbo
         self.verbose = verbose
         self.njobs = njobs
+        self.acf_stability = acf_stability
 
     @staticmethod
     def CheckAutocorrLag1(S_T, alpha):
@@ -77,9 +79,9 @@ class Stat():
         A = (a - mu)/np.sqrt(sigma_2)
         z = scipy.stats.norm.ppf(1-alpha)
         if A > z:
-            return 1
+            return 1, A
         else:
-            return 0
+            return 0, A
 
     def guesstimate_sampling_gap(self, graph, gamma):
         """
@@ -264,8 +266,11 @@ class Stat():
         #eta = 10 * self.mc.graph.M
         eta = math.ceil(1/burn_in_rate * self.mc.graph.M)
         d_eta = C
+        e = 0.05
         prev_d_eta = C
         prev_eta = eta
+        prev_acfs = []
+        first_round = True
         tuned = False
         while (not tuned): 
 
@@ -298,39 +303,61 @@ class Stat():
                 #mc[c].run()
 
             S_Ts = Parallel(n_jobs=self.njobs)(delayed(run_chain)(c) for c in range(C))
+            acfs = []
             for c in range(C):
-                d_c = self.CheckAutocorrLag1(S_Ts[c], alpha)
+                acfs.append(self.CheckAutocorrLag1(S_Ts[c], alpha))
+                d_c, _ = acfs[-1]
                 d_eta += d_c
                 #if self.verbose:
                 #    print(f'for eta={eta}: d_eta={d_eta}, u={u}')
 
             # check if eta value is accepted - if a most u chains show no correlation 
             # on the S_T timeserie with lag 1, the value of eta is considered valid.
-            if d_eta <= u:
-                if self.verbose:
-                    print('eta {eta} accepted (d_eta={d_eta} <= u={u})')
-                prev_d_eta = d_eta
-                if int(prev_eta) == int(eta/2):
-                    # don't check eta/2 again
-                    tuned = True
+            if self.acf_stability:
+                if not first_round:
+                    prev_acf_values = [a for _, a in prev_acfs]
+                    acf_values = [a for _, a in acfs]
+                    stable = abs(np.mean(acf_values) - np.mean(prev_acf_values)) / abs(np.mean(acf_values)) < e
+                    print(f'ACF stability check: mean acf {np.mean(acfs)}, previous mean acf {np.mean(prev_acfs)}, stable={stable}')
                 else:
-                    print('trying eta=eta/2...')
-                    eta = eta//2
-                prev_eta = eta
-                #tuned = True
-            elif d_eta > u and prev_d_eta <= u:
-                prev_d_eta = d_eta
-                tuned = True
-                if self.verbose:
-                    print('eta {eta} refused (d_eta={d_eta} <= u={u}), using eta={prev_eta}.')
-                eta = prev_eta
+                    if self.verbose:
+                        print('using ACF STABILITY...')
+                    stable = False
+                    first_round = False
+                prev_acfs = acfs
+                tuned = stable
+                if not tuned:
+                    prev_d_eta = d_eta
+                    prev_eta = eta
+                    eta = int(1.5 * eta)
+                    if self.verbose:
+                        print('eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
+            else:
+                if d_eta <= u:
+                    if self.verbose:
+                        print('eta {eta} accepted (d_eta={d_eta} <= u={u})')
+                    prev_d_eta = d_eta
+                    if int(prev_eta) == int(eta/2):
+                        # don't check eta/2 again
+                        tuned = True
+                    else:
+                        print('trying eta=eta/2...')
+                        eta = eta//2
+                    prev_eta = eta
+                    #tuned = True
+                elif d_eta > u and prev_d_eta <= u:
+                    prev_d_eta = d_eta
+                    tuned = True
+                    if self.verbose:
+                        print('eta {eta} refused (d_eta={d_eta} <= u={u}), using eta={prev_eta}.')
+                    eta = prev_eta
 
-            elif d_eta > u and prev_d_eta > u:
-                prev_d_eta = d_eta
-                prev_eta = eta
-                eta = 2 * eta
-                if self.verbose:
-                    print('eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
+                elif d_eta > u and prev_d_eta > u:
+                    prev_d_eta = d_eta
+                    prev_eta = eta
+                    eta = 2 * eta
+                    if self.verbose:
+                        print('eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
 
         return eta
 
@@ -348,7 +375,6 @@ class Stat():
                 # turbo estimation (inchangé)
                 eta = self.guesstimate_sampling_gap(self.mc.graph, self.mc.gamma)
             else:
-                # nouvelle estimation via IAT de Sokal
                 eta = self.estimate_sampling_gap(self.mc.graph, self.mc.gamma)
             self.eta = eta
             t1 = time.time()
