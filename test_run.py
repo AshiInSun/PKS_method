@@ -43,9 +43,9 @@ def test_run():
         graph,
         N_swap=N_swap,
         gamma=3.0,
-        use_squares=True,
-        use_fixed_triangle=True,
-        use_fixed_triangle_range=1,
+        use_assortativity=True,
+        use_fixed_tclosedpath=True,
+        #use_fixed_triangle_range=1,
         verbose=True,
         old_count=False
     )

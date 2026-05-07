@@ -1,13 +1,12 @@
 """
 Diagnostic script: analyse la variance de la statistique de convergence
-(assortativity ou triangles) en fonction de eta.
+(assortativity, triangles, carrés) en fonction de eta.
 
 Usage:
-    python diagnose_variance.py -f <dataset> -a [-ftr <range>] [-ft] [-n 8] [-T 200] [-j 5]
+    python diagnose_variance.py -f <dataset> -a [-ftr <range>] [-ft] [-f3cc] [-n 8] [-T 200] [-j 5]
 """
 
 import argparse
-import sys
 import os
 import numpy as np
 import copy
@@ -77,8 +76,9 @@ def check_autocorr_lag1_significant(series, alpha=0.04):
 # Helpers
 # ---------------------------------------------------------------------------
 
-def make_mc(graph, gamma, use_triangles, use_assortativity,use_squares,
-            use_fixed_triangle, use_fixed_triangle_range, triangle_buffer=0):
+def make_mc(graph, gamma, use_triangles, use_assortativity, use_squares,
+            use_fixed_triangle, use_fixed_triangle_range,
+            use_fixed_tclosedpath, triangle_buffer=0):
     return MarkovChain(
         graph=graph,
         N_swap=0,
@@ -88,6 +88,7 @@ def make_mc(graph, gamma, use_triangles, use_assortativity,use_squares,
         use_squares=use_squares,
         use_fixed_triangle=use_fixed_triangle or (use_fixed_triangle_range > 0),
         use_fixed_triangle_range=use_fixed_triangle_range,
+        use_fixed_tclosedpath=use_fixed_tclosedpath,
         triangle_buffer=triangle_buffer,
         verbose=False,
         keep_record=False,
@@ -104,6 +105,8 @@ def run_chain(mc, eta, T_obs):
         mc.run(int(eta))
         if mc.use_assortativity:
             series.append(mc.assortativity)
+        elif mc.use_squares:
+            series.append(len(mc.squares2edges))
         else:
             series.append(len(mc.triangles2edges))
     return series
@@ -114,7 +117,7 @@ def run_chain(mc, eta, T_obs):
 # ---------------------------------------------------------------------------
 
 def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squares,
-                  use_fixed_triangle, use_fixed_triangle_range,
+                  use_fixed_triangle, use_fixed_triangle_range, use_fixed_tclosedpath,
                   eta_fixed, read_gml, n_steps, T_obs, gamma=2, njobs=5,
                   n_burnin=500000, n_burnin_blocks=10000):
 
@@ -127,7 +130,11 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squar
     else:
         graph.read_ssv(dataset)
     print(f"N={graph.N} noeuds, M={graph.M} arêtes")
-    print(f"Statistique de convergence : {'triangles' if use_triangles else 'assortativity'}")
+    n_burnin = graph.M * 1000
+
+    stat_label = "assortativity" if use_assortativity else ("nb carrés" if use_squares else "nb triangles")
+    print(f"Statistique de convergence : {stat_label}")
+
     print(f"Contrainte triangles : ", end="")
     if use_fixed_triangle_range > 0:
         print(f"ftr={use_fixed_triangle_range} (marge ±{use_fixed_triangle_range})")
@@ -135,18 +142,15 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squar
         print("ft (exact)")
     else:
         print("aucune")
+    print(f"Contrainte 3-closed-path : {'oui' if use_fixed_tclosedpath else 'non'}")
 
-    # --- burn-in par blocs pour éviter une window trop grande en mémoire ---
-    # On fait le burn-in en N_burnin_blocks blocs, et on ne garde
-    # que la dernière valeur de chaque bloc → N_burnin_blocks points au total.
-    N_burnin = graph.M * 1000
-
+    # --- burn-in ---
+    print(f"\nBurn-in ({n_burnin} swaps)...")
     mc_burnin = make_mc(
         graph, gamma, use_triangles, use_assortativity, use_squares,
-        use_fixed_triangle, use_fixed_triangle_range
+        use_fixed_triangle, use_fixed_triangle_range, use_fixed_tclosedpath
     )
-    burnin_window = []
-    burnin_window = mc_burnin.run(N_burnin)
+    burnin_window = mc_burnin.run(n_burnin)
 
     accept_rate = mc_burnin.accept_rate / (mc_burnin.accept_rate + mc_burnin.refusal_rate)
     buffer_after_burnin = mc_burnin.buffer_triangle
@@ -157,6 +161,7 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squar
 
     # --- grille de eta ---
     eta_min_empirical = max(1, int(1/accept_rate * graph.M))
+    eta_min_empirical = 1
     if eta_fixed is not None:
         eta_values = [int(eta_fixed)]
     else:
@@ -175,7 +180,7 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squar
             make_mc(
                 copy.deepcopy(mc_burnin.graph), gamma,
                 use_triangles, use_assortativity, use_squares,
-                use_fixed_triangle, use_fixed_triangle_range,
+                use_fixed_triangle, use_fixed_triangle_range, use_fixed_tclosedpath,
                 triangle_buffer=buffer_after_burnin
             )
             for _ in range(C)
@@ -235,7 +240,8 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squar
     # --- figures ---
     constraint_str = f"ftr={use_fixed_triangle_range}" if use_fixed_triangle_range > 0 \
         else ("ft" if use_fixed_triangle else "no constraint")
-    stat_label = "assortativity" if use_assortativity else "nb triangles"
+    if use_fixed_tclosedpath:
+        constraint_str += "+f3cc"
     title_base = f"{os.path.basename(dataset)} | N={graph.N}, M={graph.M}, " \
                  f"accept_rate={accept_rate:.3f} | {constraint_str}"
 
@@ -306,14 +312,19 @@ def main():
     parser.add_argument('-d', '--directed', action='store_true', default=False)
     parser.add_argument('-g', '--gamma', type=int, default=2)
 
+    # statistique de convergence
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-t', '--triangles', action='store_true', default=False)
     group.add_argument('-a', '--assortativity', action='store_true', default=False)
     group.add_argument('-s', '--squares', action='store_true', default=False)
 
+    # contraintes de génération
     parser.add_argument('-ft', '--fixed_triangle', action='store_true', default=False)
     parser.add_argument('-ftr', '--fixed_triangle_range', type=int, default=0)
+    parser.add_argument('-f3cc', '--fixed_three_closed_path', action='store_true', default=False,
+                        help='Fixer le nombre de 3-closed-paths (comme dans main.py)')
 
+    # paramètres du diagnostic
     parser.add_argument('-e', '--eta', type=float, default=None)
     parser.add_argument('-n', '--n_steps', type=int, default=8)
     parser.add_argument('-T', '--T_obs', type=int, default=200)
@@ -335,6 +346,7 @@ def main():
         use_squares=args.squares,
         use_fixed_triangle=use_fixed_triangle,
         use_fixed_triangle_range=args.fixed_triangle_range,
+        use_fixed_tclosedpath=args.fixed_three_closed_path,
         eta_fixed=args.eta,
         read_gml=args.read_gml,
         n_steps=args.n_steps,

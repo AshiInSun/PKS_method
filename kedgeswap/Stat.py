@@ -217,8 +217,10 @@ class Stat():
                 mc[c].run(n_swap)
                 if mc[c].use_assortativity:
                     S_T.append(mc[c].assortativity)
-                else:
+                elif mc[c].use_triangles:
                     S_T.append(len(mc[c].triangles2edges))
+                else:
+                    S_T.append(len(mc[c].squares2edges))
             return S_T
         if self.forced_burnin == 0:
             N_swap = 1000 * self.mc.graph.M # burn in
