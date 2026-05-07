@@ -10,9 +10,9 @@ from kedgeswap.MarkovChain import MarkovChain
 
 toy_file = os.path.join(
     os.path.dirname(__file__),
-    '../data',
-    'ucidata-zachary',
-    'egograph_edges.txt'
+    '../out',
+    'out_toy',
+    'gen'
 )
 
 graph = Graph(directed=False)

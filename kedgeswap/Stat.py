@@ -256,9 +256,9 @@ class Stat():
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
 
         if self.verbose:
-            print('Burn In : acceptation/refusals by k')
             print(burn_in.accept_rate_byk)
             print(burn_in.refusal_rate_byk)
+            print('Burn In : acceptation/refusals by k')
 
         # Measure sampling gap
         if self.verbose:

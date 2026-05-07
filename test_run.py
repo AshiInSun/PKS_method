@@ -28,13 +28,13 @@ def test_run():
     file = os.path.join(
         os.path.dirname(__file__),
         'data',
-        'ego_dataset',
-        '5852c4ce83d5140a41ce61118b1306b0.gml'
+        'ucidata-zachary',
+        'out.ucidata-zachary'
     )
 
     graph = Graph(directed=False)
-    graph.read_gml(file)
-    N_swap = graph.M * 10000
+    graph.read_ssv(file)
+    N_swap = graph.M * 1000
 
     def run_mc():
         return mc.run()
@@ -43,9 +43,9 @@ def test_run():
         graph,
         N_swap=N_swap,
         gamma=3.0,
-        use_assortativity=True,
+        use_squares=True,
         use_fixed_triangle=True,
-        use_fixed_triangle_range=6,
+        use_fixed_triangle_range=1,
         verbose=True,
         old_count=False
     )
