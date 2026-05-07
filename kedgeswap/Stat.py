@@ -13,13 +13,16 @@ import argparse
 import numpy as np
 import copy
 
-from fontTools.misc.bezierTools import epsilon
 from scipy.stats import kstest
 from arch.unitroot import DFGLS
 from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
 from joblib import Parallel, delayed
 from kedgeswap.MarkovChain import MarkovChain
+
+
+
+
 
 class Stat():
     """
@@ -50,6 +53,26 @@ class Stat():
         self.njobs = njobs
         self.acf_stability = acf_stability
         self.forced_burnin = forced_burnin
+
+    def _make_markov_chain(self, graph, N_swap, gamma, triangle_buffer=0):
+        """Instancie un MarkovChain avec tous les paramètres de self.mc."""
+        return MarkovChain(
+            graph, N_swap, gamma,
+            use_jd=self.mc.use_jd,
+            use_triangles=self.mc.use_triangles,
+            use_fixed_triangle=self.mc.use_fixed_triangle,
+            use_assortativity=self.mc.use_assortativity,
+            use_mutualdiades=self.mc.use_mutualdiades,
+            verbose=self.mc.verbose,
+            keep_record=False,
+            log_dir=None,
+            use_fixed_threechains=self.mc.use_fixed_threechains,
+            use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
+            triangle_buffer=triangle_buffer,
+            old_count=self.mc.old_count,
+            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath,
+            use_squares=self.mc.use_squares,
+        )
 
     @staticmethod
     def CheckAutocorrLag1(S_T, alpha):
@@ -261,6 +284,7 @@ class Stat():
             print(burn_in.accept_rate_byk)
             print(burn_in.refusal_rate_byk)
             print('Burn In : acceptation/refusals by k')
+            print(burn_in_rate)
 
         # Measure sampling gap
         if self.verbose:
@@ -323,7 +347,7 @@ class Stat():
                     prev_acf_values = [a for _, a in prev_acfs]
                     acf_values = [a for _, a in acfs]
                     stable = abs(np.mean(acf_values) - np.mean(prev_acf_values)) / abs(np.mean(acf_values)) < e
-                    print(f'ACF stability check: mean acf {np.mean(acfs)}, previous mean acf {np.mean(prev_acfs)}, stable={stable}')
+                    print(f'ACF stability check: mean acf {np.mean(acf_values)}, previous mean acf {np.mean(prev_acf_values)}, stable={stable}')
                 else:
                     if self.verbose:
                         print('using ACF STABILITY...')
@@ -331,16 +355,18 @@ class Stat():
                     first_round = False
                 prev_acfs = acfs
                 tuned = stable
+                if d_eta <= u:
+                    tuned = True
                 if not tuned:
                     prev_d_eta = d_eta
                     prev_eta = eta
                     eta = int(1.5 * eta)
                     if self.verbose:
-                        print('eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
+                        print(f'eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
             else:
                 if d_eta <= u:
                     if self.verbose:
-                        print('eta {eta} accepted (d_eta={d_eta} <= u={u})')
+                        print(f'eta {eta} accepted (d_eta={d_eta} <= u={u})')
                     prev_d_eta = d_eta
                     if int(prev_eta) == int(eta/2):
                         # don't check eta/2 again
@@ -354,7 +380,7 @@ class Stat():
                     prev_d_eta = d_eta
                     tuned = True
                     if self.verbose:
-                        print('eta {eta} refused (d_eta={d_eta} <= u={u}), using eta={prev_eta}.')
+                        print(f'eta {eta} refused (d_eta={d_eta} <= u={u}), using eta={prev_eta}.')
                     eta = prev_eta
 
                 elif d_eta > u and prev_d_eta > u:
@@ -362,7 +388,7 @@ class Stat():
                     prev_eta = eta
                     eta = 2 * eta
                     if self.verbose:
-                        print('eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
+                        print(f'eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
 
         return eta
 
