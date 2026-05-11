@@ -31,16 +31,21 @@ Python code to generate uniformly at random graphs obeying a given set of constr
   1 3   
   4 5  
   5 6  
+* We accept gml, you will need to specify the option -gml
 
 * The package only manages simple graphs. If the input contains multiple edges, they will be merged into one single edge. Loops are ignored.
-
 
 ## Usage
 
 * Usage example: 
     ```bash
-    python kedgeswap/main.py -f ./data/ego_dataset/4a614391ef27b94d336a410bec2aa934.gml -o out_test/egograph4a614391 -ft -a -gml    
+    python kedgeswap.main.py -f ./data/ego_dataset/4a614391ef27b94d336a410bec2aa934.gml -o out_test/egograph4a614391 -ft -a -gml    
     ```
+For fixed three chains, we recommend to use the -s (squares) option, which keep track of the number of squares to evaluate the convergence of the processus, but also -acfs which is a new heuristics, more likely to end.
+
+```bash
+ python kedgeswap.main.py -f ./folder/graph -o out_folder/name_of_graph_generated -f3cc -s  -acfs  
+```
 
 * Get a list of the main.py arguments:
 

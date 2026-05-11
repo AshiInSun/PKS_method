@@ -103,9 +103,9 @@ class Stat():
         A = (a - mu)/np.sqrt(sigma_2)
         z = scipy.stats.norm.ppf(1-alpha)
         if A > z:
-            return 1, A
+            return 1, a
         else:
-            return 0, A
+            return 0, a
 
     def guesstimate_sampling_gap(self, graph, gamma):
         """
@@ -226,7 +226,6 @@ class Stat():
     #    return eta
 
 
-
     def estimate_sampling_gap(self, graph, gamma):
         """ Estimate the sampling gap for the MCMC, following algorithm 1 (and using the same values) of 
         Dutta, U. (2022). Sampling random graphs with specified degree sequences 
@@ -255,6 +254,9 @@ class Stat():
         u = 1 # lower bound on number of mcmc chains that have significant lag-1 autocorrelation
         mc = [] # list of C MCMC
         alpha = 0.04 # significance level for each test
+        acf_window_size = 3
+        cv_threshold = 0.10
+        slope_threshold = 1.0
 
         if self.verbose:
             print(f'eta estimation parameters: N_swap {N_swap}, C {C}, T {T}, u {u}, alpha {alpha}')
@@ -301,6 +303,8 @@ class Stat():
         prev_acfs = []
         first_round = True
         tuned = False
+        acf_history = []
+
         while (not tuned): 
 
             if self.verbose:
@@ -334,36 +338,106 @@ class Stat():
             S_Ts = Parallel(n_jobs=self.njobs)(delayed(run_chain)(c) for c in range(C))
             acfs = []
             for c in range(C):
-                acfs.append(self.CheckAutocorrLag1(S_Ts[c], alpha))
-                d_c, _ = acfs[-1]
+                d_c, a = self.CheckAutocorrLag1(
+                    S_Ts[c],
+                    alpha
+                )
+
                 d_eta += d_c
-                #if self.verbose:
-                #    print(f'for eta={eta}: d_eta={d_eta}, u={u}')
+                acfs.append(a)
+            current_acf = np.median(acfs)
 
             # check if eta value is accepted - if a most u chains show no correlation 
             # on the S_T timeserie with lag 1, the value of eta is considered valid.
             if self.acf_stability:
-                if not first_round:
-                    prev_acf_values = [a for _, a in prev_acfs]
-                    acf_values = [a for _, a in acfs]
-                    stable = abs(np.mean(acf_values) - np.mean(prev_acf_values)) / abs(np.mean(acf_values)) < e
-                    print(f'ACF stability check: mean acf {np.mean(acf_values)}, previous mean acf {np.mean(prev_acf_values)}, stable={stable}')
-                else:
+                print("ACF stability...")
+                acf_history.append(current_acf)
+
+                if len(acf_history) >= acf_window_size:
+
+                    window = np.array(
+                        acf_history[-acf_window_size:]
+                    )
+
+                    mean_window = np.mean(window)
+                    std_window = np.std(window)
+
+                    # --------------------------------------------------
+                    # coefficient of variation
+                    # --------------------------------------------------
+
+                    cv = std_window / (
+                            abs(mean_window) + 1e-12
+                    )
+
+                    # --------------------------------------------------
+                    # local linear trend
+                    # --------------------------------------------------
+
+                    slope = np.polyfit(
+                        range(len(window)),
+                        window,
+                        1
+                    )[0]
+
+                    # normalize slope by local noise level
+                    relative_slope = abs(slope) / (
+                            std_window + 1e-12
+                    )
+
+                    stable = (
+                            cv < cv_threshold and
+                            relative_slope < slope_threshold
+                    )
+
                     if self.verbose:
-                        print('using ACF STABILITY...')
-                    stable = False
-                    first_round = False
-                prev_acfs = acfs
-                tuned = stable
-                if d_eta <= u:
-                    tuned = True
-                if not tuned:
-                    prev_d_eta = d_eta
-                    prev_eta = eta
-                    eta = int(1.5 * eta)
-                    if self.verbose:
-                        print(f'eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
-            else:
+                        print(
+                            '  ACF plateau check:'
+                        )
+
+                        print(
+                            f'    window={window}'
+                        )
+
+                        print(
+                            f'    mean={mean_window:.6f}'
+                        )
+
+                        print(
+                            f'    std={std_window:.6f}'
+                        )
+
+                        print(
+                            f'    cv={cv:.6f} '
+                            f'(threshold={cv_threshold})'
+                        )
+
+                        print(
+                            f'    slope={slope:.6f}'
+                        )
+                        print(
+                            f'    relative_slope='
+                            f'{relative_slope:.6f} '
+                            f'(threshold={slope_threshold})'
+                        )
+                        print(
+                            f'    stable={stable}'
+                        )
+
+                    # --------------------------------------------------
+                    # plateau detected
+                    # --------------------------------------------------
+
+                    if stable:
+
+                        tuned = True
+
+                        if self.verbose:
+                            print(
+                                f'eta={eta} accepted '
+                                f'via adaptive ACF plateau detection'
+                            )
+            if not tuned:
                 if d_eta <= u:
                     if self.verbose:
                         print(f'eta {eta} accepted (d_eta={d_eta} <= u={u})')
@@ -386,7 +460,10 @@ class Stat():
                 elif d_eta > u and prev_d_eta > u:
                     prev_d_eta = d_eta
                     prev_eta = eta
-                    eta = 2 * eta
+                    if self.acf_stability:
+                        eta = 1.5 * eta
+                    else:
+                        eta = 2 * eta
                     if self.verbose:
                         print(f'eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
 
