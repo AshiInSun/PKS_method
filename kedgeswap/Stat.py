@@ -442,13 +442,14 @@ class Stat():
                     if self.verbose:
                         print(f'eta {eta} accepted (d_eta={d_eta} <= u={u})')
                     prev_d_eta = d_eta
-                    if int(prev_eta) == int(eta/2):
+                    prev_eta = eta
+                    if int(prev_eta) == int(eta//2):
                         # don't check eta/2 again
                         tuned = True
                     else:
                         print('trying eta=eta/2...')
                         eta = eta//2
-                    prev_eta = eta
+
                     #tuned = True
                 elif d_eta > u and prev_d_eta <= u:
                     prev_d_eta = d_eta
