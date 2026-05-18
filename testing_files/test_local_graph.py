@@ -26,7 +26,7 @@ mygraph.read_ssv(toy_file)
 mc = MarkovChain(mygraph, 10, 2, False)
 mc.count_triangles()
 
-edge_to_swap, permutation, e_idx = mc.find_swap(2)
+edge_to_swap, permutation, e_idx = mc.find_swap(3)
 goal_edges = []
 checks_passed = False
 
@@ -49,7 +49,7 @@ def check_swap_validity(edges, perm):
     return delta == 0
 
 while not checks_passed:
-    edge_to_swap, permutation, e_idx = mc.find_swap(2)
+    edge_to_swap, permutation, e_idx = mc.find_swap(3)
     checks_passed = check_swap_validity(edge_to_swap, permutation)
 
 # Build before graph
@@ -91,12 +91,14 @@ tris_after  = get_triangles(G_after)
 pos = nx.spring_layout(G_before, seed=42)
 
 # ── Colors ────────────────────────────────────────────────────────────────────
-TRANS_BLUE  = "#5BCEFA"
-TRANS_PINK  = "#E8899B"
+TRANS_BLUE  = "#3D6647"
+TRANS_PINK_old  = "#5BCEFA"
+TRANS_PINK = "#DE7EC6"
 BG          = "#FFFFFF"
 NODE_C      = "#FFFFFF"
-NODE_EC     = "#5BCEFA"
-TRI_FILL    = "#5BCEFA"
+NODE_EC     = "#7EDE96"
+TRI_FILL    = "#52C46E"
+BACK = "#E9EDEE"
 
 def draw(ax, G, pos, highlighted_edges, triangles):
     ax.set_facecolor(BG)
@@ -141,7 +143,11 @@ draw(axes[0], G_before, pos, swapped_before, tris_before)
 draw(axes[1], G_after,  pos, swapped_after,  tris_after)
 
 plt.tight_layout(pad=1.0)
-plt.savefig(os.path.join(os.path.dirname(__file__), 'figure_abstract.png'),
-            dpi=260, bbox_inches='tight', facecolor=BG, edgecolor='none')
+plt.savefig(
+    os.path.join(os.path.dirname(__file__), 'figure_abstract.png'),
+    dpi=260,
+    bbox_inches='tight',
+    transparent=True
+)
 print("✓ Saved to figure_abstract.png")
 plt.show()

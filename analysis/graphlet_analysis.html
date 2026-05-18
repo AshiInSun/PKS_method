@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphlet Analysis</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #f8f7f4;
+  color: #1a1a18;
+  padding: 2rem;
+}
+
+h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.subtitle { color:#666; margin-bottom:2rem; font-size:0.9rem; }
+
+.upload-zone {
+  border:2px dashed #ccc;
+  padding:3rem;
+  text-align:center;
+  border-radius:12px;
+  margin-bottom:2rem;
+  cursor:pointer;
+}
+
+.upload-zone:hover { background:#f0ede8; }
+
+.stats-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+  margin-bottom:2rem;
+}
+
+.stat-card {
+  background:#f0ede8;
+  padding:1rem;
+  border-radius:10px;
+}
+
+.stat-card .val { font-size:1.4rem; }
+
+.tabs { display:flex; gap:10px; margin-bottom:1rem; }
+
+.tab {
+  padding:0.5rem 1rem;
+  background:#eee;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.tab.active { background:#fff; font-weight:bold; }
+
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+.chart-wrap {
+  background:#fff;
+  padding:1rem;
+  border-radius:12px;
+  margin-bottom:1rem;
+}
+
+.graphlet-row {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:5px;
+}
+
+.graphlet-bar-bg {
+  flex:1;
+  height:6px;
+  background:#ddd;
+  border-radius:4px;
+}
+
+.graphlet-bar-fill {
+  height:100%;
+  background:#2c6e49;
+}
+
+.graphlet-val { width:60px; text-align:right; }
+
+.graphlet-delta { width:70px; text-align:right; }
+
+</style>
+</head>
+
+<body>
+
+<h1>Analyse de Graphlets</h1>
+<p class="subtitle">Comparaison graphe original vs graphes générés</p>
+
+<div class="upload-zone" onclick="document.getElementById('file').click()">
+📂 Charger JSON
+<input type="file" id="file" hidden onchange="load(this)">
+</div>
+
+<div class="stats-grid" id="stats"></div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">Overview</div>
+  <div class="tab" onclick="switchTab('detail')">Detail</div>
+</div>
+
+<div id="overview" class="tab-panel active">
+  <div class="chart-wrap">
+    <canvas id="chart"></canvas>
+  </div>
+</div>
+
+<div id="detail" class="tab-panel">
+  <div id="list"></div>
+</div>
+
+<script>
+
+let original = [76,284,121,259,569,704,11,275,107,69,772,847,497,168,1785,1,28,209,1033,271,12,0,526,274,237,13,39,388,176,53];
+let generated = null;
+let chart = null;
+
+// ---------------- DISTANCE DISTRIBUTION ----------------
+function distributionDistance(ref, vals) {
+  const all = [...vals, ref];
+  const mn = Math.min(...all);
+  const mx = Math.max(...all);
+
+  const bins = 20;
+  const w = (mx - mn) / bins || 1;
+
+  const h1 = Array(bins).fill(0);
+  const h2 = Array(bins).fill(0);
+
+  function add(v,h){
+    let b = Math.floor((v-mn)/w);
+    b = Math.max(0,Math.min(bins-1,b));
+    h[b]++;
+  }
+
+  add(ref,h1);
+  vals.forEach(v=>add(v,h2));
+
+  const s1 = h1.reduce((a,b)=>a+b,0)||1;
+  const s2 = h2.reduce((a,b)=>a+b,0)||1;
+
+  let d = 0;
+  for(let i=0;i<bins;i++){
+    d += Math.abs(h1[i]/s1 - h2[i]/s2);
+  }
+
+  return d;
+}
+
+// ---------------- LOAD ----------------
+function load(input){
+  const r = new FileReader();
+  r.onload = e=>{
+    const data = JSON.parse(e.target.result);
+    generated = {};
+    for(const k in data){
+      if(k!=='__original__') generated[k]=data[k];
+    }
+    render();
+  };
+  r.readAsText(input.files[0]);
+}
+
+// ---------------- RENDER ----------------
+function render(){
+
+  const keys = Object.keys(generated);
+
+  const gData = Array.from({length:30},(_,i)=>{
+
+    const vals = keys.map(k=>generated[k][i]||0);
+
+    return {
+      orig: original[i],
+      vals,
+      med: median(vals),
+      dist: distributionDistance(original[i],vals)
+    };
+  });
+
+  // stats
+  const avgDist = gData.reduce((s,d)=>s+d.dist,0)/30;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="val">${keys.length}</div><div>Graphes</div></div>
+    <div class="stat-card"><div class="val">${avgDist.toFixed(3)}</div><div>Distance dist.</div></div>
+  `;
+
+  draw(gData);
+  drawDetail(gData);
+}
+
+// ---------------- MEDIAN ----------------
+function median(a){
+  const s=[...a].sort((x,y)=>x-y);
+  const m=Math.floor(s.length/2);
+  return s[m];
+}
+
+// ---------------- OVERVIEW ----------------
+function draw(gData){
+
+  if(chart) chart.destroy();
+
+  chart = new Chart(document.getElementById('chart'),{
+    type:'bar',
+    data:{
+      labels:gData.map((_,i)=>`g${i+1}`),
+      datasets:[
+        {
+          label:'Orig',
+          data:gData.map(d=>d.orig),
+          backgroundColor:'#2c6e49'
+        },
+        {
+          label:'Med',
+          data:gData.map(d=>d.med),
+          backgroundColor:'rgba(224,123,57,0.7)'
+        }
+      ]
+    },
+    options:{
+      plugins:{legend:{display:false}}
+    }
+  });
+}
+
+// ---------------- DETAIL ----------------
+function drawDetail(gData){
+
+  document.getElementById('list').innerHTML =
+    gData.map((d,i)=>{
+
+      const rel = (d.med - d.orig) / Math.max((d.med + d.orig) / 2, 1);
+      const pct = rel * 100;
+
+      return `
+      <div class="graphlet-row">
+        <div style="width:50px">g${i+1}</div>
+
+        <div class="graphlet-bar-bg">
+          <div class="graphlet-bar-fill" style="width:${d.orig/1800*100}%"></div>
+        </div>
+
+        <div class="graphlet-bar-bg">
+          <div class="graphlet-bar-fill" style="width:${d.med/1800*100}%;background:#e07b39"></div>
+        </div>
+
+        <div class="graphlet-val">${d.orig}</div>
+        <div class="graphlet-delta">
+          ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%
+        </div>
+        <div style="width:80px">${d.dist.toFixed(3)}</div>
+      </div>`;
+    }).join('');
+}
+
+// ---------------- TABS ----------------
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+
+  event.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+</script>
+
+</body>
+</html>
