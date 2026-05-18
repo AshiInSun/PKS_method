@@ -46,7 +46,7 @@ class MarkovChain:
                  verbose=False, keep_record=False, log_dir = None, debug=False,
                  use_fixed_threechains=False, use_fixed_triangle_range=0,
                  triangle_buffer=0, old_count=False, use_fixed_tclosedpath=False,
-                 use_squares=False
+                 use_squares=False, f3cc_buffer = 0, use_fixed_f3cc_range = 0
                  ):
         """
             Class to handle k-edge random swap
@@ -144,6 +144,7 @@ class MarkovChain:
         self.use_fixed_triangle = use_fixed_triangle # use_triangle and use_fixed_triangle are mutually exclusive,
                                                      # as fixed one is a generation constraint while the other is a convergence constraint.
         self.use_fixed_triangle_range = use_fixed_triangle_range
+        self.use_fixed_f3cc_range = use_fixed_f3cc_range
         self.buffer_triangle = triangle_buffer
         self.use_triangles = use_triangles
         self.use_assortativity = use_assortativity # use_assortativity and use_triangles are mutually exclusive
@@ -151,6 +152,7 @@ class MarkovChain:
         self.joint_degree = np.zeros(0)
         self.use_fixed_threechains = use_fixed_threechains
         self.use_fixed_tclosedpath = use_fixed_tclosedpath
+        self.f3cc_buffer = f3cc_buffer
 
         # debug
         self.verbose = verbose
@@ -633,6 +635,7 @@ class MarkovChain:
 
         #using the number of 3-chains as a constraint on generation,
         #check if the number of 3-chains change
+
         if self.use_fixed_threechains:
             local_graph = self.create_partial_local_graph(edge_to_swap, 2)
             self.perform_local_swap(local_graph, edge_to_swap, permutation)
@@ -642,12 +645,18 @@ class MarkovChain:
 
         #using the number of 3-chains, including triangle, as a constraint on generation,
         #check if the number of 3-closed-chains change.
+        delta_f3cc = 0
         if self.use_fixed_tclosedpath:
-            delta_3path = self.delta_local_3closedpath(edge_to_swap, permutation)
-            if delta_3path != 0:
-                return False
+            delta_f3cc = self.delta_local_3closedpath(edge_to_swap, permutation)
+            if self.use_fixed_f3cc_range!=0:
+                if abs(self.f3cc_buffer + delta_f3cc) > self.use_fixed_f3cc_range:
+                    return False
+            else:
+                if delta_f3cc != 0:
+                    return False
 
         self.buffer_triangle += delta_triangle
+        self.f3cc_buffer += delta_f3cc
         return True
 
     def check_dyads(self,edge_to_swap, permutation):

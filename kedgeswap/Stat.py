@@ -72,6 +72,8 @@ class Stat():
             old_count=self.mc.old_count,
             use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath,
             use_squares=self.mc.use_squares,
+            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range,
+            f3cc_buffer=self.mc.f3cc_buffer
         )
 
     @staticmethod
@@ -274,10 +276,11 @@ class Stat():
                               use_mutualdiades=self.mc.use_mutualdiades,
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                               use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count,
-                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares)
+                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares, use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range)
         burn_in.run()
         #we need to make the buffer of triangle consistant with the graph.
         self.mc.buffer_triangle = burn_in.buffer_triangle
+        self.mc.f3cc_buffer = burn_in.f3cc_buffer
 
         # estimate the acceptation rate of the markov chain
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
@@ -323,14 +326,16 @@ class Stat():
                             use_mutualdiades=self.mc.use_mutualdiades,
                             verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                             use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count,
-                            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares))
+                            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares,
+                            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range, f3cc_buffer=burn_in.f3cc_buffer))
                 else:
                     mc[c] = MarkovChain(copy.deepcopy(burn_in.graph), N_swap, gamma, use_jd=self.mc.use_jd,
                             use_triangles=self.mc.use_triangles,use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
                             use_mutualdiades=self.mc.use_mutualdiades,
                             verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                             use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count,
-                            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares)
+                            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares,
+                            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range, f3cc_buffer=burn_in.f3cc_buffer)
 
 
                 #mc[c].run()
@@ -630,10 +635,12 @@ class Stat():
             use_fixed_threechains=self.mc.use_fixed_threechains,
             use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
             old_count=self.mc.old_count,
-            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath
+            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath,
+            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range
         )
         burn_in.run()
         self.mc.buffer_triangle = burn_in.buffer_triangle
+        self.mc.f3cc_buffer = burn_in.f3cc_buffer
 
         # taille de batch adaptative selon le taux d'acceptation du burn-in
         burn_in_rate = burn_in.accept_rate / (burn_in.accept_rate + burn_in.refusal_rate)
@@ -655,8 +662,10 @@ class Stat():
             use_fixed_threechains=self.mc.use_fixed_threechains,
             use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
             triangle_buffer=burn_in.buffer_triangle,
+            f3cc_buffer=burn_in.f3cc_buffer,
             old_count=self.mc.old_count,
-            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath
+            use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath,
+            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range
         )
 
         # boucle d'accumulation
@@ -681,6 +690,7 @@ class Stat():
                 print(f'  τ estimé : {tau:.1f} — critère satisfait après {batch_idx + 1} batch(es)')
                 print(f'  τ pris : {tau*thin*10:.1f} — critère satisfait après {batch_idx + 1} batch(es)')
                 self.mc.buffer_triangle = mc_iat.buffer_triangle
+                self.mc.f3cc_buffer = mc_iat.f3cc_buffer
                 return 10 * thin * tau
             else:
                 print(f'  Série trop courte, batch supplémentaire nécessaire')
@@ -694,4 +704,5 @@ class Stat():
         else:
             print(f'Warning : max_batches atteint. Meilleure estimation de τ : {tau_fallback:.1f}')
         self.mc.buffer_triangle = mc_iat.buffer_triangle
+        self.mc.f3cc_buffer = mc_iat.f3cc_buffer
         return 10 * tau_fallback
