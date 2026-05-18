@@ -448,7 +448,7 @@ class Stat():
                         print(f'eta {eta} accepted (d_eta={d_eta} <= u={u})')
                     prev_d_eta = d_eta
                     prev_eta = eta
-                    if int(prev_eta) == int(eta//2):
+                    if int(prev_eta) == int(eta//2) or self.acf_stability :
                         # don't check eta/2 again
                         tuned = True
                     else:

@@ -21,7 +21,7 @@ from kedgeswap.MarkovChain import MarkovChain
 def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use_assortativity, mutualdiades, turbo, eta,
         output, verbose, keep_record, log_dir, output_number, debug, njobs, use_fixed_threechains,
         read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path, use_squares, acf_stability,
-        forced_burnin):
+        forced_burnin, use_fixed_three_closed_chains):
 
     # read graph
     print('Reading graph...')
@@ -38,7 +38,7 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
             verbose=verbose,
             keep_record=keep_record, log_dir=log_dir, debug=debug, use_fixed_threechains=use_fixed_threechains,
             use_fixed_triangle_range=use_fixed_triangle_range, old_count=old_triangle,
-            use_fixed_tclosedpath=use_fixed_three_closed_path, use_squares=use_squares)
+            use_fixed_tclosedpath=use_fixed_three_closed_path, use_squares=use_squares, use_fixed_f3cc_range=use_fixed_three_closed_chains)
 
     # initialize metrics
     stat = Stat(mc, eta, turbo, verbose, njobs, acf_stability=acf_stability, forced_burnin=forced_burnin)
@@ -101,6 +101,9 @@ def main():
     parser.add_argument('-f3cc', '--fixed_three_closed_path', action='store_true', default=False,
                         help='enable to keep the number of 3 chains, including triangle, during swaps')
 
+    parser.add_argument('-f3ccr', '--fixed_three_closed_chain_range', type=int, default=0,
+                        help='enable to keep the number of 3 chains, including triangle, during swaps, between a fixed range')
+
     parser.add_argument('--output_number', type=int, default=1000,
             help='set the number of graph to generate after Markov Chain convergence.'
             ' Default to 1000')
@@ -154,6 +157,9 @@ def main():
     if args.fixed_triangle_range > 0:
         args.fixed_triangle = True
 
+    if args.fixed_three_closed_chain_range > 0:
+        args.fixed_three_closed_path = True
+
     # some sanity checks
     ## check coherence of parameters
     if (args.assortativity and args.jointdegree):
@@ -177,7 +183,7 @@ def main():
             args.assortativity, args.mutualdiades, args.turbo,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
             args.output_number, args.debug, args.njobs, args.fixed_three_chains, args.read_gml, args.fixed_triangle_range,
-            args.old_triangle, args.fixed_three_closed_path, args.squares, args.acf_stability, args.forced_burnin)
+            args.old_triangle, args.fixed_three_closed_path, args.squares, args.acf_stability, args.forced_burnin, args.fixed_three_closed_chain_range)
 
 
 if __name__ == "__main__":
