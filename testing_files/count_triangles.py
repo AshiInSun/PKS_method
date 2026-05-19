@@ -14,12 +14,12 @@ def count_triangles_in_graph(file_path):
     return triangles
 
 def main():
-    out_dir = './out'
+    out_dir = './out/out_a7d9/gen_ftr10'
     triangle_counts = {}
 
 
     for filename in os.listdir(out_dir):
-        if filename.startswith('test_ftr1'):
+        if filename.startswith('g'):
             file_path = os.path.join(out_dir, filename)
             try:
                 count = count_triangles_in_graph(file_path)

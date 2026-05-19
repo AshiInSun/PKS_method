@@ -1,0 +1,17 @@
+# ============================================================
+# config.yaml — configuration du pipeline graphlet
+# ============================================================
+# Pour chaque entrée, tu définis :
+#   - graph    : chemin vers le .gml du graphe original
+#   - stat     : label court pour le nom de fichier (ex: "s" pour square)
+#   - generated: dossier contenant les N graphes générés (fichiers SSV)
+#   - constraints: liste des contraintes testées (labels courts)
+#
+# Convention de nommage des outputs :
+#   {prefix}_{stat}_{constraint}_graphletcount.json
+#   {prefix}_{stat}_{constraint}_zscore.png
+#
+# où prefix = 4 premières lettres du nom du fichier .gml
+
+out_dir: "../out"
+results_dir: "../results"

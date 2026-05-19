@@ -1,0 +1,92 @@
+from pathlib import Path
+import os
+
+configfile: "config.yaml"
+
+OUT_DIR = config["out_dir"]
+RESULTS_DIR = config["results_dir"]
+
+# ------------------------------------------------
+# Discover graphs + generators automatically
+# ------------------------------------------------
+
+targets = []
+
+for graph_dir in sorted(Path(OUT_DIR).glob("out_*")):
+
+    if not graph_dir.is_dir():
+        continue
+
+    # original graph
+    gmls = list(graph_dir.glob("*.gml"))
+    if len(gmls) == 0:
+        continue
+
+    original_graph = gmls[0]
+    graph_name = original_graph.stem
+
+    # detect every gen_* folder automatically
+    gen_dirs = sorted([
+        d for d in graph_dir.iterdir()
+        if d.is_dir() and d.name.startswith("gen")
+    ])
+
+    for gen_dir in gen_dirs:
+        model = gen_dir.name
+
+        targets.append(
+            f"{RESULTS_DIR}/{graph_name}/{model}/analysis_done.txt"
+        )
+
+# ------------------------------------------------
+# Rule all
+# ------------------------------------------------
+
+rule all:
+    input:
+        targets
+
+
+# ------------------------------------------------
+# Graphlet counting
+# ------------------------------------------------
+
+rule graphlet_count:
+    input:
+        original=lambda wc:
+            next(
+                Path(OUT_DIR, f"out_{wc.graph}").glob("*.gml")
+            ),
+        generated=lambda wc:
+            Path(
+                OUT_DIR,
+                f"out_{wc.graph}",
+                wc.model
+            )
+    output:
+        json=f"{RESULTS_DIR}/{{graph}}/{{model}}/graphlet_counts.json"
+    shell:
+        """
+        mkdir -p $(dirname {output.json})
+
+        python graphlet_analysis.py \
+            {input.generated} \
+            {input.original} \
+            {output.json}
+        """
+
+
+# ------------------------------------------------
+# Figures / analysis
+# ------------------------------------------------
+
+rule build_analysis:
+    input:
+        json=f"{RESULTS_DIR}/{{graph}}/{{model}}/graphlet_counts.json"
+    output:
+        done=f"{RESULTS_DIR}/{{graph}}/{{model}}/analysis_done.txt"
+    shell:
+        """
+        python build_analysis.py {input.json}
+        touch {output.done}
+        """
