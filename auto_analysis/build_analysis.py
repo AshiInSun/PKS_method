@@ -12,7 +12,16 @@ def load(path):
     with open(path, "r") as f:
         return json.load(f)
 
+def filter_graphlets(arr):
+    return np.array(arr[3:])
 
+def significance_profile(z):
+    norm = np.linalg.norm(z)
+
+    if norm < 1e-12:
+        return np.zeros_like(z)
+
+    return z / norm
 # -----------------------------
 # SPLIT ORIGINAL / RANDOM
 # -----------------------------
@@ -29,19 +38,26 @@ def split_data(data):
 # Z-SCORE vs RANDOM DISTRIBUTION
 # -----------------------------
 def zscore_vs_random(original, randoms):
-    mean = randoms.mean(axis=0)
-    std = randoms.std(axis=0) + 1e-9  # éviter division par 0
-    return (original - mean) / std, mean, std
 
+    original = original[3:]
+    randoms = randoms[:, 3:]
+
+    mean = randoms.mean(axis=0)
+    std = randoms.std(axis=0) + 1e-9
+
+    z = (original - mean) / std
+
+    return z, mean, std
 
 # -----------------------------
 # PLOT 1 : ORIGINAL vs MEAN RANDOM
 # -----------------------------
 def plot_mean_comparison(original, mean, path):
-    x = np.arange(len(original))
+    noriginal = original[3:]
+    x = np.arange(len(noriginal))
 
     plt.figure(figsize=(10, 5))
-    plt.plot(x, original, label="Original", linewidth=2)
+    plt.plot(x, noriginal, label="Original", linewidth=2)
     plt.plot(x, mean, label="Mean random", linestyle="--")
 
     plt.title("Original vs Random mean")
@@ -60,31 +76,86 @@ def plot_mean_comparison(original, mean, path):
 # PLOT 2 : Z-SCORE
 # -----------------------------
 def plot_zscore(z, path):
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
 
-    # Vue complète
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1,
+        figsize=(10, 8)
+    )
+
+    # ------------------------
+    # Full scale
+    # ------------------------
     ax1.plot(z, marker="o")
-    ax1.axhline(0, color="black", linewidth=1)
-    ax1.axhline(2, color="red", linestyle="--")
-    ax1.axhline(-2, color="red", linestyle="--")
-    ax1.set_title("Z-score — vue complète")
+    ax1.axhline(0, linewidth=1)
+
+    ax1.axhline(2,
+                linestyle="--")
+    ax1.axhline(-2,
+                linestyle="--")
+
+    ax1.set_title("Z-score")
     ax1.set_ylabel("Z-score")
 
-    # Vue symlog
+    # ------------------------
+    # symlog
+    # ------------------------
     ax2.plot(z, marker="o")
-    ax2.axhline(0, color="black", linewidth=1)
-    ax2.axhline(2, color="red", linestyle="--")
-    ax2.axhline(-2, color="red", linestyle="--")
-    ax2.set_yscale("symlog", linthresh=2)  # linéaire entre -2 et 2 (zone seuil), log au-delà
-    ax2.set_title("Z-score — échelle symlog")
-    ax2.set_xlabel("Feature index")
-    ax2.set_ylabel("Z-score (symlog)")
+    ax2.axhline(0, linewidth=1)
+
+    ax2.axhline(2,
+                linestyle="--")
+    ax2.axhline(-2,
+                linestyle="--")
+
+    ax2.set_yscale(
+        "symlog",
+        linthresh=2
+    )
+
+    ax2.set_title("Z-score (symlog)")
+    ax2.set_xlabel("Graphlet index")
+    ax2.set_ylabel("Z-score")
 
     plt.tight_layout()
-    out = path.replace(".json", "_zscore.png")
+
+    out = path.replace(
+        ".json",
+        "_zscore.png"
+    )
+
     plt.savefig(out, dpi=300)
     plt.close()
 
+def plot_significance_profile(sp, path):
+
+    x = np.arange(3, 3 + len(sp))
+
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(x, sp, marker="o", linewidth=1.5)
+
+    plt.axhline(0, linewidth=1)
+
+    plt.title("Significance Profile (normalized Z-score)")
+    plt.xlabel("Graphlet index")
+    plt.ylabel("SP")
+
+    # FIXED AXES (important pour comparaison)
+    plt.ylim(-1, 1)
+    plt.xlim(2.5, 3 + len(sp) - 0.5)
+
+    plt.xticks(np.arange(3, 3 + len(sp), 2))
+    plt.yticks(np.linspace(-1, 1, 5))
+
+    plt.tight_layout()
+
+    out = path.replace(
+        ".json",
+        "_significance_profile.png"
+    )
+
+    plt.savefig(out, dpi=300)
+    plt.close()
 
 # -----------------------------
 # PLOT 3 : DISTRIBUTION RANDOM vs ORIGINAL
@@ -109,20 +180,28 @@ def main(path):
 
     original, randoms, keys = split_data(data)
 
-    z, mean, std = zscore_vs_random(original, randoms)
+    z, mean, std = zscore_vs_random(
+        original,
+        randoms
+    )
 
-    print("Random graphs:", len(randoms))
-    print("Features:", len(original))
+    sp = significance_profile(z)
 
-    # 1. comparaison moyenne
-    plot_mean_comparison(original, mean, path)
+    plot_mean_comparison(
+        original,
+        mean,
+        path
+    )
 
-    # 2. z-score global
-    plot_zscore(z, path)
+    plot_zscore(
+        z,
+        path
+    )
 
-    # 3. distribution sur quelques features importantes
-    #for i in [1, 2, 27, 28, 29]:
-    #    plot_distributions(original, randoms, idx=i)
+    plot_significance_profile(
+        sp,
+        path
+    )
 
 
 if __name__ == "__main__":
