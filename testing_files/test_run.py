@@ -27,9 +27,8 @@ def test_run():
 
     file = os.path.join(
         os.path.dirname(__file__),
-        'data',
-        'ucidata-zachary',
-        'out.ucidata-zachary'
+        '../data',
+        'karaneh_graph_protein'
     )
 
     graph = Graph(directed=False)
@@ -43,7 +42,7 @@ def test_run():
         graph,
         N_swap=N_swap,
         gamma=3.0,
-        use_assortativity=True,
+        use_squares=True,
         use_fixed_tclosedpath=True,
         #use_fixed_triangle_range=1,
         verbose=True,

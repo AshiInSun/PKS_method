@@ -161,7 +161,6 @@ def run_diagnosis(dataset, directed, use_triangles, use_assortativity, use_squar
 
     # --- grille de eta ---
     eta_min_empirical = max(1, int(1/accept_rate * graph.M))
-    eta_min_empirical = 1
     if eta_fixed is not None:
         eta_values = [int(eta_fixed)]
     else:
