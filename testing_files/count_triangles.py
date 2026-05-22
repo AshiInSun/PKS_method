@@ -7,7 +7,7 @@ from kedgeswap.MarkovChain import MarkovChain
 
 def count_triangles_in_graph(file_path):
     graph = Graph(directed=False)
-    graph.read_ssv(file_path)
+    graph.read_gml(file_path)
     mc = MarkovChain(graph)
     mc.count_triangles()
     triangles = len(mc.triangles2edges)

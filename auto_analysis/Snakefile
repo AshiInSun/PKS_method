@@ -53,26 +53,16 @@ rule all:
 
 rule graphlet_count:
     input:
-        original=lambda wc:
-            next(
-                Path(OUT_DIR, f"out_{wc.graph}").glob("*.gml")
-            ),
-        generated=lambda wc:
-            Path(
-                OUT_DIR,
-                f"out_{wc.graph}",
-                wc.model
-            )
+        graph="../out/out_{graph}/{graph}.gml",
+        generated="../out/out_{graph}/{model}"
     output:
-        json=f"{RESULTS_DIR}/{{graph}}/{{model}}/graphlet_counts.json"
+        "../results/{graph}/{model}/graphlet_counts.json"
     shell:
         """
-        mkdir -p $(dirname {output.json})
-
         python graphlet_analysis.py \
             {input.generated} \
-            {input.original} \
-            {output.json}
+            {input.graph} \
+            {output}
         """
 
 
