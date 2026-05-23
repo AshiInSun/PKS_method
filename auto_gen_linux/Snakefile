@@ -1,0 +1,43 @@
+import os
+import glob
+
+# Detect all graphs available in out/
+GRAPHS = [os.path.basename(p) for p in glob.glob("out/out_*") if os.path.isdir(p)]
+GRAPH_NAMES = [g.replace("out_", "", 1) for g in GRAPHS]
+
+
+def all_targets(wildcards):
+    targets = []
+    for name in GRAPH_NAMES:
+        targets.append(f"out/out_{name}/gen_no_constraint/done.txt")
+        targets.append(f"out/out_{name}/gen_ftr1/done.txt")
+    return targets
+
+
+rule all:
+    input:
+        all_targets
+
+
+rule generate_no_constraint:
+    input:
+        gml="out/out_{name}/{name}.gml"
+    output:
+        done="out/out_{name}/gen_no_constraint/done.txt"
+    log:
+        "out/out_{name}/gen_no_constraint/run.log"
+    shell:
+        "python -m kedgeswap.main -f {input.gml} -o out/out_{wildcards.name}/gen_no_constraint/g -gml -v -a -g 3 --output_number 50 2>&1 | tee {log} && "
+        "echo done > {output.done}"
+
+
+rule generate_ftr1:
+    input:
+        gml="out/out_{name}/{name}.gml"
+    output:
+        done="out/out_{name}/gen_ftr1/done.txt"
+    log:
+        "out/out_{name}/gen_ftr1/run.log"
+    shell:
+        "python -m kedgeswap.main -f {input.gml} -o out/out_{wildcards.name}/gen_ftr1/g -gml -v -a -g 3 --output_number 50 -ftr 1 -acfs 2>&1 | tee {log} && "
+        "echo done > {output.done}"
