@@ -1,5 +1,4 @@
 Creator "igraph version 0.7.1 Wed Nov 25 09:47:43 2015"
-CLUSTER : 2 / STARS
 Version 1
 graph
 [

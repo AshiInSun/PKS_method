@@ -218,7 +218,7 @@ def main():
 
     # Count for all generated graphs
     files = sorted(glob.glob(os.path.join(folder, '*')))
-    files = [f for f in files if os.path.isfile(f)]
+    files = [f for f in files if os.path.isfile(f) and not os.path.basename(f).endswith('.txt') and not os.path.basename(f).endswith('.log')]
 
     for i, fpath in enumerate(files):
         name = os.path.basename(fpath)

@@ -453,8 +453,8 @@ class Stat():
                         tuned = True
                     else:
                         print('trying eta=eta/2...')
+                        prev_eta = eta
                         eta = eta//2
-                    prev_eta = eta
 
                     #tuned = True
                 elif d_eta > u and prev_d_eta <= u:
