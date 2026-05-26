@@ -1,0 +1,442 @@
+% ============================================================
+%  Candidature EDITE - MORANDEAU Timothée
+%  Beamer presentation  •  Metropolis theme
+% ============================================================
+\documentclass[aspectratio=169, 12pt]{beamer}
+
+% ---------- Theme & colours ---------------------------------
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{lmodern}
+\microtypesetup{expansion=false}
+
+\definecolor{LIP6blue}{HTML}{1B3A5C}
+\definecolor{LIP6teal}{HTML}{2A9AB5}
+\definecolor{LIP6gray}{HTML}{7A8FA6}
+\definecolor{AccentOrange}{HTML}{E8652A}
+\definecolor{AccentGreen}{HTML}{5DAD6F}
+\definecolor{BgLight}{HTML}{F5F7FA}
+
+\setbeamercolor{normal text}{fg=LIP6blue, bg=BgLight}
+\setbeamercolor{frametitle}{bg=LIP6blue, fg=white}
+\setbeamercolor{progress bar}{fg=LIP6teal, bg=LIP6gray!30}
+\setbeamercolor{title separator}{fg=LIP6teal}
+\setbeamercolor{alerted text}{fg=LIP6teal}
+\setbeamercolor{example text}{fg=AccentGreen}
+\setbeamercolor{block title}{bg=LIP6blue!90, fg=white}
+\setbeamercolor{block body}{bg=LIP6blue!8, fg=LIP6blue}
+\setbeamercolor{block title example}{bg=AccentGreen!80, fg=white}
+\setbeamercolor{block body example}{bg=AccentGreen!10, fg=LIP6blue}
+
+\metroset{
+  titleformat=smallcaps,
+  sectionpage=progressbar,
+  subsectionpage=none,
+  progressbar=frametitle,
+  block=fill
+}
+
+% ---------- Packages ----------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, calc,
+                decorations.pathreplacing, backgrounds, fit}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+% ---------- Custom commands ---------------------------------
+\newcommand{\kswap}{\textit{k-swap}}
+\newcommand{\egograph}{\textit{ego-graphe}}
+\newcommand{\highlight}[1]{\textbf{\textcolor{LIP6teal}{#1}}}
+
+% Thin coloured rule under frame title
+\makeatletter
+\setlength{\metropolis@titleseparator@linewidth}{1.5pt}
+\makeatother
+
+\setbeamertemplate{bibliography item}{}
+
+% ============================================================
+%  TITLE PAGE
+% ============================================================
+\title{\Large Modèles neutres\\ de réseaux complexes intégrant \\ des contraintes temporelles\\ et d'ordre supérieur}
+\subtitle{Candidature EDITE}
+\author{\textbf{Timothée Morandeau}}
+\date{Mai 2026}
+\institute{%
+  LIP6 - ComplexNetworks, Sorbonne Université
+}
+\titlegraphic{
+  \begin{flushright}
+    \includegraphics[height=1.2cm]{sorbonne-logo.png}\hspace{0.1cm}
+
+    \includegraphics[height=1.2cm]{lip6-logo.png}
+  \end{flushright}
+}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+\maketitle
+
+% ----- Plan -------------------------------------------------
+\begin{frame}{Plan}
+  \tableofcontents
+\end{frame}
+
+% ============================================================
+\section{Parcours académique}
+% ============================================================
+
+\begin{frame}{Baccalauréat Général \hfill{\small 2018-2021}}
+  \begin{columns}[c]
+    \begin{column}{0.55\textwidth}
+      \textbf{\textit{Lycée Charles-Baudelaire, Fosses}}
+      \medskip
+
+      \begin{itemize}
+        \item \highlight{Mathématiques}
+        \item \highlight{Physique-Chimie}
+        \item Sciences de l'ingénieur (Première)
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -----------------------------------------------------------
+\begin{frame}{Licence d'Informatique \hfill{\small 2021-2024}}
+  \textit{\textbf{Université Paris-Saclay}}
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Sciences des données
+        \item Génie Logiciel
+        \item Algorithmique
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}
+        \item Programmation (impérative, OO, fonctionnelle)
+        \item Systèmes d'exploitation
+        \item \alert{Option L3 :} Informatique théorique
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -----------------------------------------------------------
+\begin{frame}{Master Sciences et Technologies du Logiciel \hfill{\small 2024-2026}}
+  \textit{\textbf{Sorbonne Université - filière Recherche}}
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Cours}
+        \begin{itemize}
+          \item Algorithmique avancée
+          \item Théorie des Graphes
+          \item Langages et Compilation
+          \item Concurrence
+          \item Validation de Programmes
+          \item Génie Logiciel
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Projets de recherche}
+        \begin{itemize}
+          \item \textbf{M1} - Génération aléatoire d'entiers\\
+            {\small \textit{Encadré par A.~Genitrini \& M.~Naima}}
+          \item \textbf{M2} - Théorie des catégories\\
+            et ses applications en informatique\\
+            {\small \textit{Projet exploratoire}}
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Stage de M2 - \textit{Realistic Models of Personal Networks}}
+% ============================================================
+
+\begin{frame}{Contexte du stage \hfill{\small Mai-Août 2026}}
+  \begin{columns}[c]
+    \begin{column}{0.58\textwidth}
+      \begin{block}{Où ?}
+        LIP6, Sorbonne Université\\
+        Équipe \highlight{ComplexNetworks}
+      \end{block}
+      \medskip
+      \begin{block}{Encadrement}
+        Mehdi Naima \& Lionel Tabourier
+      \end{block}
+      \medskip
+      \begin{block}{Projet}
+        CNRS Miti \highlight{MonReso}
+      \end{block}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.4\linewidth]{MITI_sansbg.png}
+            \label{fig:placeholder}
+        \end{figure}
+      \begin{tcolorbox}[
+        colback=LIP6teal!12, colframe=LIP6teal,
+        title={\textbullet\quad Miti MonReso},
+        fonttitle=\small\bfseries,
+        rounded corners
+      ]
+        \small Programme du CNRS dédié à l'analyse \emph{interdisciplinaire} des
+        réseaux sociaux, à l'interface entre informatique et sociologie.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -----------------------------------------------------------
+\begin{frame}{Objectif du stage}
+  \begin{alertblock}{Question centrale}
+    Construire des \highlight{modèles neutres réalistes} d'ego-graphes en
+    déterminant les \emph{motifs structurants} des ces réseaux, en étendant la methode PKS \cite{tabourier2024}
+    pour contraindre certains motifs.
+  \end{alertblock}
+
+  \bigskip
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \begin{block}{\(\rightarrow\)\quad Modèle neutre}
+        Graphes aléatoires respectant un ensemble de propriétés fixées
+        (distribution des degrés, motifs\dots)
+      \end{block}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{block}{\(\rightarrow\)\quad Ego-graphe}
+        Graphe centré sur un individu, ses relations directes et les liens
+        entre ces relations.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exemple d'ego-graphe -- réseau Facebook}
+
+  \begin{columns}[c]
+
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]
+      {Capture d’écran 2026-04-23 143620(1)(1).png}
+    \end{column}
+
+    \begin{column}{0.44\textwidth}
+
+      Graphe des amis Facebook d’un individu et des relations
+      entre ces amis.
+
+    \end{column}
+
+  \end{columns}
+  \scriptsize\textcolor{LIP6gray}{
+        Raphael Charbey and Christophe Prieur. \textit{Stars, holes, or paths across your Facebook friends : A graphlet-based characterization of many networks.} Network Science, 7(4) :476–497, December 2019 
+      }
+
+\end{frame}
+
+\begin{frame}{Pourquoi les modèles neutres ?}
+      \begin{alertblock}{Utilité}
+      \begin{itemize}      
+        \item[\(\rightarrow\)] Déterminer quelle part des propriétés observées dans un réseau réel
+        est produite par l'aléatoire ou
+        \emph{structurante} (révélatrice d'un comportement social)
+        \item[\(\rightarrow\)] Des modèles neutres réalistes peuvent permettre des simulations contrôlées
+    \end{itemize}
+      \end{alertblock}
+\end{frame}
+
+% -----------------------------------------------------------
+
+
+% -----------------------------------------------------------
+\begin{frame}{Tâches et compétences mobilisées}
+
+      \begin{block}{Compétences}
+        \begin{itemize}
+          \item Génération aléatoire de graphes
+          \item Sampling MCMC (\kswap{} probabiliste)
+          \item Analyse de données de réseaux réels
+          \item Comptage de motifs (graphlets)
+        \end{itemize}
+      \end{block}
+
+\end{frame}
+
+% ============================================================
+\section{Intérêts de recherche}
+% ============================================================
+
+\begin{frame}{Domaines d'intérêt}
+
+      \begin{itemize}
+        \setlength\itemsep{8pt}
+        \item \highlight{Algorithmique} - complexité, structures de données
+        \item \highlight{Théorie des Graphes}
+        \item \highlight{Approche interdisciplinaire} 
+        \item \highlight{Analyse de données}
+      \end{itemize}
+
+\end{frame}
+
+% -----------------------------------------------------------
+\begin{frame}{Structures de données complexes}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Hypergraphes}
+        Généralisation des graphes où une \emph{hyperarête} peut connecter
+        \emph{plus de deux} sommets simultanément.
+      \end{block}
+      \begin{block}{Projet M2}
+        UE AAGA (Algorithmique avancées, Graphes et Applications) :\\
+        \textit{Mesures d'homophilie dans les graphes et hypergraphes}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.5\linewidth]{patate(1).png}
+
+            \label{fig:placeholder}
+        \end{figure}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+
+% -----------------------------------------------------------
+
+
+% ============================================================
+\section{Motivations et projet doctoral}
+% ============================================================
+\begin{frame}{Aspirations professionnelles}
+  \begin{itemize}
+    \setlength\itemsep{8pt}
+    \item Poursuivre en \highlight{recherche académique} après la thèse
+    \item Contribuer à la recherche en algorithmique et théorie des graphes
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Pourquoi ce cadre ?}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Continuité avec le stage}
+        \begin{itemize}
+          \item Maîtrise du \kswap{} probabiliste et des modèles neutres
+                d'ego-graphes
+          \item Analyse de motifs (graphlets) sur données réelles
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Équipe ComplexNetworks}
+        \begin{itemize}
+          \item L.~Tabourier - co-auteur de la méthode PKS \cite{tabourier2024}
+          \item M.~Naima - graphes temporels et centralité \cite{naima2023}
+          \item Projet MonReso - environnement interdisciplinaire
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%--------------------------------------------------------
+
+\begin{frame}{Problème scientifique}
+  \begin{alertblock}{Question centrale}
+    Comment générer des modèles \highlight{réalistes et non-biaisés} pour des structures
+    plus expressives : graphes \emph{temporels} et \emph{d'ordre supérieur} ?
+  \end{alertblock}
+
+  \bigskip
+
+  \begin{block}{Enjeux}
+    \begin{itemize}
+      \item Comparer PKS et ERGM sur les graphes statiques
+      \item Etendre la méthode PKS aux graphes temporels et d'ordre supérieur
+      \item Identifier les motifs structurants de ces réseaux complexes
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% -----------------------------------------------------------
+{
+\begin{frame}{Conclusion}
+  \textcolor{LIP6teal}{\normalsize Le sujet}\\[0.4em]
+  \small Des questions ouvertes et importantes en science des réseaux
+
+  \vspace{1.2em}
+
+  \textcolor{LIP6teal}{\normalsize Ma candidature}\\[0.4em]
+  \small Un parcours qui s'inscrit naturellement dans ce projet
+\end{frame}
+}
+% ============================================================
+%  CLOSING SLIDE
+% ============================================================
+{
+\setbeamercolor{background canvas}{bg=LIP6blue}
+\begin{frame}[standout]
+  \textcolor{white}{\Large Merci pour votre écoute !}\\[1em]
+  \textcolor{LIP6teal}{\normalsize Questions ?}
+\end{frame}
+}
+
+% ============================================================
+%  REFERENCES
+% ============================================================
+\appendix
+\begin{frame}[allowframebreaks]{Références}
+  \small
+  \begin{thebibliography}{99}
+
+    \bibitem{tabourier2024}
+    L.~Tabourier and J.~Karadayi.
+    \newblock Probabilistic $k$-swap method for uniform graph generation beyond
+      the configuration model.
+    \newblock \textit{Journal of Complex Networks}, 12(1), February 2024.
+
+    \bibitem{charbey2019}
+    R.~Charbey and C.~Prieur.
+    \newblock Stars, holes, or paths across your Facebook friends: A
+      graphlet-based characterization of many networks.
+    \newblock \textit{Network Science}, 7(4):476-497, December 2019.
+
+    \bibitem{gaumont2018}
+    N.~Gaumont, M.~Panahi, and D.~Chavalarias.
+    \newblock Reconstruction of the socio-semantic dynamics of political activist
+      Twitter networks: method and application to the 2017 French presidential
+      election.
+    \newblock \textit{ICWSM}, 2018.
+
+    \bibitem{naima2023}
+    M.~Naima. 
+    \newblock Temporal Betweenness Centrality on Shortest Walks Variants. 
+    \newblock \textit{Applied Network Science}, 2025.
+
+
+  \end{thebibliography}
+\end{frame}
+
+\end{document}
