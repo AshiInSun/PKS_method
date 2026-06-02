@@ -10,9 +10,7 @@ from kedgeswap.MarkovChain import MarkovChain
 
 toy_file = os.path.join(
     os.path.dirname(__file__),
-    '../out',
-    'out_toy',
-    'gen'
+    '../out/out_a7d9793a763083b3473ca0ad027e35e7/gen_ftr10/g_32'
 )
 
 graph = Graph(directed=False)

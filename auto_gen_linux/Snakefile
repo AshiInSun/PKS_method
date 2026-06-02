@@ -27,7 +27,7 @@ rule generate_no_constraint:
     log:
         "out/out_{name}/gen_no_constraint/run.log"
     shell:
-        "python -m kedgeswap.main -f {input.gml} -o out/out_{wildcards.name}/gen_no_constraint/g -gml -v -a -g 3 --output_number 50 2>&1 | tee {log} && "
+        "timeout 7200 python -m kedgeswap.main -f {input.gml} -o out/out_{wildcards.name}/gen_no_constraint/g -gml -v -a -g 3 --output_number 50 2>&1 | tee {log} && "
         "echo done > {output.done}"
 
 
@@ -39,5 +39,5 @@ rule generate_ftr1:
     log:
         "out/out_{name}/gen_ftr1/run.log"
     shell:
-        "python -m kedgeswap.main -f {input.gml} -o out/out_{wildcards.name}/gen_ftr1/g -gml -v -a -g 3 --output_number 50 -ftr 1 -acfs 2>&1 | tee {log} && "
+        "timeout 7200 python -m kedgeswap.main -f {input.gml} -o out/out_{wildcards.name}/gen_ftr1/g -gml -v -a -g 3 --output_number 50 -ftr 1 -acfs 2>&1 | tee {log} && "
         "echo done > {output.done}"
