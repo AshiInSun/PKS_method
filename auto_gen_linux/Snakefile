@@ -1,14 +1,9 @@
 import os
 import glob
 
-# Detect all graphs in out/*_cluster/out_*/
 GRAPH_PATHS = glob.glob("out/*_cluster/out_*")
 GRAPH_ENTRIES = [
-    (
-        os.path.basename(os.path.dirname(p)),  # cluster
-        os.path.basename(p),                   # out_ID
-        os.path.basename(p).replace("out_", "", 1)  # ID
-    )
+    (os.path.basename(os.path.dirname(p)), os.path.basename(p))
     for p in GRAPH_PATHS
     if os.path.isdir(p)
 ]
@@ -16,7 +11,7 @@ GRAPH_ENTRIES = [
 def all_targets(wildcards):
     return [
         f"out/{cluster}/{out_dir}/gen_ftr1/done.txt"
-        for cluster, out_dir, name in GRAPH_ENTRIES
+        for cluster, out_dir in GRAPH_ENTRIES
     ]
 
 rule all:
@@ -24,11 +19,10 @@ rule all:
 
 rule generate_ftr1:
     input:
-        gml="out/{cluster}/{out_dir}/{name}.gml"
+        gml=lambda wildcards: f"out/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_', '', 1)}.gml"
     wildcard_constraints:
         cluster="[^/]+_cluster",
-        out_dir="out_[^/]+",
-        name="[^/]+"
+        out_dir="out_[^/]+"
     output:
         done="out/{cluster}/{out_dir}/gen_ftr1/done.txt"
     log:
@@ -36,5 +30,5 @@ rule generate_ftr1:
     shell:
         "timeout 3600 python -m kedgeswap.main -f {input.gml} "
         "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
-        "-gml -v -a -g 3 --output_number 50 -ftr 1 2>&1 | tee {log} && "
+        "-gml -v -a -g 3 --output_number 50 -ftr 1 -acfs 2>&1 | tee {log} && "
         "echo done > {output.done}"
