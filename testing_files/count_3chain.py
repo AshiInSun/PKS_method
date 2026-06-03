@@ -73,8 +73,8 @@ def main():
 
     g = Graph(directed=False)
 
-    input_file = "data/ego_dataset/a7d9793a763083b3473ca0ad027e35e7.gml"
-    other = "out/out_a7d9/gen_f3ccr1/g_15"
+    input_file = "out/out_a7d9793a763083b3473ca0ad027e35e7/a7d9793a763083b3473ca0ad027e35e7.gml"
+    other = "out/out_a7d9793a763083b3473ca0ad027e35e7/gen_f3cc/_9"
     g.read_ssv(other)
 
     print("Nombre de sommets :", g.N)
