@@ -12,31 +12,33 @@ RESULTS_DIR = config["results_dir"]
 
 targets = []
 
-for graph_dir in sorted(Path(OUT_DIR).glob("out_*")):
-
-    if not graph_dir.is_dir():
+for cluster_dir in sorted(Path(OUT_DIR).glob("*_cluster")):
+    if not cluster_dir.is_dir():
         continue
 
-    # original graph
-    gmls = list(graph_dir.glob("*.gml"))
-    if len(gmls) == 0:
-        continue
+    for graph_dir in sorted(cluster_dir.glob("out_*")):
+        if not graph_dir.is_dir():
+            continue
 
-    original_graph = gmls[0]
-    graph_name = original_graph.stem
+        gmls = list(graph_dir.glob("*.gml"))
+        if len(gmls) == 0:
+            continue
 
-    # detect every gen_* folder automatically
-    gen_dirs = sorted([
-        d for d in graph_dir.iterdir()
-        if d.is_dir() and d.name.startswith("gen")
-    ])
+        original_graph = gmls[0]
+        graph_name = original_graph.stem
+        cluster_name = cluster_dir.name
 
-    for gen_dir in gen_dirs:
-        model = gen_dir.name
+        gen_dirs = sorted([
+            d for d in graph_dir.iterdir()
+            if d.is_dir() and d.name.startswith("gen")
+        ])
 
-        targets.append(
-            f"{RESULTS_DIR}/{graph_name}/{model}/analysis_done.txt"
-        )
+        for gen_dir in gen_dirs:
+            model = gen_dir.name
+
+            targets.append(
+                f"{RESULTS_DIR}/{cluster_name}/{graph_name}/{model}/analysis_done.txt"
+            )
 
 # ------------------------------------------------
 # Rule all
@@ -53,10 +55,10 @@ rule all:
 
 rule graphlet_count:
     input:
-        graph="../out/out_{graph}/{graph}.gml",
-        generated="../out/out_{graph}/{model}"
+        graph=f"{OUT_DIR}/{{cluster}}/out_{{graph}}/{{graph}}.gml",
+        generated=f"{OUT_DIR}/{{cluster}}/out_{{graph}}/{{model}}"
     output:
-        "../results/{graph}/{model}/graphlet_counts.json"
+        f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts.json"
     shell:
         """
         python graphlet_analysis.py \
@@ -67,16 +69,32 @@ rule graphlet_count:
 
 
 # ------------------------------------------------
+# Translation induced -> brut
+# ------------------------------------------------
+
+rule translate_counts:
+    input:
+        json=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts.json"
+    output:
+        f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts_brut.json"
+    shell:
+        """
+        python translation_g5_inducedtobrut.py {input.json} {output}
+        """
+
+
+# ------------------------------------------------
 # Figures / analysis
 # ------------------------------------------------
 
 rule build_analysis:
     input:
-        json=f"{RESULTS_DIR}/{{graph}}/{{model}}/graphlet_counts.json"
+        induced=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts.json",
+        brut=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts_brut.json"
     output:
-        done=f"{RESULTS_DIR}/{{graph}}/{{model}}/analysis_done.txt"
+        done=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/analysis_done.txt"
     shell:
         """
-        python build_analysis.py {input.json}
+        python build_analysis.py {input.induced} {input.brut}
         touch {output.done}
         """
