@@ -9,11 +9,16 @@ GRAPH_ENTRIES = [
 ]
 
 def all_targets(wildcards):
-    return [
-        f"out/{cluster}/{out_dir}/gen_no_constraint/done.txt"
-        for cluster, out_dir in GRAPH_ENTRIES
-        if os.path.exists(f"out/{cluster}/{out_dir}/gen_ftr1/done.txt")
-    ]
+    targets = []
+    for cluster, out_dir in GRAPH_ENTRIES:
+        ftr1_done = f"out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+        if os.path.exists(ftr1_done):
+            # a passé ftr1 → on veut no_constraint
+            targets.append(f"out/{cluster}/{out_dir}/gen_no_constraint/done.txt")
+        else:
+            # pas encore fait ftr1 → on le lance
+            targets.append(ftr1_done)
+    return targets
 
 rule all:
     input: all_targets
