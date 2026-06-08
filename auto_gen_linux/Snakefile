@@ -10,8 +10,9 @@ GRAPH_ENTRIES = [
 
 def all_targets(wildcards):
     return [
-        f"out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+        f"out/{cluster}/{out_dir}/gen_no_constraint/done.txt"
         for cluster, out_dir in GRAPH_ENTRIES
+        if os.path.exists(f"out/{cluster}/{out_dir}/gen_ftr1/done.txt")
     ]
 
 rule all:
@@ -31,4 +32,21 @@ rule generate_ftr1:
         "timeout 3600 python -m kedgeswap.main -f {input.gml} "
         "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
         "-gml -v -a -g 3 --output_number 50 -ftr 1 -acfs 2>&1 | tee {log} && "
+        "echo done > {output.done}"
+
+rule generate_no_constraint:
+    input:
+        gml=lambda wildcards: f"out/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_', '', 1)}.gml",
+        ftr1_done="out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+    wildcard_constraints:
+        cluster="[^/]+_cluster",
+        out_dir="out_[^/]+"
+    output:
+        done="out/{cluster}/{out_dir}/gen_no_constraint/done.txt"
+    log:
+        "out/{cluster}/{out_dir}/gen_no_constraint/run.log"
+    shell:
+        "timeout 3600 python -m kedgeswap.main -f {input.gml} "
+        "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_no_constraint/g "
+        "-gml -v -a -g 3 --output_number 50 -acfs 2>&1 | tee {log} && "
         "echo done > {output.done}"
