@@ -49,6 +49,14 @@ def significance_profile(z, zero_mask):
         return np.zeros_like(z)
     return z_f / norm
 
+EPSILON = 4
+
+def compute_delta(original, randoms, sl):
+    orig = original[sl]
+    mean_rand = randoms[:, sl].mean(axis=0)
+    delta = (orig - mean_rand) / (orig + mean_rand + EPSILON)
+    return delta, mean_rand
+
 # -----------------------------
 # HELPERS : graphlet images
 # -----------------------------
@@ -274,16 +282,18 @@ def plot_significance_profile_radar(sp, zero_mask, graphlet_ids, label, path):
 
     image_radius = 1.18
     vertical_offset = 0.01
-    if label==4:
-        orizontal_offset = 0.30
+    if label=="4":
+        orizontal_offset = 0
+        vertical_offset = -0.014
     else:
         orizontal_offset = 0
 
     for angle, g_idx in zip(angles[:-1], graphlet_ids):
         img_box = load_tile(g_idx, zoom=zoom)
 
-        x_fig = cx + image_radius * r_fig * np.cos(angle - np.pi / 2) - orizontal_offset
-        y_fig = cy + image_radius * r_fig * np.sin(angle - np.pi / 2) + vertical_offset
+        x_fig = cx + image_radius * r_fig * np.cos(angle) - orizontal_offset
+        y_fig = cy + image_radius * r_fig * np.sin(angle) + vertical_offset
+         # +1 ou -1 ?
 
         ab = AnnotationBbox(
             img_box,
@@ -299,6 +309,105 @@ def plot_significance_profile_radar(sp, zero_mask, graphlet_ids, label, path):
     out = path.replace(".json", f"_size{label}_significance_profile_radar.png")
     plt.savefig(out, dpi=300, facecolor="white", bbox_inches="tight")
     plt.close()
+
+def plot_srp_radar(srp, zero_mask, graphlet_ids, label, path, suffix=""):
+    n = len(srp)
+    angles = np.linspace(0, 2 * np.pi, n, endpoint=False).tolist()
+    values = srp.tolist()
+    angles += angles[:1]
+    values += values[:1]
+
+    fig = plt.figure(figsize=(7, 7), facecolor="white")
+    ax = plt.subplot(111, polar=True)
+
+    ax.plot(angles, values, linewidth=2, color="steelblue", label="SRP")
+    ax.fill(angles, values, alpha=0.25, color="steelblue")
+    ax.plot(angles, [0] * len(angles), linewidth=1.2, color="black",
+            linestyle="--", zorder=3)
+
+    for i, z in enumerate(zero_mask):
+        if z:
+            ax.plot([angles[i]], [values[i]], marker="o", color="orange")
+
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels([])
+    ax.yaxis.set_visible(False)
+    ax.set_ylim(-1, 1)
+    ax.set_title(f"SRP Radar — size-{label}", pad=60)
+    ax.grid(True)
+    ax.legend(loc="upper right", bbox_to_anchor=(1.15, 1.15))
+
+    zoom = 0.05 if label == "4" else 0.04
+    fig.canvas.draw()
+
+    axes_to_display = ax.transAxes
+    display_to_figure = fig.transFigure.inverted()
+    center_display = axes_to_display.transform((0.5, 0.5))
+    cx, cy = display_to_figure.transform(center_display)
+    edge_display = axes_to_display.transform((1.0, 0.5))
+    ex, _ = display_to_figure.transform(edge_display)
+    r_fig = abs(ex - cx)
+
+    image_radius = 1.18
+    for angle, g_idx in zip(angles[:-1], graphlet_ids):
+        img_box = load_tile(g_idx, zoom=zoom)
+        x_fig = cx + image_radius * r_fig * np.cos(angle - np.pi / 2)
+        y_fig = cy + image_radius * r_fig * np.sin(angle - np.pi / 2)
+        ab = AnnotationBbox(
+            img_box,
+            (x_fig, y_fig),
+            xycoords="figure fraction",
+            frameon=False,
+            annotation_clip=False,
+            box_alignment=(0.5, 0.5),
+        )
+        ax.add_artist(ab)
+
+    out = path.replace(".json", f"_size{label}_srp_radar.png")
+    plt.savefig(out, dpi=300, facecolor="white", bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {out}")
+
+def plot_srp(srp, delta, zero_mask, graphlet_ids, label, path, suffix=""):
+    n = len(srp)
+    x = np.arange(n)
+    x_zero = x[zero_mask]
+
+    colors = ["steelblue" if d >= 0 else "tomato" for d in delta]
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    fig.subplots_adjust(bottom=0.22)
+
+    ax.bar(x, srp, width=0.8, color=colors)
+
+    for xi in x_zero:
+        ax.axvline(xi, color="orange", linestyle=":", linewidth=1.5,
+                   label="Original = 0" if xi == x_zero[0] else "")
+
+    ax.axhline(0, linewidth=1, color="black")
+    ax.set_title(f"Subgraph Ratio Profile (SRP) — size-{label} graphlets")
+    ax.set_ylabel("SRP")
+    ax.set_ylim(-1, 1)
+    ax.set_xlim(-0.5, n - 0.5)
+    ax.set_yticks(np.linspace(-1, 1, 5))
+
+    if len(x_zero):
+        ax.legend(fontsize=8)
+
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor="steelblue", label="Over-represented"),
+        Patch(facecolor="tomato",    label="Under-represented"),
+    ]
+    ax.legend(handles=legend_elements, fontsize=8, loc="upper right")
+
+    zoom = 0.1 if label == "4" else 0.032
+    set_graphlet_xticks(ax, graphlet_ids, zoom=zoom)
+
+    out = path.replace(".json", f"_size{label}_srp.png")
+    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    plt.close()
+    print(f"Saved: {out}")
 
 # -----------------------------
 # MAIN
@@ -320,22 +429,28 @@ def main(path, path2):
         z, mean, std = zscore_vs_random(original, randoms, sl)
         zero_mask    = (original[sl] == 0)
         sp           = significance_profile(z, zero_mask)
+        delta, _     = compute_delta(original, randoms, sl)
 
         z_i, mean_i, std_i = zscore_vs_random(original_includ, randoms_includ, sl)
         zero_mask_i = (original_includ[sl] == 0)
         sp_i = significance_profile(z_i, zero_mask_i)
+        delta_i, _ = compute_delta(original_includ, randoms_includ, sl)
 
         plot_mean_comparison(original, mean, sl, label, path)
         plot_zscore(z, zero_mask, gids, label, path)
         plot_significance_profile(sp, zero_mask, gids, label, path)
         plot_zscore_trimed(z, zero_mask, gids, label, path)
-        #plot_significance_profile_radar(sp, zero_mask, gids, label, path)
+        plot_significance_profile_radar(sp, zero_mask, gids, label, path)
+        plot_srp(sp, delta, zero_mask, gids, label, path)
+        plot_srp_radar(sp, zero_mask, gids, label, path)
 
         plot_mean_comparison(original_includ, mean_i, sl, label, path2)
         plot_zscore(z_i, zero_mask_i, gids, label, path2)
         plot_significance_profile(sp_i, zero_mask_i, gids, label, path2)
         plot_zscore_trimed(z_i, zero_mask_i, gids, label, path2)
-        #plot_significance_profile_radar(sp_i, zero_mask_i, gids, label, path2)
+        plot_significance_profile_radar(sp_i, zero_mask_i, gids, label, path2)
+        plot_srp(sp_i, delta_i, zero_mask_i, gids, label, path2)
+        plot_srp_radar(sp_i, zero_mask_i, gids, label, path2)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
