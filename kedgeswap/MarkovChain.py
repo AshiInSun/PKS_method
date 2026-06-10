@@ -492,6 +492,29 @@ class MarkovChain:
                 tr.add(tuple(sorted((u,v,x))))
         return len(tr)
 
+    def nb_induced_3stars_neighboor(self, local_neighboor, edge_involved):
+        """
+        Compute the number of triangles in which the edges are involved inside a local neighborhood.
+
+        Parameters
+        ----------
+        local_neighboor: dict(set)
+        edge_involved: list(tuples)
+
+        Returns
+        --------
+        nb_triangle: int
+            number of triangles in which the edges are involved inside a local neighborhood
+        """
+        three_stars = set()
+        for (u, v) in edge_involved:
+            cand = local_neighboor[u] ^ local_neighboor[v] #LINVERSE
+            for x in cand:
+                for y in local_neighboor[x]:
+                    if y != u and y!=v:
+                        three_stars.add(tuple(sorted((u,v,x,y))))
+        return len(three_stars)
+
 
     def perform_local_swap(self, local_graph, edge_to_swap, permutation):
         """

@@ -27,6 +27,14 @@ def load(path):
     with open(path, "r") as f:
         return json.load(f)
 
+IMAGE_CACHE = {}
+
+def load_tile(graphlet_1indexed, zoom=0.01):
+    if graphlet_1indexed not in IMAGE_CACHE:
+        path = os.path.join(TILES_DIR, f"graphlet_{graphlet_1indexed:02d}.png")
+        IMAGE_CACHE[graphlet_1indexed] = mpimg.imread(path)
+    return OffsetImage(IMAGE_CACHE[graphlet_1indexed], zoom=zoom)
+
 def split_data(data):
     original   = np.array(data["__original__"])
     random_keys = [k for k in data if k != "__original__"]
@@ -51,20 +59,18 @@ def significance_profile(z, zero_mask):
 
 EPSILON = 4
 
+def subgraph_ratio_profile(delta):
+    norm = np.linalg.norm(delta)
+    if norm < 1e-12:
+        return np.zeros_like(delta)
+    return delta / norm
+
 def compute_delta(original, randoms, sl):
     orig = original[sl]
     mean_rand = randoms[:, sl].mean(axis=0)
     delta = (orig - mean_rand) / (orig + mean_rand + EPSILON)
     return delta, mean_rand
 
-# -----------------------------
-# HELPERS : graphlet images
-# -----------------------------
-def load_tile(graphlet_1indexed, zoom=0.01):
-    """Charge la tuile PNG d'un graphlet (numércd otation 1-based)."""
-    path = os.path.join(TILES_DIR, f"graphlet_{graphlet_1indexed:02d}.png")
-    img  = mpimg.imread(path)
-    return OffsetImage(img, zoom=zoom)
 
 def set_graphlet_xticks(ax, graphlet_indices_1based, y_offset_axes=-0.18, zoom=0.01):
     """
@@ -106,7 +112,7 @@ def plot_mean_comparison(original, mean, sl, label, path):
     plt.tight_layout()
 
     out = path.replace(".json", f"_size{label}_meandistrib.png")
-    plt.savefig(out, dpi=300)
+    plt.savefig(out, dpi=150)
     plt.close()
 
 # -----------------------------
@@ -148,7 +154,7 @@ def plot_zscore(z, zero_mask, graphlet_ids, label, path):
             set_graphlet_xticks(ax, graphlet_ids, zoom=0.032)
 
     out = path.replace(".json", f"_size{label}_zscore.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight")
+    plt.savefig(out, dpi=150, bbox_inches="tight")
     plt.close()
 
 def plot_zscore_trimed(z, zero_mask, graphlet_ids, label, path):
@@ -199,7 +205,7 @@ def plot_zscore_trimed(z, zero_mask, graphlet_ids, label, path):
         set_graphlet_xticks(ax, graphlet_ids, zoom=0.032)
 
     out = path.replace(".json", f"_size{label}_zscore_trimed.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    plt.savefig(out, dpi=150, bbox_inches="tight", facecolor="white")
     plt.close()
 # -----------------------------
 # PLOT : SIGNIFICANCE PROFILE
@@ -233,7 +239,7 @@ def plot_significance_profile(sp, zero_mask, graphlet_ids, label, path):
 
     out = path.replace(".json", f"_size{label}_significance_profile.png")
 
-    plt.savefig(out, dpi=300, bbox_inches="tight")
+    plt.savefig(out, dpi=150, bbox_inches="tight")
     plt.close()
 
 def plot_significance_profile_radar(sp, zero_mask, graphlet_ids, label, path):
@@ -307,10 +313,10 @@ def plot_significance_profile_radar(sp, zero_mask, graphlet_ids, label, path):
 
 
     out = path.replace(".json", f"_size{label}_significance_profile_radar.png")
-    plt.savefig(out, dpi=300, facecolor="white", bbox_inches="tight")
+    plt.savefig(out, dpi=150, facecolor="white", bbox_inches="tight")
     plt.close()
 
-def plot_srp_radar(srp, zero_mask, graphlet_ids, label, path, suffix=""):
+def plot_srp_radar(srp, zero_mask, graphlet_ids, label, path, normalized=True):
     n = len(srp)
     angles = np.linspace(0, 2 * np.pi, n, endpoint=False).tolist()
     values = srp.tolist()
@@ -324,10 +330,6 @@ def plot_srp_radar(srp, zero_mask, graphlet_ids, label, path, suffix=""):
     ax.fill(angles, values, alpha=0.25, color="steelblue")
     ax.plot(angles, [0] * len(angles), linewidth=1.2, color="black",
             linestyle="--", zorder=3)
-
-    for i, z in enumerate(zero_mask):
-        if z:
-            ax.plot([angles[i]], [values[i]], marker="o", color="orange")
 
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels([])
@@ -349,10 +351,17 @@ def plot_srp_radar(srp, zero_mask, graphlet_ids, label, path, suffix=""):
     r_fig = abs(ex - cx)
 
     image_radius = 1.18
+    vertical_offset = 0.01
+    if label == "4":
+        orizontal_offset = 0
+        vertical_offset = -0.014
+    else:
+        orizontal_offset = 0
+
     for angle, g_idx in zip(angles[:-1], graphlet_ids):
         img_box = load_tile(g_idx, zoom=zoom)
-        x_fig = cx + image_radius * r_fig * np.cos(angle - np.pi / 2)
-        y_fig = cy + image_radius * r_fig * np.sin(angle - np.pi / 2)
+        x_fig = cx + image_radius * r_fig * np.cos(angle) - orizontal_offset
+        y_fig = cy + image_radius * r_fig * np.sin(angle) + vertical_offset
         ab = AnnotationBbox(
             img_box,
             (x_fig, y_fig),
@@ -363,15 +372,17 @@ def plot_srp_radar(srp, zero_mask, graphlet_ids, label, path, suffix=""):
         )
         ax.add_artist(ab)
 
-    out = path.replace(".json", f"_size{label}_srp_radar.png")
-    plt.savefig(out, dpi=300, facecolor="white", bbox_inches="tight")
+    if normalized:
+        out = path.replace(".json", f"_size{label}_srp_radar_norm.png")
+    else:
+        out = path.replace(".json", f"_size{label}_srp_radar.png")
+    plt.savefig(out, dpi=150, facecolor="white", bbox_inches="tight")
     plt.close()
     print(f"Saved: {out}")
 
-def plot_srp(srp, delta, zero_mask, graphlet_ids, label, path, suffix=""):
+def plot_srp(srp, delta, zero_mask, graphlet_ids, label, path, normalized=True):
     n = len(srp)
     x = np.arange(n)
-    x_zero = x[zero_mask]
 
     colors = ["steelblue" if d >= 0 else "tomato" for d in delta]
 
@@ -380,19 +391,12 @@ def plot_srp(srp, delta, zero_mask, graphlet_ids, label, path, suffix=""):
 
     ax.bar(x, srp, width=0.8, color=colors)
 
-    for xi in x_zero:
-        ax.axvline(xi, color="orange", linestyle=":", linewidth=1.5,
-                   label="Original = 0" if xi == x_zero[0] else "")
-
     ax.axhline(0, linewidth=1, color="black")
     ax.set_title(f"Subgraph Ratio Profile (SRP) — size-{label} graphlets")
     ax.set_ylabel("SRP")
     ax.set_ylim(-1, 1)
     ax.set_xlim(-0.5, n - 0.5)
     ax.set_yticks(np.linspace(-1, 1, 5))
-
-    if len(x_zero):
-        ax.legend(fontsize=8)
 
     from matplotlib.patches import Patch
     legend_elements = [
@@ -403,9 +407,11 @@ def plot_srp(srp, delta, zero_mask, graphlet_ids, label, path, suffix=""):
 
     zoom = 0.1 if label == "4" else 0.032
     set_graphlet_xticks(ax, graphlet_ids, zoom=zoom)
-
-    out = path.replace(".json", f"_size{label}_srp.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    if normalized:
+        out = path.replace(".json", f"_size{label}_srp_norm.png")
+    else:
+        out = path.replace(".json", f"_size{label}_srp.png")
+    plt.savefig(out, dpi=150, bbox_inches="tight", facecolor="white")
     plt.close()
     print(f"Saved: {out}")
 
@@ -430,27 +436,33 @@ def main(path, path2):
         zero_mask    = (original[sl] == 0)
         sp           = significance_profile(z, zero_mask)
         delta, _     = compute_delta(original, randoms, sl)
+        srp = subgraph_ratio_profile(delta)
 
         z_i, mean_i, std_i = zscore_vs_random(original_includ, randoms_includ, sl)
         zero_mask_i = (original_includ[sl] == 0)
         sp_i = significance_profile(z_i, zero_mask_i)
         delta_i, _ = compute_delta(original_includ, randoms_includ, sl)
+        srp_i = subgraph_ratio_profile(delta_i)
 
         plot_mean_comparison(original, mean, sl, label, path)
         plot_zscore(z, zero_mask, gids, label, path)
         plot_significance_profile(sp, zero_mask, gids, label, path)
         plot_zscore_trimed(z, zero_mask, gids, label, path)
         plot_significance_profile_radar(sp, zero_mask, gids, label, path)
-        plot_srp(sp, delta, zero_mask, gids, label, path)
-        plot_srp_radar(sp, zero_mask, gids, label, path)
+        plot_srp(srp, delta, zero_mask, gids, label, path)
+        plot_srp_radar(srp, zero_mask, gids, label, path)
+        plot_srp(delta, delta, zero_mask, gids, label, path, normalized=False)
+        plot_srp_radar(delta, zero_mask, gids, label, path, normalized=False)
 
         plot_mean_comparison(original_includ, mean_i, sl, label, path2)
         plot_zscore(z_i, zero_mask_i, gids, label, path2)
         plot_significance_profile(sp_i, zero_mask_i, gids, label, path2)
         plot_zscore_trimed(z_i, zero_mask_i, gids, label, path2)
         plot_significance_profile_radar(sp_i, zero_mask_i, gids, label, path2)
-        plot_srp(sp_i, delta_i, zero_mask_i, gids, label, path2)
-        plot_srp_radar(sp_i, zero_mask_i, gids, label, path2)
+        plot_srp(srp_i, delta_i, zero_mask_i, gids, label, path2)
+        plot_srp(delta_i, delta_i, zero_mask_i, gids, label, path2, normalized=False)
+        plot_srp_radar(srp_i, zero_mask_i, gids, label, path2)
+        plot_srp_radar(delta_i, zero_mask_i, gids, label, path2, normalized=False)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
