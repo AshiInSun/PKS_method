@@ -11,19 +11,19 @@ RESULTS_DIR = config["results_dir"]
 # ------------------------------------------------
 targets = []
 
-for cluster_dir in sorted(Path(RESULTS_DIR).glob("*_cluster")):
+for cluster_dir in sorted(Path(OUT_DIR).glob("*_cluster")):
     if not cluster_dir.is_dir():
         continue
-    for graph_dir in sorted(cluster_dir.glob("*")):
+    for graph_dir in sorted(cluster_dir.glob("out_*")):
         if not graph_dir.is_dir():
             continue
+        graph_name = graph_dir.name.removeprefix("out_")
         for model_dir in sorted(graph_dir.glob("gen*")):
             if not model_dir.is_dir():
                 continue
             targets.append(
-                f"{RESULTS_DIR}/{cluster_dir.name}/{graph_dir.name}/{model_dir.name}/analysis_done.txt"
+                f"{RESULTS_DIR}/{cluster_dir.name}/{graph_name}/{model_dir.name}/analysis_done.txt"
             )
-
 # ------------------------------------------------
 # Rule all
 # ------------------------------------------------

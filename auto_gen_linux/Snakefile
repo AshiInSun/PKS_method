@@ -1,7 +1,7 @@
 import os
 import glob
 
-GRAPH_PATHS = glob.glob("out/*_cluster/out_*")
+GRAPH_PATHS = glob.glob("out_failed/*_cluster/out_*")
 GRAPH_ENTRIES = [
     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
     for p in GRAPH_PATHS
