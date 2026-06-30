@@ -6,6 +6,8 @@
 #
 #    You should have received a copy of the GNU General Public License along with Foobar. If not, see <https://www.gnu.org/licenses/>. 
 import os
+
+import networkx as nx
 #import ipdb
 
 import numpy as np
@@ -65,6 +67,7 @@ class Graph:
         self.unique_edges = list()
         self.directed = directed # directed graph flag
         self.dataset_name = None
+        self.node_coloring = dict()
 
     def copy(self):
         # Make a copy of all the graphs data structures
@@ -77,6 +80,7 @@ class Graph:
         graph_copy.edges = self.edges.copy()
         graph_copy.unique_edges = self.unique_edges.copy()
         graph_copy.directed = self.directed
+        graph_copy.node_coloring = self.node_coloring
         return graph_copy
 
     def read_ssv(self, in_file):

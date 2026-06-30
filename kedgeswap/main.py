@@ -9,6 +9,8 @@
 import os
 import sys
 import argparse
+
+import networkx as nx
 import numpy as np
 
 from progressbar import ProgressBar
@@ -21,7 +23,7 @@ from kedgeswap.MarkovChain import MarkovChain
 def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use_assortativity, mutualdiades, turbo, eta,
         output, verbose, keep_record, log_dir, output_number, debug, njobs, use_fixed_threechains,
         read_gml, use_fixed_triangle_range, old_triangle, use_fixed_three_closed_path, use_squares, acf_stability,
-        forced_burnin, use_fixed_three_closed_chains):
+        forced_burnin, use_fixed_three_closed_chains, wl_coloring):
 
     # read graph
     print('Reading graph...')
@@ -31,6 +33,39 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
     else:
         graph.read_ssv(dataset)
 
+    if wl_coloring > 0:
+        if read_gml:
+            graph.node_coloring = nx.weisfeiler_lehman_subgraph_hashes(nx.read_gml(dataset, label="id"), iterations=wl_coloring)
+        else :
+            graph.node_coloring = nx.weisfeiler_lehman_subgraph_hashes(nx.read_edgelist(dataset, nodetype=int), iterations=wl_coloring)
+        if verbose :
+
+            set_wl = set()
+            for colors in graph.node_coloring:
+                set_wl.add(graph.node_coloring[colors][-1])
+            print("Node coloring computed using Weisfeiler-Lehman algorithm :", set_wl)
+            print("Number of colors :", len(set_wl))
+    elif wl_coloring == 0:
+        if read_gml:
+            graph.node_coloring = nx.weisfeiler_lehman_subgraph_hashes(nx.read_gml(dataset, label="id"),
+                                                                       iterations=1)
+        else:
+            graph.node_coloring = nx.weisfeiler_lehman_subgraph_hashes(nx.read_edgelist(dataset, nodetype=int),
+                                                                       iterations=1)
+        if verbose:
+
+            set_wl = set()
+            for nodes in graph.node_coloring:
+                set_wl.add(graph.node_coloring[nodes][-1])
+            print("Node coloring computed using Weisfeiler-Lehman algorithm :", set_wl)
+            print("Number of colors :", len(set_wl))
+        for node in graph.node_coloring:
+            #immondice de code, mais c'est pour des tests. Si wl coloring = 0 de toute façon,
+            #c'est le configuration model et on devrait pas avoir ces contraintes..
+
+            graph.node_coloring[node][-1] = 0
+
+
     # initialize MCMC
     print('Initializing markov chain')
     mc = MarkovChain(graph, N_swap=0, gamma=gamma, use_jd=use_jd, 
@@ -38,7 +73,8 @@ def run(dataset, directed, gamma, use_jd, use_fixed_triangle, use_triangles, use
             verbose=verbose,
             keep_record=keep_record, log_dir=log_dir, debug=debug, use_fixed_threechains=use_fixed_threechains,
             use_fixed_triangle_range=use_fixed_triangle_range, old_count=old_triangle,
-            use_fixed_tclosedpath=use_fixed_three_closed_path, use_squares=use_squares, use_fixed_f3cc_range=use_fixed_three_closed_chains)
+            use_fixed_tclosedpath=use_fixed_three_closed_path, use_squares=use_squares,
+            use_fixed_f3cc_range=use_fixed_three_closed_chains, use_wl_coloring=wl_coloring)
 
     # initialize metrics
     stat = Stat(mc, eta, turbo, verbose, njobs, acf_stability=acf_stability, forced_burnin=forced_burnin)
@@ -149,6 +185,9 @@ def main():
     parser.add_argument('--forced_burnin', default=0, type=int,
                         help='Set the size of the burnin.')
 
+    parser.add_argument('--wl_coloring', type=int, default=-1,
+                        help='Compute the weisfeiler leman coloring of the number chosed. If -1 or less, no coloring is computed. If 0, the coloring is computed but not used. If 1 or more, the coloring is computed and used to constrain the swaps.')
+
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help()
@@ -183,7 +222,8 @@ def main():
             args.assortativity, args.mutualdiades, args.turbo,
             args.eta, args.output, args.verbose, args.keep_record, args.log_dir,
             args.output_number, args.debug, args.njobs, args.fixed_three_chains, args.read_gml, args.fixed_triangle_range,
-            args.old_triangle, args.fixed_three_closed_path, args.squares, args.acf_stability, args.forced_burnin, args.fixed_three_closed_chain_range)
+            args.old_triangle, args.fixed_three_closed_path, args.squares, args.acf_stability, args.forced_burnin,
+            args.fixed_three_closed_chain_range, args.wl_coloring)
 
 
 if __name__ == "__main__":

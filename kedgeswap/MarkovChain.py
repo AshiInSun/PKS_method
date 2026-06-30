@@ -17,6 +17,7 @@ import numpy as np
 from scipy.stats.sampling import DiscreteAliasUrn
 from networkx.classes import neighbors
 from numpy.f2py.auxfuncs import throw_error
+import networkx as nx
 
 from kedgeswap.Graph import Graph
 from progressbar import ProgressBar
@@ -46,7 +47,8 @@ class MarkovChain:
                  verbose=False, keep_record=False, log_dir = None, debug=False,
                  use_fixed_threechains=False, use_fixed_triangle_range=0,
                  triangle_buffer=0, old_count=False, use_fixed_tclosedpath=False,
-                 use_squares=False, f3cc_buffer = 0, use_fixed_f3cc_range = 0
+                 use_squares=False, f3cc_buffer = 0, use_fixed_f3cc_range = 0,
+                 use_wl_coloring= -1
                  ):
         """
             Class to handle k-edge random swap
@@ -101,6 +103,7 @@ class MarkovChain:
             debug: bool
                 if enabled, adds check and log output. Used for debugging purposes only.
         """
+        self.color_keys = None
         self.graph = graph
         self.N_swap = N_swap
 
@@ -153,6 +156,7 @@ class MarkovChain:
         self.use_fixed_threechains = use_fixed_threechains
         self.use_fixed_tclosedpath = use_fixed_tclosedpath
         self.f3cc_buffer = f3cc_buffer
+        self.use_wl_coloring = use_wl_coloring
 
         # debug
         self.verbose = verbose
@@ -170,6 +174,12 @@ class MarkovChain:
         #opti
         self.edge_indices = np.arange(graph.M)
         self.unique_edges_array = np.array(graph.unique_edges, dtype=object)
+
+        #coloring
+        self.colors_subgraphs = defaultdict(set)
+        self.distribution_colors_subgraphs = defaultdict(int)
+        self.rng_colored = None
+        self.unique_edges_index = None
 
     def __dump__(self, edge_to_swap, permutation, n_cycle, n_swapped, output_file):
         """Write graph and permutation, useful for debugging"""
@@ -247,7 +257,7 @@ class MarkovChain:
             k: int
                 number of edges to swap
         """
-        if not self.rng:
+        if not self.rng or self.use_wl_coloring >=0:
             return 2
         k = self.rng.rvs()
         return int(k)
@@ -263,7 +273,10 @@ class MarkovChain:
                 number of edges to swap
         """
         # minimum k is 2
-        k = np.random.choice(a=self.possible_ks ,p=1/sum(self.k_distrib) * self.k_distrib)
+        if self.use_wl_coloring >= 0:
+            k=2
+        else:
+            k = np.random.choice(a=self.possible_ks ,p=1/sum(self.k_distrib) * self.k_distrib)
 
         return k
 
@@ -337,6 +350,32 @@ class MarkovChain:
                 indexes in unique_edges of the edges in edge_to_swap
 
         """
+        if self.use_wl_coloring >= 0:
+            idx = self.rng_colored.rvs()
+            color = self.color_keys[idx]
+            subgraph = self.colors_subgraphs[color]
+
+            edge_list = list(subgraph)
+            if len(edge_list) < 2:
+                return None, None, None
+            chosen = np.random.choice(len(edge_list), 2, replace=False)
+            e1, e2 = edge_list[chosen[0]], edge_list[chosen[1]]
+
+            u, v = e1
+            x, y = e2
+
+            edge_to_swap = [(u, v), (x, y)]
+            permutation = [(x, y), (u, v)]
+
+            e1_canon = (min(u, v), max(u, v))
+            e2_canon = (min(x, y), max(x, y))
+
+            _edge_to_swap = [self.unique_edges_index[e1_canon], self.unique_edges_index[e2_canon]]
+
+
+
+            return edge_to_swap, permutation, _edge_to_swap
+
         M = self.graph.M
         rng = np.random
         #valid_permutation = False
@@ -570,6 +609,8 @@ class MarkovChain:
                 true if swap can be accepted
 
         """
+        if edge_to_swap is None:
+            return False
 
         # list of the edges after permutation
         goal_edges = []
@@ -747,9 +788,21 @@ class MarkovChain:
                 goal_edge = (u, y)
             else:
                 goal_edge = (u, y) if u < y else (y ,u)
-            #old_edge = self.graph.unique_edges[e_idx] # TODO comment - not used
+            old_edge = self.graph.unique_edges[e_idx]
             self.graph.unique_edges[e_idx] = goal_edge
+            if self.unique_edges_index:
+                self.unique_edges_index[goal_edge] = e_idx
+                del self.unique_edges_index[old_edge]
+            if self.use_wl_coloring >= 0:
+                c = (self.graph.node_coloring[u][-1], self.graph.node_coloring[v][-1])
+                c_rev = (self.graph.node_coloring[v][-1], self.graph.node_coloring[u][-1])
+                self.colors_subgraphs[c].discard((u, v))
+                self.colors_subgraphs[c_rev].discard((v, u))
 
+                c_new = (self.graph.node_coloring[u][-1], self.graph.node_coloring[y][-1])
+                c_new_rev = (self.graph.node_coloring[y][-1], self.graph.node_coloring[u][-1])
+                self.colors_subgraphs[c_new].add((u, y))
+                self.colors_subgraphs[c_new_rev].add((y, u))
             #old_edge = (u, v) if u < v else (v, u)
 
             if self.graph.directed:
@@ -1479,6 +1532,18 @@ class MarkovChain:
             delta += destroyed - created
         return delta
 
+    def init_colored_subgraphs(self):
+        for edge in self.graph.edges:
+            u, v = edge
+            c_uv = (self.graph.node_coloring[u][-1], self.graph.node_coloring[v][-1])
+            self.colors_subgraphs[c_uv].add(edge)
+        weights = np.array([len(self.colors_subgraphs[c]) for c in self.colors_subgraphs])
+        self.color_keys = list(self.colors_subgraphs.keys())  # pour retrouver la couleur par index
+        weights_norm = weights / weights.sum()
+        self.rng_colored = DiscreteAliasUrn(weights_norm, domain=(0, len(self.color_keys)))
+        self.unique_edges_index = {e: i for i, e in enumerate(self.graph.unique_edges)}
+
+
     def run(self, N_swap=None):
         """
             K-edge swap algorithm.
@@ -1532,6 +1597,9 @@ class MarkovChain:
             self.initial_trianglenumber = len(self.triangles2edges)
         if self.use_fixed_threechains:
             self.init_tchain_undirected()
+        if self.use_wl_coloring >= 0:
+            self.init_colored_subgraphs()
+
 
         if self.use_squares:
             self.count_squares()
