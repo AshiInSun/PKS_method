@@ -73,7 +73,8 @@ class Stat():
             use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath,
             use_squares=self.mc.use_squares,
             use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range,
-            f3cc_buffer=self.mc.f3cc_buffer
+            f3cc_buffer=self.mc.f3cc_buffer,
+            use_wl_coloring=self.mc.use_wl_coloring
         )
 
     @staticmethod
@@ -122,7 +123,8 @@ class Stat():
                               use_assortativity=self.mc.use_assortativity, use_mutualdiades=self.mc.use_mutualdiades, 
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                               use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count,
-                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares)
+                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares,
+                              use_wl_coloring=self.mc.use_wl_coloring)
         burn_in.run()
         
         # estimate the acceptation rate of the Markov Chain
@@ -276,7 +278,8 @@ class Stat():
                               use_mutualdiades=self.mc.use_mutualdiades,
                               verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                               use_fixed_triangle_range=self.mc.use_fixed_triangle_range, old_count=self.mc.old_count,
-                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares, use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range)
+                              use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares,
+                              use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range, use_wl_coloring=self.mc.use_wl_coloring)
         burn_in.run()
         #we need to make the buffer of triangle consistant with the graph.
         self.mc.buffer_triangle = burn_in.buffer_triangle
@@ -327,7 +330,8 @@ class Stat():
                             verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                             use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count,
                             use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares,
-                            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range, f3cc_buffer=burn_in.f3cc_buffer))
+                            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range, f3cc_buffer=burn_in.f3cc_buffer,
+                                          use_wl_coloring=self.mc.use_wl_coloring))
                 else:
                     mc[c] = MarkovChain(copy.deepcopy(burn_in.graph), N_swap, gamma, use_jd=self.mc.use_jd,
                             use_triangles=self.mc.use_triangles,use_fixed_triangle=self.mc.use_fixed_triangle, use_assortativity=self.mc.use_assortativity,
@@ -335,7 +339,8 @@ class Stat():
                             verbose=self.mc.verbose, keep_record=False, log_dir=None, use_fixed_threechains=self.mc.use_fixed_threechains,
                             use_fixed_triangle_range=self.mc.use_fixed_triangle_range, triangle_buffer=burn_in.buffer_triangle, old_count=self.mc.old_count,
                             use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath, use_squares=self.mc.use_squares,
-                            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range, f3cc_buffer=burn_in.f3cc_buffer)
+                            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range, f3cc_buffer=burn_in.f3cc_buffer,
+                                        use_wl_coloring=self.mc.use_wl_coloring)
 
 
                 #mc[c].run()
@@ -472,7 +477,7 @@ class Stat():
                     else:
                         eta = 2 * eta
                     if self.verbose:
-                        print(f'eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}.')
+                        print(f'eta {prev_eta} refused (d_eta={d_eta} <= u={u}), trying eta={eta}, acf = {current_acf}')
 
         return eta
 
@@ -637,7 +642,8 @@ class Stat():
             use_fixed_triangle_range=self.mc.use_fixed_triangle_range,
             old_count=self.mc.old_count,
             use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath,
-            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range
+            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range,
+            use_wl_coloring=self.mc.use_wl_coloring
         )
         burn_in.run()
         self.mc.buffer_triangle = burn_in.buffer_triangle
@@ -666,7 +672,8 @@ class Stat():
             f3cc_buffer=burn_in.f3cc_buffer,
             old_count=self.mc.old_count,
             use_fixed_tclosedpath=self.mc.use_fixed_tclosedpath,
-            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range
+            use_fixed_f3cc_range=self.mc.use_fixed_f3cc_range,
+            use_wl_coloring=self.mc.use_wl_coloring
         )
 
         # boucle d'accumulation

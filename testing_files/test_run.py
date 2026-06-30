@@ -33,7 +33,8 @@ def test_run():
 
     graph = Graph(directed=False)
     graph.read_ssv(file)
-    N_swap = graph.M * 1000
+    graph.node_coloring = nx.weisfeiler_lehman_subgraph_hashes(nx.read_edgelist(file, nodetype=int), iterations=3)
+    N_swap = graph.M * 10
 
     def run_mc():
         return mc.run()
@@ -42,20 +43,25 @@ def test_run():
         graph,
         N_swap=N_swap,
         gamma=3.0,
-        use_squares=True,
-        use_fixed_tclosedpath=True,
-        #use_fixed_triangle_range=1,
+        use_triangles=True,
+        use_fixed_tclosedpath=False,
+        use_fixed_triangle=False,
         verbose=True,
-        old_count=False
+        old_count=True,
+        use_wl_coloring=3
     )
     lp = LineProfiler()
     lp.add_function(mc.find_swap_opti)
     lp.add_function(mc.check_swap)
+    lp.add_function(mc.nb_triangle_neighboor)
+    lp.add_function(mc.create_local_neighboorhood)
+    lp.add_function(mc.create_partial_local_graph)
+    lp.add_function(mc.delta_local_triangle)
     window = []
     print("N_swap :",N_swap)
     print("Starting run...")
     window.extend(lp.runcall(run_mc))
-    #lp.print_stats()
+    lp.print_stats()
     print("Run finished")
 
     print("Accept rate :", mc.accept_rate)

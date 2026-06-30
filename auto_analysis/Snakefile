@@ -21,8 +21,9 @@ for cluster_dir in sorted(Path(OUT_DIR).glob("*_cluster")):
         for model_dir in sorted(graph_dir.glob("gen*")):
             if not model_dir.is_dir():
                 continue
+            # Après
             targets.append(
-                f"{RESULTS_DIR}/{cluster_dir.name}/{graph_name}/{model_dir.name}/analysis_done.txt"
+                f"{RESULTS_DIR}/{cluster_dir.name}/{graph_name}/{model_dir.name}/graphlet_counts_brut.json"
             )
 # ------------------------------------------------
 # Rule all
@@ -71,14 +72,14 @@ rule translate_counts:
 # Figures / analysis
 # ------------------------------------------------
 
-rule build_analysis:
-    input:
-        induced=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts.json",
-        brut=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts_brut.json"
-    output:
-        done=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/analysis_done.txt"
-    shell:
-        """
-        python build_analysis.py {input.induced} {input.brut}
-        touch {output.done}
-        """
+# rule build_analysis:
+#     input:
+#         induced=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts.json",
+#         brut=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/graphlet_counts_brut.json"
+#     output:
+#         done=f"{RESULTS_DIR}/{{cluster}}/{{graph}}/{{model}}/analysis_done.txt"
+#     shell:
+#         """
+#         python build_analysis.py {input.induced} {input.brut}
+#         touch {output.done}
+#         """
