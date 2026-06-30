@@ -1,7 +1,7 @@
 import os
 import glob
 
-GRAPH_PATHS = glob.glob("out_failed/*_cluster/out_*")
+GRAPH_PATHS = glob.glob("out/*_cluster/out_*")
 GRAPH_ENTRIES = [
     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
     for p in GRAPH_PATHS
@@ -16,6 +16,7 @@ def all_targets(wildcards):
             # a passé ftr1 → on veut no_constraint
             targets.append(f"out/{cluster}/{out_dir}/gen_no_constraint/done.txt")
             targets.append(f"out/{cluster}/{out_dir}/gen_jdm/done.txt")
+            targets.append(f"out/{cluster}/{out_dir}/gen_NeSt_1/done.txt")
         else:
             # pas encore fait ftr1 → on le lance
             targets.append(ftr1_done)
