@@ -48,7 +48,7 @@ class MarkovChain:
                  use_fixed_threechains=False, use_fixed_triangle_range=0,
                  triangle_buffer=0, old_count=False, use_fixed_tclosedpath=False,
                  use_squares=False, f3cc_buffer = 0, use_fixed_f3cc_range = 0,
-                 use_wl_coloring= -1
+                 use_wl_coloring = -1
                  ):
         """
             Class to handle k-edge random swap
@@ -222,7 +222,8 @@ class MarkovChain:
             log_dir=self.log_dir,
             debug=self.debug,
             use_fixed_threechains=self.use_fixed_threechains,
-            use_squares = self.use_squares
+            use_squares = self.use_squares,
+            use_wl_coloring= self.use_wl_coloring
         )
 
         # copy runtime attributes
@@ -371,8 +372,6 @@ class MarkovChain:
             e2_canon = (min(x, y), max(x, y))
 
             _edge_to_swap = [self.unique_edges_index[e1_canon], self.unique_edges_index[e2_canon]]
-
-
 
             return edge_to_swap, permutation, _edge_to_swap
 
@@ -721,6 +720,7 @@ class MarkovChain:
 
         self.buffer_triangle += delta_triangle
         self.f3cc_buffer += delta_f3cc
+
         return True
 
     def check_dyads(self,edge_to_swap, permutation):

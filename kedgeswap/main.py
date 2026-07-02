@@ -138,7 +138,7 @@ def main():
                         help='enable to keep the number of 3 chains, including triangle, during swaps')
 
     parser.add_argument('-f3ccr', '--fixed_three_closed_chain_range', type=int, default=0,
-                        help='enable to keep the number of 3 chains, including triangle, during swaps, between a fixed range')
+                        help='enable to keep the number of chains of length 3, including triangle, during swaps, between a fixed range')
 
     parser.add_argument('--output_number', type=int, default=1000,
             help='set the number of graph to generate after Markov Chain convergence.'
