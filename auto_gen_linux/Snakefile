@@ -65,7 +65,7 @@ rule generate_ftr1:
     log:
         "out/{cluster}/{out_dir}/gen_ftr1/run.log"
     shell:
-        "timeout 3600 python -m kedgeswap.main -f {input.gml} "
+        "timeout 32400 python -m kedgeswap.main -f {input.gml} "
         "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
         "-gml -v -a -g 3 --output_number 50 -ftr 1 2>&1 | tee {log} && "
         "echo done > {output.done}"
