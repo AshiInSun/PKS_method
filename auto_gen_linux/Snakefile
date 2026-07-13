@@ -37,6 +37,21 @@ GRAPH_ENTRIES = [
 # if missing:
 #     print(f"[WARNING] out_dir introuvables : {sorted(missing)}")
 
+def get_graph_input(cluster, out_dir):
+    base = f"out_FB100/{cluster}/{out_dir}/{out_dir.replace('out_', '', 1)}"
+
+    for ext, flag in [
+        ("gml", "-gml"),
+        ("ssv", ""),
+        ("edges", ""),
+        ("mtx", ""),
+    ]:
+        path = f"{base}.{ext}"
+        if os.path.exists(path):
+            return path, flag
+
+    raise FileNotFoundError(f"Aucun graphe trouvé pour {base}")
+
 def all_targets(wildcards):
     targets = []
     for cluster, out_dir in GRAPH_ENTRIES:
@@ -56,7 +71,9 @@ rule all:
 
 rule generate_ftr1:
     input:
-        gml=lambda wildcards: f"out_FB100/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_', '', 1)}.gml"
+        graph=lambda wc: get_graph_input(wc.cluster,wc.out_dir)[0]
+    params:
+        graph_flag=lambda wc: get_graph_input(wc.cluster,wc.out_dir)[1]
     wildcard_constraints:
         cluster="[^/]+_cluster",
         out_dir="out_[^/]+"
@@ -65,9 +82,10 @@ rule generate_ftr1:
     log:
         "out_FB100/{cluster}/{out_dir}/gen_ftr1/run.log"
     shell:
-        "timeout 43200 python -m kedgeswap.main -f {input.gml} "
+        "timeout 43200 python -m kedgeswap.main -f {input.graph} "
         "-o out_FB100/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
-        "-gml -v -a -g 3 --output_number 50 -ftr 1 2>&1 | tee {log} && "
+        "{params.graph_flag} "
+        "-v -a -g 3 --output_number 50 -ftr 1 2>&1 | tee {log} && "
         "echo done > {output.done}"
 
 rule generate_no_constraint:
