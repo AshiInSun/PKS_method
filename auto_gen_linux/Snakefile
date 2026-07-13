@@ -1,41 +1,41 @@
-# import os
-# import glob
-#
-# GRAPH_PATHS = glob.glob("out/*_cluster/out_*")
-# GRAPH_ENTRIES = [
-#     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
-#     for p in GRAPH_PATHS
-#     if os.path.isdir(p)
-# ]
-
 import os
 import glob
-
-def load_network_list(path="network_to_handle.txt"):
-    """Lit les out_dir à traiter, un par ligne. Accepte 'out_123' ou juste '123'."""
-    ids = set()
-    with open(path) as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            ids.add(line if line.startswith("out_") else f"out_{line}")
-    return ids
-
-NETWORK_TO_HANDLE = load_network_list()
 
 GRAPH_PATHS = glob.glob("out_FB100/*_cluster/out_*")
 GRAPH_ENTRIES = [
     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
     for p in GRAPH_PATHS
-    if os.path.isdir(p) and os.path.basename(p) in NETWORK_TO_HANDLE
+    if os.path.isdir(p)
 ]
+#
+# import os
+# import glob
+#
+# def load_network_list(path="network_to_handle.txt"):
+#     """Lit les out_dir à traiter, un par ligne. Accepte 'out_123' ou juste '123'."""
+#     ids = set()
+#     with open(path) as f:
+#         for line in f:
+#             line = line.strip()
+#             if not line or line.startswith("#"):
+#                 continue
+#             ids.add(line if line.startswith("out_") else f"out_{line}")
+#     return ids
+#
+# NETWORK_TO_HANDLE = load_network_list()
+#
+# GRAPH_PATHS = glob.glob("out_FB100/*_cluster/out_*")
+# GRAPH_ENTRIES = [
+#     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
+#     for p in GRAPH_PATHS
+#     if os.path.isdir(p) and os.path.basename(p) in NETWORK_TO_HANDLE
+# ]
 
 # Alerte si un identifiant demandé n'existe pas sur le disque
-found = {out_dir for _, out_dir in GRAPH_ENTRIES}
-missing = NETWORK_TO_HANDLE - found
-if missing:
-    print(f"[WARNING] out_dir introuvables : {sorted(missing)}")
+# found = {out_dir for _, out_dir in GRAPH_ENTRIES}
+# missing = NETWORK_TO_HANDLE - found
+# if missing:
+#     print(f"[WARNING] out_dir introuvables : {sorted(missing)}")
 
 def all_targets(wildcards):
     targets = []
