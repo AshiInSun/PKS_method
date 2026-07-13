@@ -24,7 +24,7 @@ def load_network_list(path="network_to_handle.txt"):
 
 NETWORK_TO_HANDLE = load_network_list()
 
-GRAPH_PATHS = glob.glob("out/*_cluster/out_*")
+GRAPH_PATHS = glob.glob("out_FB100/*_cluster/out_*")
 GRAPH_ENTRIES = [
     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
     for p in GRAPH_PATHS
@@ -40,12 +40,12 @@ if missing:
 def all_targets(wildcards):
     targets = []
     for cluster, out_dir in GRAPH_ENTRIES:
-        ftr1_done = f"out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+        ftr1_done = f"out_FB100/{cluster}/{out_dir}/gen_ftr1/done.txt"
         if os.path.exists(ftr1_done):
             # a passé ftr1 → on veut no_constraint
-            targets.append(f"out/{cluster}/{out_dir}/gen_no_constraint/done.txt")
-            targets.append(f"out/{cluster}/{out_dir}/gen_jdm/done.txt")
-            targets.append(f"out/{cluster}/{out_dir}/gen_f3ccr1/done.txt")
+            targets.append(f"out_FB100/{cluster}/{out_dir}/gen_no_constraint/done.txt")
+            targets.append(f"out_FB100/{cluster}/{out_dir}/gen_jdm/done.txt")
+            targets.append(f"out_FB100/{cluster}/{out_dir}/gen_f3ccr1/done.txt")
         else:
             # pas encore fait ftr1 → on le lance
             targets.append(ftr1_done)
@@ -56,17 +56,17 @@ rule all:
 
 rule generate_ftr1:
     input:
-        gml=lambda wildcards: f"out/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_', '', 1)}.gml"
+        gml=lambda wildcards: f"out_FB100/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_', '', 1)}.gml"
     wildcard_constraints:
         cluster="[^/]+_cluster",
         out_dir="out_[^/]+"
     output:
-        done="out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+        done="out_FB100/{cluster}/{out_dir}/gen_ftr1/done.txt"
     log:
-        "out/{cluster}/{out_dir}/gen_ftr1/run.log"
+        "out_FB100/{cluster}/{out_dir}/gen_ftr1/run.log"
     shell:
-        "timeout 32400 python -m kedgeswap.main -f {input.gml} "
-        "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
+        "timeout 43200 python -m kedgeswap.main -f {input.gml} "
+        "-o out_FB100/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
         "-gml -v -a -g 3 --output_number 50 -ftr 1 2>&1 | tee {log} && "
         "echo done > {output.done}"
 
