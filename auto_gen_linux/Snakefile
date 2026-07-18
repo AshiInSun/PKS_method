@@ -1,44 +1,16 @@
 import os
 import glob
 
-GRAPH_PATHS = glob.glob("out_FB100/*_cluster/out_*")
+GRAPH_PATHS = glob.glob("out/*_cluster/out_*")
 GRAPH_ENTRIES = [
     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
     for p in GRAPH_PATHS
     if os.path.isdir(p)
 ]
-#
-# import os
-# import glob
-#
-# def load_network_list(path="network_to_handle.txt"):
-#     """Lit les out_dir à traiter, un par ligne. Accepte 'out_123' ou juste '123'."""
-#     ids = set()
-#     with open(path) as f:
-#         for line in f:
-#             line = line.strip()
-#             if not line or line.startswith("#"):
-#                 continue
-#             ids.add(line if line.startswith("out_") else f"out_{line}")
-#     return ids
-#
-# NETWORK_TO_HANDLE = load_network_list()
-#
-# GRAPH_PATHS = glob.glob("out_FB100/*_cluster/out_*")
-# GRAPH_ENTRIES = [
-#     (os.path.basename(os.path.dirname(p)), os.path.basename(p))
-#     for p in GRAPH_PATHS
-#     if os.path.isdir(p) and os.path.basename(p) in NETWORK_TO_HANDLE
-# ]
 
-# Alerte si un identifiant demandé n'existe pas sur le disque
-# found = {out_dir for _, out_dir in GRAPH_ENTRIES}
-# missing = NETWORK_TO_HANDLE - found
-# if missing:
-#     print(f"[WARNING] out_dir introuvables : {sorted(missing)}")
 
 def get_graph_input(cluster, out_dir):
-    base = f"out_FB100/{cluster}/{out_dir}/{out_dir.replace('out_', '', 1)}"
+    base = f"out/{cluster}/{out_dir}/{out_dir.replace('out_', '', 1)}"
 
     for ext, flag in [
         ("gml", "-gml"),
@@ -52,46 +24,58 @@ def get_graph_input(cluster, out_dir):
 
     raise FileNotFoundError(f"Aucun graphe trouvé pour {base}")
 
+
 def all_targets(wildcards):
     targets = []
+
     for cluster, out_dir in GRAPH_ENTRIES:
-        ftr1_done = f"out_FB100/{cluster}/{out_dir}/gen_ftr1/done.txt"
+        ftr1_done = f"out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+
         if os.path.exists(ftr1_done):
-            # a passé ftr1 → on veut no_constraint
-            targets.append(f"out_FB100/{cluster}/{out_dir}/gen_no_constraint/done.txt")
-            targets.append(f"out_FB100/{cluster}/{out_dir}/gen_jdm/done.txt")
-            targets.append(f"out_FB100/{cluster}/{out_dir}/gen_f3ccr1/done.txt")
+            targets.extend([
+                f"out/{cluster}/{out_dir}/gen_no_constraint/done.txt",
+                f"out/{cluster}/{out_dir}/gen_jdm/done.txt",
+                f"out/{cluster}/{out_dir}/gen_f3ccr1/done.txt",
+            ])
         else:
-            # pas encore fait ftr1 → on le lance
             targets.append(ftr1_done)
+
     return targets
 
+
 rule all:
-    input: all_targets
+    input:
+        all_targets
+
 
 rule generate_ftr1:
     input:
-        graph=lambda wc: get_graph_input(wc.cluster,wc.out_dir)[0]
+        graph=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[0]
     params:
-        graph_flag=lambda wc: get_graph_input(wc.cluster,wc.out_dir)[1]
+        graph_flag=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[1]
     wildcard_constraints:
         cluster="[^/]+_cluster",
         out_dir="out_[^/]+"
     output:
-        done="out_FB100/{cluster}/{out_dir}/gen_ftr1/done.txt"
+        done="out/{cluster}/{out_dir}/gen_ftr1/done.txt"
     log:
-        "out_FB100/{cluster}/{out_dir}/gen_ftr1/run.log"
+        "out/{cluster}/{out_dir}/gen_ftr1/run.log"
     shell:
-        "timeout 43200 python -m kedgeswap.main -f {input.graph} "
-        "-o out_FB100/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
+        "timeout 7200 python -u -m kedgeswap.main "
+        "-f {input.graph} "
         "{params.graph_flag} "
-        "-v -a -g 3 --output_number 50 -ftr 1 2>&1 | tee {log} && "
+        "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
+        "-v -a -g 3 --output_number 50 -ftr 1 "
+        "2>&1 | tee {log} && "
         "echo done > {output.done}"
+
 
 rule generate_no_constraint:
     input:
-        gml=lambda wildcards: f"out/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_', '', 1)}.gml",
+        graph=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[0],
         ftr1_done="out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+    params:
+        graph_flag=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[1]
     wildcard_constraints:
         cluster="[^/]+_cluster",
         out_dir="out_[^/]+"
@@ -100,15 +84,21 @@ rule generate_no_constraint:
     log:
         "out/{cluster}/{out_dir}/gen_no_constraint/run.log"
     shell:
-        "timeout 3600 python -m kedgeswap.main -f {input.gml} "
+        "timeout 3600 python -u -m kedgeswap.main "
+        "-f {input.graph} "
+        "{params.graph_flag} "
         "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_no_constraint/g "
-        "-gml -v -a -g 3 --output_number 50 2>&1 | tee {log} && "
+        "-v -a -g 3 --output_number 50 "
+        "2>&1 | tee {log} && "
         "echo done > {output.done}"
+
 
 rule generate_jdm:
     input:
-        gml=lambda wildcards: f"out/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_', '', 1)}.gml",
+        graph=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[0],
         ftr1_done="out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+    params:
+        graph_flag=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[1]
     wildcard_constraints:
         cluster="[^/]+_cluster",
         out_dir="out_[^/]+"
@@ -117,15 +107,21 @@ rule generate_jdm:
     log:
         "out/{cluster}/{out_dir}/gen_jdm/run.log"
     shell:
-        "timeout 3600 python -m kedgeswap.main -f {input.gml} "
+        "timeout 3600 python -u -m kedgeswap.main "
+        "-f {input.graph} "
+        "{params.graph_flag} "
         "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_jdm/g "
-        "-gml -v -t -jd -g 3 --output_number 50 2>&1 | tee {log} && "
+        "-v -t -jd -g 3 --output_number 50 "
+        "2>&1 | tee {log} && "
         "echo done > {output.done}"
+
 
 rule generate_f3ccr1:
     input:
-        gml=lambda wildcards: f"out/{wildcards.cluster}/{wildcards.out_dir}/{wildcards.out_dir.replace('out_','',1)}.gml",
+        graph=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[0],
         ftr1_done="out/{cluster}/{out_dir}/gen_ftr1/done.txt"
+    params:
+        graph_flag=lambda wc: get_graph_input(wc.cluster, wc.out_dir)[1]
     wildcard_constraints:
         cluster="[^/]+_cluster",
         out_dir="out_[^/]+"
@@ -134,7 +130,10 @@ rule generate_f3ccr1:
     log:
         "out/{cluster}/{out_dir}/gen_f3ccr1/run.log"
     shell:
-        "python -m kedgeswap.main -f {input.gml} "
+        "timeout 3600 python -u -m kedgeswap.main "
+        "-f {input.graph} "
+        "{params.graph_flag} "
         "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_f3ccr1/g "
-        "-gml -v -t -f3ccr 1 -g 3 --output_number 50 2>&1 | tee {log} && "
+        "-v -t -f3ccr 1 -g 3 --output_number 50 "
+        "2>&1 | tee {log} && "
         "echo done > {output.done}"
