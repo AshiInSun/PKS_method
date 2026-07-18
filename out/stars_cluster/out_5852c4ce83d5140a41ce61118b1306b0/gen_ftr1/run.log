@@ -1,0 +1,104 @@
+Reading graph...
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 76000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 723, 3: 24, 4: 1})
+defaultdict(<class 'int'>, {3: 13778, 6: 1826, 2: 46247, 4: 5917, 12: 230, 44: 4, 5: 3016, 13: 191, 43: 8, 9: 547, 8: 714, 24: 23, 10: 426, 7: 1068, 11: 294, 14: 127, 41: 8, 15: 114, 16: 87, 27: 24, 45: 5, 32: 10, 39: 7, 63: 4, 53: 4, 19: 56, 21: 49, 49: 5, 17: 73, 30: 20, 28: 22, 36: 7, 18: 69, 22: 35, 33: 12, 31: 8, 38: 12, 25: 19, 68: 4, 46: 6, 23: 29, 34: 9, 20: 43, 57: 2, 40: 9, 37: 9, 72: 1, 70: 1, 55: 3, 47: 5, 61: 1, 26: 22, 35: 7, 29: 10, 50: 3, 65: 2, 51: 2, 66: 2, 48: 2, 74: 2, 59: 2, 42: 3, 69: 1, 67: 1, 62: 1, 52: 2, 75: 1, 71: 1})
+Burn In : acceptation/refusals by k : 0.009842105263157895
+0.009842105263157895
+measuring sampling gap...
+considering eta 7722...
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+  2% (1 of 50) |                         | Elapsed Time: 0:00:00 ETA:   0:00:19
+  4% (2 of 50) |#                        | Elapsed Time: 0:00:00 ETA:   0:00:18
+  6% (3 of 50) |#                        | Elapsed Time: 0:00:01 ETA:   0:00:18
+  8% (4 of 50) |##                       | Elapsed Time: 0:00:01 ETA:   0:00:18
+ 10% (5 of 50) |##                       | Elapsed Time: 0:00:01 ETA:   0:00:17
+ 12% (6 of 50) |###                      | Elapsed Time: 0:00:02 ETA:   0:00:17
+ 14% (7 of 50) |###                      | Elapsed Time: 0:00:02 ETA:   0:00:16
+ 16% (8 of 50) |####                     | Elapsed Time: 0:00:03 ETA:   0:00:16
+ 18% (9 of 50) |####                     | Elapsed Time: 0:00:03 ETA:   0:00:16
+ 20% (10 of 50) |####                    | Elapsed Time: 0:00:03 ETA:   0:00:15
+ 22% (11 of 50) |#####                   | Elapsed Time: 0:00:04 ETA:   0:00:15
+ 24% (12 of 50) |#####                   | Elapsed Time: 0:00:04 ETA:   0:00:14
+ 26% (13 of 50) |######                  | Elapsed Time: 0:00:05 ETA:   0:00:14
+ 28% (14 of 50) |######                  | Elapsed Time: 0:00:05 ETA:   0:00:14
+ 30% (15 of 50) |#######                 | Elapsed Time: 0:00:05 ETA:   0:00:13
+ 32% (16 of 50) |#######                 | Elapsed Time: 0:00:06 ETA:   0:00:13
+ 34% (17 of 50) |########                | Elapsed Time: 0:00:06 ETA:   0:00:12
+ 36% (18 of 50) |########                | Elapsed Time: 0:00:07 ETA:   0:00:12
+ 38% (19 of 50) |#########               | Elapsed Time: 0:00:07 ETA:   0:00:12
+ 40% (20 of 50) |#########               | Elapsed Time: 0:00:07 ETA:   0:00:11
+ 42% (21 of 50) |##########              | Elapsed Time: 0:00:08 ETA:   0:00:11
+ 44% (22 of 50) |##########              | Elapsed Time: 0:00:08 ETA:   0:00:10
+ 46% (23 of 50) |###########             | Elapsed Time: 0:00:09 ETA:   0:00:10
+ 48% (24 of 50) |###########             | Elapsed Time: 0:00:09 ETA:   0:00:10
+ 50% (25 of 50) |############            | Elapsed Time: 0:00:09 ETA:   0:00:09
+ 52% (26 of 50) |############            | Elapsed Time: 0:00:10 ETA:   0:00:09
+ 54% (27 of 50) |############            | Elapsed Time: 0:00:10 ETA:   0:00:09
+ 56% (28 of 50) |#############           | Elapsed Time: 0:00:10 ETA:   0:00:08
+ 58% (29 of 50) |#############           | Elapsed Time: 0:00:11 ETA:   0:00:08
+ 60% (30 of 50) |##############          | Elapsed Time: 0:00:11 ETA:   0:00:07
+ 62% (31 of 50) |##############          | Elapsed Time: 0:00:12 ETA:   0:00:07
+ 64% (32 of 50) |###############         | Elapsed Time: 0:00:12 ETA:   0:00:07
+ 66% (33 of 50) |###############         | Elapsed Time: 0:00:12 ETA:   0:00:06
+ 68% (34 of 50) |################        | Elapsed Time: 0:00:13 ETA:   0:00:06
+ 70% (35 of 50) |################        | Elapsed Time: 0:00:13 ETA:   0:00:05
+ 72% (36 of 50) |#################       | Elapsed Time: 0:00:14 ETA:   0:00:05
+ 74% (37 of 50) |#################       | Elapsed Time: 0:00:14 ETA:   0:00:05
+ 76% (38 of 50) |##################      | Elapsed Time: 0:00:14 ETA:   0:00:04
+ 78% (39 of 50) |##################      | Elapsed Time: 0:00:15 ETA:   0:00:04
+ 80% (40 of 50) |###################     | Elapsed Time: 0:00:15 ETA:   0:00:03
+ 82% (41 of 50) |###################     | Elapsed Time: 0:00:16 ETA:   0:00:03
+ 84% (42 of 50) |####################    | Elapsed Time: 0:00:16 ETA:   0:00:03
+ 86% (43 of 50) |####################    | Elapsed Time: 0:00:16 ETA:   0:00:02
+ 88% (44 of 50) |#####################   | Elapsed Time: 0:00:17 ETA:   0:00:02
+ 90% (45 of 50) |#####################   | Elapsed Time: 0:00:17 ETA:   0:00:01
+ 92% (46 of 50) |######################  | Elapsed Time: 0:00:17 ETA:   0:00:01
+ 94% (47 of 50) |######################  | Elapsed Time: 0:00:18 ETA:   0:00:01
+ 96% (48 of 50) |####################### | Elapsed Time: 0:00:18 ETA:   0:00:00
+ 98% (49 of 50) |####################### | Elapsed Time: 0:00:19 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:19 Time:  0:00:19
+ACF stability...
+eta 7722 refused (d_eta=3 <= u=1), trying eta=11583.0.
+considering eta 11583.0...
+ACF stability...
+eta 11583.0 refused (d_eta=3 <= u=1), trying eta=17374.5.
+considering eta 17374.5...
+ACF stability...
+  ACF plateau check:
+    window=[ 0.05894312  0.06079137 -0.01933178]
+    mean=0.033468
+    std=0.037342
+    cv=1.115779 (threshold=0.1)
+    slope=-0.039137
+    relative_slope=1.048070 (threshold=1.0)
+    stable=False
+eta 17374.5 accepted (d_eta=1 <= u=1)
+running markov chain and checking convergence...
+test statistic : -1.4085451087565684,
+ Markov chain is stationnary if test statistic < -2.569000628853494
+test statistic : -2.477837083911036,
+ Markov chain is stationnary if test statistic < -2.569000628853494
+test statistic : -0.3035143795930783,
+ Markov chain is stationnary if test statistic < -2.569000628853494
+test statistic : -1.2827916402787913,
+ Markov chain is stationnary if test statistic < -2.569000628853494
+test statistic : -1.879595082479614,
+ Markov chain is stationnary if test statistic < -2.569000696899435
+test statistic : -1.2454854637479136,
+ Markov chain is stationnary if test statistic < -2.569001445921887
+test statistic : -1.8454152196028657,
+ Markov chain is stationnary if test statistic < -2.569000628853494
+test statistic : -1.3302775191706269,
+ Markov chain is stationnary if test statistic < -2.569000696899435
+test statistic : -2.705388188011426,
+ Markov chain is stationnary if test statistic < -2.569000628853494
+Convergence : acceptation by k
+(2: 1412), (3: 40), (6: 2), (5: 1), (4: 8), 
+Convergence : refusal by k
+(3: 28500), (2: 95591), (12: 461), (7: 2292), (6: 3538), (4: 12089), (10: 719), (5: 6282), (8: 1479), (26: 38), (16: 172), (9: 1061), (13: 348), (14: 274), (22: 68), (18: 142), (11: 511), (19: 104), (15: 224), (21: 77), (20: 83), (27: 43), (50: 8), (24: 64), (23: 80), (57: 4), (25: 46), (17: 132), (54: 6), (64: 4), (36: 22), (34: 22), (35: 19), (30: 34), (55: 6), (41: 19), (33: 21), (44: 12), (75: 2), (53: 5), (28: 37), (37: 9), (46: 7), (39: 14), (65: 5), (42: 8), (29: 27), (48: 9), (69: 2), (47: 8), (40: 15), (32: 25), (31: 21), (51: 11), (63: 5), (59: 5), (49: 8), (38: 15), (45: 14), (66: 7), (62: 2), (43: 9), (71: 3), (52: 4), (58: 6), (60: 4), (61: 5), (67: 4), (68: 2), (56: 3), (72: 2), (74: 2), (70: 3), 
+eta estimation took 1014.7616620063782 seconds
+convergence took 5.650801420211792 seconds
+Writing 50 graph samples...

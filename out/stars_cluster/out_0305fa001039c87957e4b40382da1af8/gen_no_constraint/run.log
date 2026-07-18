@@ -1,0 +1,252 @@
+Reading graph...
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 124000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 30377, 6: 497, 3: 5188, 8: 173, 5: 992, 4: 2273, 7: 267, 18: 3, 10: 66, 11: 48, 9: 104, 15: 5, 12: 25, 13: 16, 17: 4, 29: 1, 14: 12, 19: 3, 16: 7, 22: 3, 31: 1, 27: 1, 20: 1, 33: 1})
+defaultdict(<class 'int'>, {2: 46094, 3: 17665, 4: 7279, 6: 2334, 5: 3983, 7: 1536, 18: 110, 12: 330, 23: 50, 69: 3, 9: 695, 11: 396, 17: 144, 8: 1081, 24: 46, 56: 2, 10: 584, 13: 248, 28: 21, 15: 206, 16: 137, 22: 60, 52: 7, 29: 35, 21: 67, 14: 213, 44: 5, 64: 2, 25: 38, 51: 3, 27: 33, 20: 79, 40: 8, 34: 18, 31: 20, 41: 14, 30: 32, 19: 99, 26: 27, 116: 2, 33: 17, 50: 5, 63: 3, 42: 5, 39: 5, 45: 5, 32: 19, 59: 4, 36: 20, 47: 3, 55: 4, 72: 2, 38: 15, 90: 2, 113: 2, 96: 1, 37: 13, 86: 2, 57: 4, 114: 1, 106: 1, 58: 7, 46: 8, 35: 11, 54: 7, 66: 1, 53: 9, 76: 2, 61: 4, 43: 6, 49: 5, 60: 4, 62: 1, 48: 4, 98: 1, 70: 5, 68: 2, 92: 2, 100: 1, 67: 1, 105: 1, 79: 1, 82: 1, 95: 1, 81: 3, 65: 1, 78: 1, 77: 1, 83: 1, 71: 1})
+Burn In : acceptation/refusals by k : 0.3231290322580645
+0.3231290322580645
+measuring sampling gap...
+considering eta 384...
+ACF stability...
+eta 384 refused (d_eta=4 <= u=1), trying eta=576.0.
+considering eta 576.0...
+ACF stability...
+eta 576.0 accepted (d_eta=0 <= u=1)
+running markov chain and checking convergence...
+test statistic : -1.4057164493961338,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.5285066214811622,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.0129904994008863,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.7899566642201084,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.9272933532844536,
+ Markov chain is stationnary if test statistic < -2.603955272054938
+test statistic : -1.606985930987318,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+test statistic : -1.5965045079352607,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.1312750624940098,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.8751895357871327,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.1594716739077697,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.169783207433157,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.3223800353294208,
+ Markov chain is stationnary if test statistic < -2.6032697357915175
+test statistic : -1.7626861847303499,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.3845049570164631,
+ Markov chain is stationnary if test statistic < -2.6031478777592953
+test statistic : -1.530744445125197,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.141015284044793,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.3287896722601402,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.494990133671975,
+ Markov chain is stationnary if test statistic < -2.603330980593381
+test statistic : -1.9283127353638332,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.8410574246051727,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.5795103275469566,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.423296406096027,
+ Markov chain is stationnary if test statistic < -2.6032697357915175
+test statistic : -2.50254151597543,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.98362865641155,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.317780122907533,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.5570485977425452,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.7125324190544976,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.5000982059485315,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.3257921814802327,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.6192632365691519,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.2948350885661453,
+ Markov chain is stationnary if test statistic < -2.6032087018759564
+test statistic : -0.9734954276610186,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+test statistic : -1.819102811348712,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.04168181976902078,
+ Markov chain is stationnary if test statistic < -2.604146862430979
+test statistic : -0.9488299925321972,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.5893750690239408,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.9635125614000276,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.5622262154945662,
+ Markov chain is stationnary if test statistic < -2.6037656919621806
+test statistic : -0.45515657416031635,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.289968184230286,
+ Markov chain is stationnary if test statistic < -2.6031478777592953
+test statistic : -1.093840499601261,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+test statistic : -1.9535492293068153,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.2666275757510017,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.4949720090804488,
+ Markov chain is stationnary if test statistic < -2.6031478777592953
+test statistic : -0.7028481785267954,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.6211046338840926,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.8394132251243454,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+test statistic : -0.6814824035395198,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.1607578118068742,
+ Markov chain is stationnary if test statistic < -2.6032087018759564
+test statistic : -1.0587100599946624,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.383496304024004,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.760835901841814,
+ Markov chain is stationnary if test statistic < -2.6031478777592953
+test statistic : -1.7932043995152462,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.4612998982350414,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.9017438522385034,
+ Markov chain is stationnary if test statistic < -2.603330980593381
+test statistic : -0.8655647684261641,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.335319891613607,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.578885736649872,
+ Markov chain is stationnary if test statistic < -2.60345410724333
+test statistic : -2.0256758982999026,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.652588890533198,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.4210528642197224,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.056024438948086,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.6811608699331718,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.4557457585973408,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.4173869551008271,
+ Markov chain is stationnary if test statistic < -2.603330980593381
+test statistic : -0.09419271976759128,
+ Markov chain is stationnary if test statistic < -2.6032697357915175
+test statistic : -0.23896009404501614,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.0133252840400822,
+ Markov chain is stationnary if test statistic < -2.6031478777592953
+test statistic : -1.668272338742491,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.6073057946143394,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.255456346955185,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.5246184721312988,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.73148117212842,
+ Markov chain is stationnary if test statistic < -2.6031478777592953
+test statistic : -0.2616113919671113,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.7934821257625968,
+ Markov chain is stationnary if test statistic < -2.6032697357915175  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+  8% (4 of 50) |##                       | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 16% (8 of 50) |####                     | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 24% (12 of 50) |#####                   | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 32% (16 of 50) |#######                 | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 40% (20 of 50) |#########               | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 48% (24 of 50) |###########             | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 56% (28 of 50) |#############           | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 64% (32 of 50) |###############         | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 72% (36 of 50) |#################       | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 80% (40 of 50) |###################     | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 88% (44 of 50) |#####################   | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 96% (48 of 50) |####################### | Elapsed Time: 0:00:00 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:00 Time:  0:00:00
+
+test statistic : -0.8015211013581817,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.651463933758259,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.6379039402889515,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.903123009664324,
+ Markov chain is stationnary if test statistic < -2.6032697357915175
+test statistic : 0.26258773626917115,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.2020944236797806,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.3044623726430826,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.976301662157127,
+ Markov chain is stationnary if test statistic < -2.6032697357915175
+test statistic : -0.8725001280047981,
+ Markov chain is stationnary if test statistic < -2.6032697357915175
+test statistic : -0.14886959610169306,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.1917362817764319,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.4926904919563483,
+ Markov chain is stationnary if test statistic < -2.6031478777592953
+test statistic : -0.9928351115831978,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.7087114702432403,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.027968494452481,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.8357274687342886,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.1030769373090406,
+ Markov chain is stationnary if test statistic < -2.6032087018759564
+test statistic : -0.916137096528197,
+ Markov chain is stationnary if test statistic < -2.6036404064869565
+test statistic : -2.5587366230617996,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.456351381343935,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+test statistic : -1.855052404319891,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+test statistic : -1.3702120595625749,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.5127107016808985,
+ Markov chain is stationnary if test statistic < -2.6032697357915175
+test statistic : -1.3818863968342643,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -0.9837409286729558,
+ Markov chain is stationnary if test statistic < -2.603330980593381
+test statistic : 0.2768527724613026,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.872330029432544,
+ Markov chain is stationnary if test statistic < -2.6036404064869565
+test statistic : -1.9295561144944164,
+ Markov chain is stationnary if test statistic < -2.60345410724333
+test statistic : -0.9714831247581875,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+test statistic : -1.7314027100300597,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -1.5225395853442483,
+ Markov chain is stationnary if test statistic < -2.6030268546103197
+test statistic : -2.663871261113546,
+ Markov chain is stationnary if test statistic < -2.6030872623615964
+Convergence : acceptation by k
+(2: 15350), (6: 233), (3: 2520), (4: 1069), (5: 442), (7: 111), (9: 49), (10: 33), (8: 77), (13: 11), (21: 2), (14: 3), (11: 21), (16: 3), (15: 6), (17: 5), (27: 1), (20: 1), (12: 10), (18: 2), (19: 1), (24: 1), 
+Convergence : refusal by k
+(4: 3747), (2: 22785), (6: 1134), (3: 8892), (5: 1930), (7: 759), (9: 381), (16: 72), (8: 516), (13: 131), (11: 189), (14: 101), (20: 33), (56: 2), (38: 8), (17: 64), (19: 35), (25: 23), (29: 8), (37: 8), (12: 173), (27: 10), (21: 25), (10: 264), (23: 30), (22: 33), (18: 45), (36: 9), (28: 12), (15: 76), (34: 12), (39: 7), (24: 18), (32: 10), (72: 1), (35: 6), (58: 3), (62: 2), (45: 3), (66: 2), (49: 3), (81: 2), (73: 3), (43: 1), (69: 2), (59: 1), (31: 13), (84: 1), (26: 20), (44: 3), (82: 2), (118: 1), (30: 14), (68: 3), (104: 1), (54: 3), (57: 2), (112: 1), (51: 3), (53: 4), (48: 2), (40: 3), (60: 2), (109: 1), (100: 1), (95: 1), (52: 4), (111: 2), (64: 2), (33: 5), (65: 1), (47: 2), (79: 1), (67: 1), (114: 2), (99: 1), (42: 1), (75: 1), (41: 2), (91: 1), (80: 1), (87: 1), (50: 1), 
+eta estimation took 27.128148794174194 seconds
+convergence took 2.3391942977905273 seconds
+Writing 50 graph samples...

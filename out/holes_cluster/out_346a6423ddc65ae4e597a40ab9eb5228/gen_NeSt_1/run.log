@@ -1,0 +1,66 @@
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/networkx/algorithms/graph_hashing.py:413: UserWarning: The hashes produced for graphs without node or edge attributes changed in v3.5 due to a bugfix (see documentation).
+  node_labels = _init_node_labels(G, edge_attr, node_attr)
+Reading graph...
+Node coloring computed using Weisfeiler-Lehman algorithm : {'6aa2bada80ced406b77991cbb7c8cc3e', 'cea3878a334b240469d159ff840b6434', 'c33cedce35493fc82dfad8ee5206e23e', 'c71c3e57d858543b15064b65d8c7e8c8', '96e23f7b90ac8163d14936fbab23cb64', 'c3585b60b755fb13e6e65a16d20f1230', '6152bc863269f1d04b4d21185d6bb25e', '1240a4684403b160e6597a653a88f56c', '4129e2a8044a57ce7635fd6023661cd6', 'd4c0473feca7a8da3a323d15ba6ed8a1'}
+Number of colors : 10
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 55000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 5410})
+defaultdict(<class 'int'>, {2: 49590})
+Burn In : acceptation/refusals by k : 0.09836363636363636
+0.09836363636363636
+measuring sampling gap...
+considering eta 560...
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+ 32% (16 of 50) |#######                 | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 64% (32 of 50) |###############         | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 96% (48 of 50) |####################### | Elapsed Time: 0:00:00 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:00 Time:  0:00:00
+eta 560 accepted (d_eta=0 <= u=1)
+trying eta=eta/2...
+considering eta 280...
+eta 280 accepted (d_eta=0 <= u=1)
+trying eta=eta/2...
+considering eta 140...
+eta 140 accepted (d_eta=1 <= u=1)
+trying eta=eta/2...
+considering eta 70...
+eta 70 refused (d_eta=3 <= u=1), using eta=140.
+running markov chain and checking convergence...
+test statistic : -1.26864128472053,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -1.8858085058987402,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -1.1067652266858448,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -0.8758039267389086,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -0.8639498317370504,
+ Markov chain is stationnary if test statistic < -2.707867374670009
+test statistic : -0.6392075034138412,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -0.4122855132460111,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -1.5570318839118251,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -1.4836728684270442,
+ Markov chain is stationnary if test statistic < -2.707867374670009
+test statistic : -2.2831450190061604,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -1.1802290339513943,
+ Markov chain is stationnary if test statistic < -2.7192275061382514
+test statistic : -1.781095436527715,
+ Markov chain is stationnary if test statistic < -2.711795219510013
+test statistic : -1.5009676823372078,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+test statistic : -2.7588983952911494,
+ Markov chain is stationnary if test statistic < -2.706918723834568
+Convergence : acceptation by k
+(2: 197), 
+Convergence : refusal by k
+(2: 1763), 
+eta estimation took 29.272265195846558 seconds
+convergence took 0.16293883323669434 seconds
+Writing 50 graph samples...

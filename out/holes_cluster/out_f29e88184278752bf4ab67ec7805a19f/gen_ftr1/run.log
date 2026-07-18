@@ -1,0 +1,74 @@
+Reading graph...
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 26000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 873, 3: 51, 4: 9, 5: 3})
+defaultdict(<class 'int'>, {4: 2027, 2: 15234, 10: 130, 5: 1017, 3: 4778, 9: 155, 14: 44, 8: 273, 6: 558, 7: 406, 21: 18, 11: 104, 12: 80, 16: 32, 19: 22, 15: 41, 13: 61, 18: 21, 22: 9, 24: 8, 20: 14, 17: 23, 23: 6, 25: 3})
+Burn In : acceptation/refusals by k : 0.036
+0.036
+measuring sampling gap...
+considering eta 723...
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+  4% (2 of 50) |#                        | Elapsed Time: 0:00:00 ETA:   0:00:01
+  8% (4 of 50) |##                       | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 12% (6 of 50) |###                      | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 16% (8 of 50) |####                     | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 20% (10 of 50) |####                    | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 24% (12 of 50) |#####                   | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 28% (14 of 50) |######                  | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 32% (16 of 50) |#######                 | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 36% (18 of 50) |########                | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 40% (20 of 50) |#########               | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 44% (22 of 50) |##########              | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 48% (24 of 50) |###########             | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 52% (26 of 50) |############            | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 56% (28 of 50) |#############           | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 60% (30 of 50) |##############          | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 64% (32 of 50) |###############         | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 68% (34 of 50) |################        | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 72% (36 of 50) |#################       | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 76% (38 of 50) |##################      | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 80% (40 of 50) |###################     | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 84% (42 of 50) |####################    | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 88% (44 of 50) |#####################   | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 92% (46 of 50) |######################  | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 96% (48 of 50) |####################### | Elapsed Time: 0:00:01 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:01 Time:  0:00:01
+eta 723 refused (d_eta=3 <= u=1), trying eta=1446.
+considering eta 1446...
+eta 1446 accepted (d_eta=0 <= u=1)
+running markov chain and checking convergence...
+test statistic : -1.9928279785032328,
+ Markov chain is stationnary if test statistic < -2.581986914999457
+test statistic : -1.3937921414175394,
+ Markov chain is stationnary if test statistic < -2.5821349324107743
+test statistic : -2.5370436040640714,
+ Markov chain is stationnary if test statistic < -2.5819576780303968
+test statistic : -2.2251734615247987,
+ Markov chain is stationnary if test statistic < -2.5821549020520114
+test statistic : -0.654455524641568,
+ Markov chain is stationnary if test statistic < -2.5819576780303968
+test statistic : -2.2671389935620123,
+ Markov chain is stationnary if test statistic < -2.5819576780303968
+test statistic : -2.158192001148934,
+ Markov chain is stationnary if test statistic < -2.5819674102710235
+test statistic : -2.174958425891275,
+ Markov chain is stationnary if test statistic < -2.582006473575987
+test statistic : -0.9311596059553116,
+ Markov chain is stationnary if test statistic < -2.5819576780303968
+test statistic : -0.4148100906414281,
+ Markov chain is stationnary if test statistic < -2.5821950089271124
+test statistic : -0.9178227455880467,
+ Markov chain is stationnary if test statistic < -2.5821950089271124
+test statistic : -1.2908522278802284,
+ Markov chain is stationnary if test statistic < -2.5819576780303968
+test statistic : -3.0320666800407126,
+ Markov chain is stationnary if test statistic < -2.5819576780303968
+Convergence : acceptation by k
+(2: 648), (3: 27), (4: 4), 
+Convergence : refusal by k
+(4: 1409), (2: 11125), (5: 770), (3: 3306), (6: 470), (11: 85), (9: 120), (15: 25), (7: 285), (8: 184), (17: 17), (10: 89), (14: 35), (18: 18), (22: 11), (21: 10), (13: 33), (12: 61), (23: 9), (16: 28), (24: 7), (20: 12), (19: 9), (25: 1), 
+eta estimation took 67.16620111465454 seconds
+convergence took 0.6511073112487793 seconds
+Writing 50 graph samples...
