@@ -1,0 +1,40 @@
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/networkx/algorithms/graph_hashing.py:413: UserWarning: The hashes produced for graphs without node or edge attributes changed in v3.5 due to a bugfix (see documentation).
+  node_labels = _init_node_labels(G, edge_attr, node_attr)
+Reading graph...
+Node coloring computed using Weisfeiler-Lehman algorithm : {'cea3878a334b240469d159ff840b6434', '6152bc863269f1d04b4d21185d6bb25e', 'c33cedce35493fc82dfad8ee5206e23e', '9e287f590d2dcbbf387bfb70928e621d', '1240a4684403b160e6597a653a88f56c', '96e23f7b90ac8163d14936fbab23cb64', 'c3585b60b755fb13e6e65a16d20f1230', '4129e2a8044a57ce7635fd6023661cd6', 'c71c3e57d858543b15064b65d8c7e8c8', 'd4c0473feca7a8da3a323d15ba6ed8a1'}
+Number of colors : 10
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 56000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 16134})
+defaultdict(<class 'int'>, {2: 39866})
+Burn In : acceptation/refusals by k : 0.28810714285714284
+0.28810714285714284
+measuring sampling gap...
+considering eta 195...
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+ 30% (15 of 50) |#######                 | Elapsed Time: 0:00:00 ETA:   0:00:00
+ 66% (33 of 50) |###############         | Elapsed Time: 0:00:00 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:00 Time:  0:00:00
+eta 195 accepted (d_eta=0 <= u=1)
+trying eta=eta/2...
+considering eta 97...
+eta 97 accepted (d_eta=1 <= u=1)
+trying eta=eta/2...
+considering eta 48...
+eta 48 refused (d_eta=5 <= u=1), using eta=97.
+running markov chain and checking convergence...
+test statistic : -0.701969977499558,
+ Markov chain is stationnary if test statistic < -2.764142134286024
+test statistic : -0.663208500581025,
+ Markov chain is stationnary if test statistic < -2.764142134286024
+test statistic : -3.0343870445064534,
+ Markov chain is stationnary if test statistic < -2.764142134286024
+Convergence : acceptation by k
+(2: 87), 
+Convergence : refusal by k
+(2: 204), 
+eta estimation took 12.068425416946411 seconds
+convergence took 0.05412912368774414 seconds
+Writing 50 graph samples...

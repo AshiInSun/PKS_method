@@ -1,0 +1,17 @@
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/networkx/algorithms/graph_hashing.py:413: UserWarning: The hashes produced for graphs without node or edge attributes changed in v3.5 due to a bugfix (see documentation).
+  node_labels = _init_node_labels(G, edge_attr, node_attr)
+Reading graph...
+Node coloring computed using Weisfeiler-Lehman algorithm : {'1240a4684403b160e6597a653a88f56c', '9675b6dec15bf8bcc7647e466b1bfc69', 'd4c0473feca7a8da3a323d15ba6ed8a1', '68f978fe50aca8ee91e0e1f94618c62f', 'e6b4f544e1e6a0b584960a7923fcb2e6', '6aa2bada80ced406b77991cbb7c8cc3e', '4129e2a8044a57ce7635fd6023661cd6', '183262a1ae6456f5e586b93d795fefed', 'c3585b60b755fb13e6e65a16d20f1230', '6152bc863269f1d04b4d21185d6bb25e', 'b116fb80ba37be518541699f88f59552', 'cea3878a334b240469d159ff840b6434', 'c71c3e57d858543b15064b65d8c7e8c8', 'c33cedce35493fc82dfad8ee5206e23e'}
+Number of colors : 14
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 85000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 1408})
+defaultdict(<class 'int'>, {2: 83592})
+Burn In : acceptation/refusals by k : 0.01656470588235294
+0.01656470588235294
+measuring sampling gap...
+considering eta 5132...
+/home/morandeau/pks_tgl_buffer/kedgeswap/Stat.py:100: RuntimeWarning: invalid value encountered in scalar divide
+  a = R_1/R_0

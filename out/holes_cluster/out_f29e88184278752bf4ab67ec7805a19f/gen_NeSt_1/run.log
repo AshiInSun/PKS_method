@@ -1,0 +1,668 @@
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/networkx/algorithms/graph_hashing.py:413: UserWarning: The hashes produced for graphs without node or edge attributes changed in v3.5 due to a bugfix (see documentation).
+  node_labels = _init_node_labels(G, edge_attr, node_attr)
+Reading graph...
+Node coloring computed using Weisfeiler-Lehman algorithm : {'96e23f7b90ac8163d14936fbab23cb64', 'cea3878a334b240469d159ff840b6434', 'c3585b60b755fb13e6e65a16d20f1230', 'c33cedce35493fc82dfad8ee5206e23e', 'd4c0473feca7a8da3a323d15ba6ed8a1', '1240a4684403b160e6597a653a88f56c', '6152bc863269f1d04b4d21185d6bb25e'}
+Number of colors : 7
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 26000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 4509})
+defaultdict(<class 'int'>, {2: 21491})
+Burn In : acceptation/refusals by k : 0.17342307692307693
+0.17342307692307693
+measuring sampling gap...
+considering eta 150...
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: invalid value encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+eta 150 accepted (d_eta=1 <= u=1)
+trying eta=eta/2...
+considering eta 75...
+eta 75 accepted (d_eta=0 <= u=1)
+trying eta=eta/2...
+considering eta 37...
+eta 37 accepted (d_eta=0 <= u=1)
+trying eta=eta/2...
+considering eta 18...
+eta 18 refused (d_eta=8 <= u=1), using eta=37.
+running markov chain and checking convergence...
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.6664296588952336,
+ Markov chain is stationnary if test statistic < -3.072473677190917
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.8286013771908203,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.818600909686647,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2382325433792871,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.0535997139455673,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.0085366552116322,
+ Markov chain is stationnary if test statistic < -3.1499700118513116
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.058604309483422164,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.761879136239933,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.379085358278688,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2995270818079439,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3016116921472527,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3148213815100462,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2070920441644313,
+ Markov chain is stationnary if test statistic < -3.04749568090379
+test statistic : -1.2524936581933357,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.06354604428969926,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.669318538287688,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.7050527161249047,
+ Markov chain is stationnary if test statistic < -3.072473677190917
+test statistic : -0.7751143799384284,
+ Markov chain is stationnary if test statistic < -3.132353358316044
+test statistic : -1.5338533589663945,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.8519284460774845,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.799494451909596,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3570020910098184,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.241058999120705,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.139449518373124,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3570020910098184,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2297200288490457,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.7493185609710549,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2739928709370314,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.4775495609650726,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.6950938115608155,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.669318538287688,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.0916724252776637,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.0065399881955983,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1392276724390962,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.0025435070551207,
+ Markov chain is stationnary if test statistic < -3.11591503
+test statistic : -0.2714545420209773,
+ Markov chain is stationnary if test statistic < -3.0596366008528393
+test statistic : -1.4096881170365823,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.089346679655578,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.8301976538918563,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.07891124160409888,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2980010709589063,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.06176258282291397,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.596178364512208,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.8661285398045442,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2299319070281687,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.5555997729575817,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.597045279115255,
+ Markov chain is stationnary if test statistic < -3.1893839071961767
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.4775495609650726,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2366563788231066,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.4064879924006266,
+ Markov chain is stationnary if test statistic < -3.1893839071961767
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.0065399881956016,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1897636056154166,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.745962260633447,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.1114974075965103,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.799494451909593,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.473707864354183,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.241058999120705,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.4424229661559667,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.9880572234829239,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.0916724252776637,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.05588574177980466,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.4424229661559667,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1966547546143753,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.8485561198660778,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.7050527161249047,
+ Markov chain is stationnary if test statistic < -3.072473677190917
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.812375511181722,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.669318538287688,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -2.151973822878806,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.288792310145301,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.1042818117004667,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.36394704390542815,
+ Markov chain is stationnary if test statistic < -3.1893839071961767
+test statistic : -1.9716589841823573,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.405263029135611,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1897636056154166,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.7020435573246824,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.7649799593137986,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.4522094614269754,
+ Markov chain is stationnary if test statistic < -3.072473677190917
+test statistic : -0.7345812905529613,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.9494285697645073,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2190988365150883,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2092470024093738,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.27678543126690314,
+ Markov chain is stationnary if test statistic < -3.0596366008528393
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3424940459089458,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.753532075177426,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.06549349903049388,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.6613583802944343,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.379085358278688,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3759578508519774,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.9963376746849921,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.05351348849484779,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2642503197013006,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.9791730799378302,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.8613201710501923,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2299319070281687,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.328441594866084,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1534649170247917,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1341951576930902,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.4035215691560978,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.7535320751774253,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.8782819988049146,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.4201245716523179,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2297200288490457,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.058604309483422164,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3570020910098184,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.288792310145301,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.7258348597371533,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -2.1114974075965103,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1341951576930902,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.9595623525301045,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.940136755357444,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.4775495609650726,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.053599713945566,
+ Markov chain is stationnary if test statistic < -3.035990108909465/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: invalid value encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: invalid value encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1392276724390962,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.6638679765422155,
+ Markov chain is stationnary if test statistic < -3.086076634003906
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3719908925280735,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.9716589841823573,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.561945813475152,
+ Markov chain is stationnary if test statistic < -3.0596366008528393
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2366563788231066,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.058604309483422164,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.251269403615591,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.9115110313890743,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3016116921472527,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.251269403615591,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.513312885227879,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.38033951987862735,
+ Markov chain is stationnary if test statistic < -3.1893839071961767
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3424940459089478,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.7020435573246824,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.4821658964309075,
+ Markov chain is stationnary if test statistic < -3.1689186523898796
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.9071341965552862,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.5129941751984202,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -3.024960232412643,
+ Markov chain is stationnary if test statistic < -3.04749568090379
+test statistic : -0.940136755357444,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.8301976538918563,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.5952009030210548,
+ Markov chain is stationnary if test statistic < -3.086076634003906
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1341951576930906,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2995270818079439,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.006539988195598,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.219098836515088,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.3462614845853755,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : 0.8006493099916294,
+ Markov chain is stationnary if test statistic < -3.1499700118513116
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.7050527161249047,
+ Markov chain is stationnary if test statistic < -3.072473677190917
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3016116921472527,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2190988365150883,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.139449518373124,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.514221273152605,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.818600909686647,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.888600768578071,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1711925961761323,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.4551785780788185,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.812375511181722,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3016116921472527,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.6511595069165105,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3148213815100462,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.3016116921472527,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -2.1231622976512963,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.288792310145301,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.8300632140245723,
+ Markov chain is stationnary if test statistic < -3.04749568090379
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute./home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: invalid value encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+
+test statistic : -1.328441594866084,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.1114974075965103,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.5236646322464287,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.7649799593137985,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.753532075177426,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.7649799593137957,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -2.0688488561908835,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.103854552834514,
+ Markov chain is stationnary if test statistic < -3.132353358316044
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.0524352997259651,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.761879136239933,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.9587016740530425,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.7050527161249047,
+ Markov chain is stationnary if test statistic < -3.072473677190917
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.051419760488155504,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.095477847929456,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.9946676834967625,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.251269403615591,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1966547546143753,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2980010709589063,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.8519284460774847,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.801220226697429,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.818600909686647,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.7535320751774246,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.8853503790872969,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.5961783645122076,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.5562606299941588,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.706159885956213,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2190988365150883,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.8674783596583573,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.3989070683550198,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.5129941751984202,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.323419813130258,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.4201245716523179,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.744146991523096,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1882402398980925,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.1114974075965103,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.8766916650847958,
+ Markov chain is stationnary if test statistic < -3.086076634003906
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.0893466796555815,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3570020910098184,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.9968292090006572,
+ Markov chain is stationnary if test statistic < -3.04749568090379
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3570020910098184,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.288792310145301,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -2.2801878243338423,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.151973822878806,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3016116921472527,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.7672522842709564,
+ Markov chain is stationnary if test statistic < -3.11591503
+test statistic : -1.2763443857887908,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.907134196555286,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -0.7816662892178166,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.4201245716523179,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2887923101453007,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.241058999120705,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.0132435119025947,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.05588574177980466,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute./home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/arch/unitroot/unitroot.py:175: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs / 2.0 * (log(2 * pi) + log(sigma2) + 1)
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+ 70% (35 of 50) |################        | Elapsed Time: 0:00:00 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:00 Time:  0:00:00
+
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.3148213815100462,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -2.1114974075965103,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.2524936581933357,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.1352970311623933,
+ Markov chain is stationnary if test statistic < -3.132353358316044
+test statistic : -1.1711925961761323,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.7649799593137957,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Warning, dfgls doesn't have enough unique observations to compute.
+Warning, dfgls doesn't have enough unique observations to compute.
+test statistic : -1.1897636056154166,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -0.7345812905529613,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.2299319070281687,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.241058999120705,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -1.927541673235134,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+test statistic : -3.9013469301803023,
+ Markov chain is stationnary if test statistic < -3.035990108909465
+Convergence : acceptation by k
+(2: 2390), 
+Convergence : refusal by k
+(2: 11559), 
+eta estimation took 10.47580099105835 seconds
+convergence took 1.8406727313995361 seconds
+Writing 50 graph samples...

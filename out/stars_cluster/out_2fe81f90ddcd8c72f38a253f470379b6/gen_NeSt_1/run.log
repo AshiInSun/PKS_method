@@ -1,0 +1,74 @@
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/networkx/algorithms/graph_hashing.py:413: UserWarning: The hashes produced for graphs without node or edge attributes changed in v3.5 due to a bugfix (see documentation).
+  node_labels = _init_node_labels(G, edge_attr, node_attr)
+Reading graph...
+Node coloring computed using Weisfeiler-Lehman algorithm : {'1240a4684403b160e6597a653a88f56c', '6aa2bada80ced406b77991cbb7c8cc3e', 'cea3878a334b240469d159ff840b6434', 'd4c0473feca7a8da3a323d15ba6ed8a1', '6152bc863269f1d04b4d21185d6bb25e', '96e23f7b90ac8163d14936fbab23cb64', 'c3585b60b755fb13e6e65a16d20f1230', '4a8c8e8d6361d8ed66d9f09745e6c104', 'c33cedce35493fc82dfad8ee5206e23e', '951a742bcc08f5906f0cf20632cd57be', 'c71c3e57d858543b15064b65d8c7e8c8', '9e287f590d2dcbbf387bfb70928e621d', '4129e2a8044a57ce7635fd6023661cd6', '68f978fe50aca8ee91e0e1f94618c62f'}
+Number of colors : 14
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 142000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 31207})
+defaultdict(<class 'int'>, {2: 110793})
+Burn In : acceptation/refusals by k : 0.21976760563380282
+0.21976760563380282
+measuring sampling gap...
+considering eta 647...
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+  2% (1 of 50) |                         | Elapsed Time: 0:00:00 ETA:   0:00:02
+  4% (2 of 50) |#                        | Elapsed Time: 0:00:00 ETA:   0:00:02
+  6% (3 of 50) |#                        | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 10% (5 of 50) |##                       | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 14% (7 of 50) |###                      | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 18% (9 of 50) |####                     | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 22% (11 of 50) |#####                   | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 24% (12 of 50) |#####                   | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 28% (14 of 50) |######                  | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 30% (15 of 50) |#######                 | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 34% (17 of 50) |########                | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 38% (19 of 50) |#########               | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 42% (21 of 50) |##########              | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 44% (22 of 50) |##########              | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 46% (23 of 50) |###########             | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 48% (24 of 50) |###########             | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 50% (25 of 50) |############            | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 52% (26 of 50) |############            | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 56% (28 of 50) |#############           | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 58% (29 of 50) |#############           | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 62% (31 of 50) |##############          | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 66% (33 of 50) |###############         | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 68% (34 of 50) |################        | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 70% (35 of 50) |################        | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 72% (36 of 50) |#################       | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 74% (37 of 50) |#################       | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 78% (39 of 50) |##################      | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 82% (41 of 50) |###################     | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 86% (43 of 50) |####################    | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 90% (45 of 50) |#####################   | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 94% (47 of 50) |######################  | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 96% (48 of 50) |####################### | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 98% (49 of 50) |####################### | Elapsed Time: 0:00:02 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:02 Time:  0:00:02
+eta 647 accepted (d_eta=1 <= u=1)
+trying eta=eta/2...
+considering eta 323...
+eta 323 refused (d_eta=2 <= u=1), using eta=647.
+running markov chain and checking convergence...
+test statistic : -1.7118548589658196,
+ Markov chain is stationnary if test statistic < -2.599209479816283
+test statistic : -2.237661323261541,
+ Markov chain is stationnary if test statistic < -2.599209479816283
+test statistic : -1.4010237913754395,
+ Markov chain is stationnary if test statistic < -2.599353950722416
+test statistic : -1.855079490615577,
+ Markov chain is stationnary if test statistic < -2.599209479816283
+test statistic : -2.2990308033538622,
+ Markov chain is stationnary if test statistic < -2.599209479816283
+test statistic : -2.7663875229951866,
+ Markov chain is stationnary if test statistic < -2.599209479816283
+Convergence : acceptation by k
+(2: 856), 
+Convergence : refusal by k
+(2: 3026), 
+eta estimation took 94.55816721916199 seconds
+convergence took 0.3954803943634033 seconds
+Writing 50 graph samples...

@@ -1,0 +1,73 @@
+Reading graph...
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 26000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 70})
+defaultdict(<class 'int'>, {2: 16084, 3: 4645, 4: 2038, 5: 1070, 7: 389, 6: 606, 23: 14, 17: 32, 13: 76, 9: 185, 21: 13, 24: 8, 16: 32, 8: 256, 12: 72, 10: 139, 19: 15, 14: 53, 25: 4, 11: 106, 22: 16, 20: 13, 15: 39, 18: 25})
+Burn In : acceptation/refusals by k : 0.002692307692307692
+0.002692307692307692
+measuring sampling gap...
+considering eta 9658...
+eta 9658 accepted (d_eta=0 <= u=1)
+trying eta=eta/2...
+considering eta 4829...
+eta 4829 accepted (d_eta=1 <= u=1)
+trying eta=eta/2...
+considering eta 2414...
+eta 2414 accepted (d_eta=0 <= u=1)
+trying eta=eta/2...
+considering eta 1207...
+eta 1207 refused (d_eta=2 <= u=1), using eta=2414.
+running markov chain and checking convergence...
+test statistic : -2.0829983036606494,
+ Markov chain is stationnary if test statistic < -2.576306168015552
+test statistic : -0.019243126763934592,
+ Markov chain is stationnary if test statistic < -2.576306168015552
+test statistic : -1.3350831388977744,
+ Markov chain is stationnary if test statistic < -2.5763804128165604
+test statistic : -0.9658862094215747,
+ Markov chain is stationnary if test statistic < -2.576306168015552
+test statistic : -2.7074889007595484,
+ Markov chain is stationnary if test statistic < -2.576306168015552
+Convergence : acceptation by k
+(2: 37), 
+Convergence : refusal by k
+(6: 278), (2: 7404), (5: 462), (3: 2235), (4: 933), (9: 86), (7: 194), (11: 65), (24: 6), (8: 124), (10: 59), (14: 28), (12: 34), (18: 15), (16: 10), (13: 34), (21: 7), (15: 11), (20: 12), (19: 12), (23: 4), (17: 11), (25: 5), (22: 4), 
+eta estimation took 424.9299576282501 seconds
+convergence took 0.392331600189209 seconds
+Writing 50 graph samples...
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+  2% (1 of 50) |                         | Elapsed Time: 0:00:00 ETA:   0:00:02
+  6% (3 of 50) |#                        | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 10% (5 of 50) |##                       | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 14% (7 of 50) |###                      | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 16% (8 of 50) |####                     | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 18% (9 of 50) |####                     | Elapsed Time: 0:00:00 ETA:   0:00:02
+ 22% (11 of 50) |#####                   | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 26% (13 of 50) |######                  | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 28% (14 of 50) |######                  | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 30% (15 of 50) |#######                 | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 32% (16 of 50) |#######                 | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 34% (17 of 50) |########                | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 36% (18 of 50) |########                | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 38% (19 of 50) |#########               | Elapsed Time: 0:00:00 ETA:   0:00:01
+ 42% (21 of 50) |##########              | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 44% (22 of 50) |##########              | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 48% (24 of 50) |###########             | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 50% (25 of 50) |############            | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 52% (26 of 50) |############            | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 56% (28 of 50) |#############           | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 58% (29 of 50) |#############           | Elapsed Time: 0:00:01 ETA:   0:00:01
+ 62% (31 of 50) |##############          | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 66% (33 of 50) |###############         | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 70% (35 of 50) |################        | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 74% (37 of 50) |#################       | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 76% (38 of 50) |##################      | Elapsed Time: 0:00:01 ETA:   0:00:00
+ 80% (40 of 50) |###################     | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 84% (42 of 50) |####################    | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 88% (44 of 50) |#####################   | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 90% (45 of 50) |#####################   | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 92% (46 of 50) |######################  | Elapsed Time: 0:00:02 ETA:   0:00:00
+ 96% (48 of 50) |####################### | Elapsed Time: 0:00:02 ETA:   0:00:00
+100% (50 of 50) |########################| Elapsed Time: 0:00:02 Time:  0:00:02
