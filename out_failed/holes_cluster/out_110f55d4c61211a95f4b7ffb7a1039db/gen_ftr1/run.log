@@ -1,0 +1,98 @@
+Reading graph...
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 42000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 493, 3: 13, 4: 1})
+defaultdict(<class 'int'>, {2: 25620, 5: 1662, 4: 3247, 16: 44, 3: 7615, 6: 995, 7: 605, 8: 381, 9: 269, 14: 87, 11: 148, 15: 62, 21: 23, 20: 25, 13: 95, 10: 206, 12: 129, 19: 31, 24: 17, 35: 4, 18: 31, 22: 25, 27: 12, 34: 8, 28: 9, 23: 17, 17: 43, 29: 12, 31: 6, 26: 14, 30: 8, 33: 10, 36: 5, 38: 2, 32: 7, 25: 10, 39: 3, 37: 3, 41: 1, 40: 2})
+Burn In : acceptation/refusals by k : 0.012071428571428571
+0.012071428571428571
+measuring sampling gap...
+considering eta 3480...
+ACF stability...
+eta 3480 refused (d_eta=10 <= u=1), trying eta=5220.0. ACF at lag 1 was 0.624255.
+considering eta 5220.0...
+ACF stability...
+eta 5220.0 refused (d_eta=10 <= u=1), trying eta=7830.0. ACF at lag 1 was 0.581819.
+considering eta 7830.0...
+ACF stability...
+  ACF plateau check:
+    window=[0.62425474 0.58181871 0.56268653]
+    mean=0.589587
+    std=0.025728
+    cv=0.043638 (threshold=0.1)
+    slope=-0.030784
+    relative_slope=1.196508 (threshold=1.0)
+    stable=False
+eta 7830.0 refused (d_eta=10 <= u=1), trying eta=11745.0. ACF at lag 1 was 0.562687.
+considering eta 11745.0...
+ACF stability...
+  ACF plateau check:
+    window=[0.58181871 0.56268653 0.43325457]
+    mean=0.525920
+    std=0.065988
+    cv=0.125472 (threshold=0.1)
+    slope=-0.074282
+    relative_slope=1.125687 (threshold=1.0)
+    stable=False
+eta 11745.0 refused (d_eta=10 <= u=1), trying eta=17617.5. ACF at lag 1 was 0.433255.
+considering eta 17617.5...
+ACF stability...
+  ACF plateau check:
+    window=[0.56268653 0.43325457 0.41234986]
+    mean=0.469430
+    std=0.066492
+    cv=0.141644 (threshold=0.1)
+    slope=-0.075168
+    relative_slope=1.130486 (threshold=1.0)
+    stable=False
+eta 17617.5 refused (d_eta=10 <= u=1), trying eta=26426.25. ACF at lag 1 was 0.412350.
+considering eta 26426.25...
+ACF stability...
+  ACF plateau check:
+    window=[0.43325457 0.41234986 0.34301492]
+    mean=0.396206
+    std=0.038568
+    cv=0.097344 (threshold=0.1)
+    slope=-0.045120
+    relative_slope=1.169872 (threshold=1.0)
+    stable=False
+eta 26426.25 refused (d_eta=10 <= u=1), trying eta=39639.375. ACF at lag 1 was 0.343015.
+considering eta 39639.375...
+ACF stability...
+  ACF plateau check:
+    window=[0.41234986 0.34301492 0.28284143]
+    mean=0.346069
+    std=0.052916
+    cv=0.152905 (threshold=0.1)
+    slope=-0.064754
+    relative_slope=1.223725 (threshold=1.0)
+    stable=False
+eta 39639.375 refused (d_eta=10 <= u=1), trying eta=59459.0625. ACF at lag 1 was 0.282841.
+considering eta 59459.0625...
+ACF stability...
+  ACF plateau check:
+    window=[0.34301492 0.28284143 0.19675861]
+    mean=0.274205
+    std=0.060020
+    cv=0.218889 (threshold=0.1)
+    slope=-0.073128
+    relative_slope=1.218389 (threshold=1.0)
+    stable=False
+eta 59459.0625 refused (d_eta=10 <= u=1), trying eta=89188.59375. ACF at lag 1 was 0.196759.
+considering eta 89188.59375...
+ACF stability...
+  ACF plateau check:
+    window=[0.28284143 0.19675861 0.13934748]
+    mean=0.206316
+    std=0.058970
+    cv=0.285822 (threshold=0.1)
+    slope=-0.071747
+    relative_slope=1.216676 (threshold=1.0)
+    stable=False
+eta 89188.59375 refused (d_eta=9 <= u=1), trying eta=133782.890625. ACF at lag 1 was 0.139347.
+considering eta 133782.890625...
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 7 leaked semlock objects to clean up at shutdown
+  warnings.warn(
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 11 leaked folder objects to clean up at shutdown
+  warnings.warn(

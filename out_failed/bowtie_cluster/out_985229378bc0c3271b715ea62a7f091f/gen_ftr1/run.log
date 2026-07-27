@@ -1,0 +1,21 @@
+Reading graph...
+Initializing markov chain
+Starting Markov Chain convergence...
+eta estimation parameters: N_swap 387000, C 10, T 500, u 1, alpha 0.04
+burn in...
+defaultdict(<class 'int'>, {2: 5786, 3: 251, 4: 33, 5: 3})
+defaultdict(<class 'int'>, {2: 233643, 3: 70568, 4: 29898, 6: 8863, 5: 15371, 25: 108, 8: 3671, 10: 1916, 20: 221, 12: 1120, 14: 699, 7: 5651, 13: 879, 28: 108, 42: 17, 11: 1436, 19: 268, 9: 2696, 21: 209, 15: 554, 24: 161, 53: 17, 16: 448, 32: 58, 18: 343, 17: 392, 115: 3, 161: 3, 35: 52, 63: 8, 48: 17, 33: 49, 60: 4, 217: 1, 41: 27, 22: 164, 34: 47, 29: 87, 23: 181, 38: 32, 47: 17, 36: 42, 58: 9, 342: 1, 67: 14, 89: 1, 57: 6, 31: 67, 27: 88, 95: 1, 45: 25, 39: 37, 93: 3, 43: 21, 84: 5, 37: 31, 66: 5, 181: 1, 52: 9, 30: 67, 75: 4, 26: 118, 40: 20, 44: 22, 141: 1, 46: 29, 55: 17, 64: 10, 54: 6, 49: 21, 77: 4, 82: 4, 59: 10, 94: 5, 51: 14, 73: 3, 224: 1, 79: 4, 69: 9, 127: 1, 266: 1, 61: 3, 85: 4, 158: 2, 102: 4, 72: 7, 83: 3, 249: 1, 65: 5, 114: 1, 100: 3, 148: 2, 56: 13, 121: 2, 50: 12, 70: 6, 131: 1, 78: 5, 62: 3, 74: 6, 165: 1, 91: 3, 210: 1, 113: 2, 110: 2, 109: 2, 68: 7, 90: 6, 101: 2, 142: 1, 104: 1, 143: 1, 117: 2, 86: 3, 76: 5, 88: 3, 157: 1, 118: 4, 222: 1, 108: 1, 146: 2, 232: 1, 81: 2, 122: 1, 169: 1, 98: 2, 193: 2, 140: 2, 133: 1, 87: 2, 105: 2, 139: 1, 194: 1, 136: 2, 80: 3, 173: 1, 264: 1, 155: 1, 71: 2, 103: 1, 271: 1, 213: 1, 111: 1, 123: 1, 107: 1, 99: 2, 197: 1, 138: 2, 297: 1, 137: 1, 151: 1, 149: 2, 106: 1, 184: 1, 179: 1, 176: 1, 129: 1})
+Burn In : acceptation/refusals by k : 0.01569250645994832
+0.01569250645994832
+measuring sampling gap...
+considering eta 24662...
+  0% (0 of 50) |                         | Elapsed Time: 0:00:00 ETA:  --:--:--
+  2% (1 of 50) |                         | Elapsed Time: 0:00:04 ETA:   0:03:51
+  4% (2 of 50) |#                        | Elapsed Time: 0:00:09 ETA:   0:03:46
+  6% (3 of 50) |#                        | Elapsed Time: 0:00:14 ETA:   0:03:41
+  8% (4 of 50) |##                       | Elapsed Time: 0:00:18 ETA:   0:03:36
+ 10% (5 of 50) |##                       | Elapsed Time: 0:00:23 ETA:   0:03:31
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 11 leaked semlock objects to clean up at shutdown
+  warnings.warn(
+/home/morandeau/PKS_method/PKS_method/venv/lib/python3.13/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 5 leaked folder objects to clean up at shutdown
+  warnings.warn(
