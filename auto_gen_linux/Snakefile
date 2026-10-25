@@ -61,7 +61,7 @@ rule generate_ftr1:
     log:
         "out/{cluster}/{out_dir}/gen_ftr1/run.log"
     shell:
-        "timeout 7200 python -u -m kedgeswap.main "
+        "timeout 21600 python -u -m kedgeswap.main "
         "-f {input.graph} "
         "{params.graph_flag} "
         "-o out/{wildcards.cluster}/{wildcards.out_dir}/gen_ftr1/g "
