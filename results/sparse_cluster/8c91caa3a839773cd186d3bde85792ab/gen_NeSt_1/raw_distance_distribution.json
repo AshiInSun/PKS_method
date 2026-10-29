@@ -1,0 +1,1 @@
+{"__original__": {"n_nodes": 10, "n_nodes_reliable": true, "n_edges": 17, "n_isolated": 0, "n_non_isolated": 10, "n_pairs": 45, "n_connected_pairs": 45, "n_disconnected_pairs": 0, "diameter": 3, "counts": {"1": 17, "2": 16, "3": 12}, "component_sizes": [10]}}
